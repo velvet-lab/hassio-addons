@@ -43,15 +43,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Prepare environment variables for sonar scan
+        id: prepare_env
         run: |
           echo "Prepare environment variables for sonar scan"
           organization=${{ github.repository_owner }}
           project=${{ github.repository }}
           project="${project//\//_}"
           echo "SONAR_ORGANIZATION=${organization}" >> $GITHUB_ENV
-          echo "SONAR_PROJECT=${project}" >> $GITHUB_ENV          
+          echo "SONAR_PROJECT=${project}" >> $GITHUB_ENV  
+          
+      - name: Checkout code
+        id: checkout_code
+        uses: actions/checkout@v4.2.2
 
       - name: Analyze with SonarCloud
+        id: sonarcloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         uses: SonarSource/sonarcloud-github-action@v2.2.0        
