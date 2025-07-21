@@ -55,6 +55,9 @@ jobs:
       - name: Checkout code
         id: checkout_code
         uses: actions/checkout@v4.2.2
+        with:
+          # Fetch all branches and tags
+          fetch-depth: 0
 
       - name: Analyze with SonarCloud
         id: sonarcloud
