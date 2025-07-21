@@ -44,7 +44,13 @@ jobs:
     steps:
       - name: Show environment variables
         run: |
-          printenv
+          repo=${{ github.repository }}
+          echo "Repository: $repo"
+          org=${{ github.repository_owner }}
+          project=${{ github.event.repository.name }}
+          # printenv
+          echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+          echo "GITHUB_REPOSITORY_OWNER: $GITHUB_REPOSITORY_OWNER"
 
       # - name: Analyze with SonarCloud
       #   uses: SonarSource/sonarcloud-github-action@v2.2.0
