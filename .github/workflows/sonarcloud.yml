@@ -51,6 +51,8 @@ jobs:
           # printenv
           echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
           echo "GITHUB_REPOSITORY_OWNER: $GITHUB_REPOSITORY_OWNER"
+          repo_underscore="${repo//\//_}"
+          echo "Repository (underscore): $repo_underscore"
 
       # - name: Analyze with SonarCloud
       #   uses: SonarSource/sonarcloud-github-action@v2.2.0
