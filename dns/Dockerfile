@@ -1,6 +1,4 @@
-ARG BUILD_FROM
-ARG BUILD_VERSION
-FROM ${BUILD_FROM}
+FROM ${BUILD_FROM:-ghcr.io/home-assistant/amd64-base-debian:bookworm}
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND noninteractive
@@ -58,6 +56,7 @@ EXPOSE 443/tcp
 EXPOSE 80/tcp
 EXPOSE 8053/tcp
 
+ARG BUILD_FROM
 ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
