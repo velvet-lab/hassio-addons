@@ -1,6 +1,4 @@
-ARG BUILD_FROM
-ARG BUILD_VERSION
-FROM ${BUILD_FROM}
+FROM ${BUILD_FROM:-ghcr.io/home-assistant/amd64-base-debian:bookworm}
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND noninteractive
@@ -42,6 +40,7 @@ ARG BUILD_NAME
 ARG BUILD_REF
 ARG BUILD_REPOSITORY
 ARG BUILD_VERSION
+ARG BUILD_FROM
 
 # Labels
 LABEL \
