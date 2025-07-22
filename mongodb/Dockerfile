@@ -1,5 +1,3 @@
-ARG BUILD_FROM
-ARG BUILD_VERSION
 FROM ${BUILD_FROM:-ghcr.io/home-assistant/amd64-base-ubuntu:20.04}
 
 # Set some Environment Variables
@@ -55,6 +53,7 @@ ARG BUILD_NAME
 ARG BUILD_REF
 ARG BUILD_REPOSITORY
 ARG BUILD_VERSION
+ARG BUILD_FROM
 
 # Labels
 LABEL \
