@@ -19,10 +19,11 @@
         "args": {
             "BUILD_FROM": "ghcr.io/home-assistant/amd64-base-debian:bookworm"
         }
-    },
+    },    
     "appPort": [
         "3000:3000"
     ],
+    "privileged": true,
     "customizations": {
         "vscode": {
             "extensions": [
@@ -48,6 +49,6 @@
     },
     "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/post-create.sh",
     "postStartCommand": "${containerWorkspaceFolder}/.devcontainer/post-start.sh",
-    "postAttachCommand": "${containerWorkspaceFolder}/.devcontainer/post-attach.sh",
-    "remoteUser": "root"
+    "postAttachCommand": "${containerWorkspaceFolder}/.devcontainer/post-attach.sh"
+    // "remoteUser": "root"
 }

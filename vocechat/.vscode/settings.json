@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "velvet-lab",
+        "projectKey": "velvet-lab_hassio-addons"
+    }
+}
