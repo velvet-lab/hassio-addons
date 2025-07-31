@@ -1,9 +1,5 @@
 # Home assistant addons: danlorb
 
-<a href="https://www.buymeacoffee.com/danlorb"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=danlorb&button_colour=5F7FFF&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /></a>
-
-_Thanks to everyone having starred my repo! To star it click on the image below, then it will be on top right. Thanks!_
-
 ## About
 
 Home Assistant allows anyone to create add-on repositories to share their add-ons for Home Assistant easily. This repository is one of those repositories, providing extra Home Assistant add-ons for your installation. You can use this AddOns as is and at your own Risk.

@@ -1,5 +1,3 @@
-ARG BUILD_FROM
-ARG BUILD_VERSION
 FROM ${BUILD_FROM:-ghcr.io/home-assistant/amd64-base-ubuntu:20.04}
 
 # Set some Environment Variables
@@ -27,7 +25,7 @@ RUN set -x \
         numactl \
         openssl \
         procps \
-    && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
+    && curl --proto "=https" --tlsv1.2 -sSf -L https://www.mongodb.org/static/pgp/server-7.0.asc | \
         gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor \
     && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/7.0 multiverse" | \
         tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
@@ -55,6 +53,7 @@ ARG BUILD_NAME
 ARG BUILD_REF
 ARG BUILD_REPOSITORY
 ARG BUILD_VERSION
+ARG BUILD_FROM
 
 # Labels
 LABEL \

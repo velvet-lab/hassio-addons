@@ -22,11 +22,15 @@ backup: hot
 backup_exclude:
   - "/data/logs/*.log"
 watchdog: tcp://[HOST]:3000
+map:
+  - type: homeassistant_config
+    read_only: false
+    path: /config
 ports:
   3000/tcp: 3000
 options:  
-  domain: homeassistant.local
+  frontend_url: homeassistant.local  
   log_level: info
 schema:
-  domain: str
+  frontend_url: str
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
