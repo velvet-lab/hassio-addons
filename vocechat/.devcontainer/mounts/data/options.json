@@ -1,4 +1,4 @@
 {
-    "domain": "my-domain.com",
+    "frontend_url": "homeassistant.local",
     "log_level": "info"    
 }

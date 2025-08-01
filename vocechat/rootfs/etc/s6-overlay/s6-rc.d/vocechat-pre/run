@@ -1,7 +1,8 @@
 #!/command/with-contenv bashio
-# vim: ft=bash
-# shellcheck shell=bash
 ROOT=/data
+DATA_ROOT=/data/data
+CONFIG_ROOT=/config
+
 DATA_ROOT=/data/db
 NEW_INSTALL=false
 
@@ -18,6 +19,14 @@ echo -n "${DOMAIN}" > /var/run/s6/container_environment/DOMAIN
 
 # Create folders
 mkdir -p "${DATA_ROOT}"
+
+# Copy Templates if not exists
+if [ -d /config ]; then
+    if [ ! -d /config/addons/vocechat/ ]; then
+        mkdir -p /config/addons/vocechat/
+        cp -f /etc/vocechat/templates/login_by_email.html /config/addons/vocechat
+    fi
+fi
 
 # Redirect log output
 rm -f "${ROOT}/app.err"
