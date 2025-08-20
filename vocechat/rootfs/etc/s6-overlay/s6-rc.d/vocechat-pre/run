@@ -1,16 +1,8 @@
 #!/command/with-contenv bashio
 ROOT=/data
-<<<<<<< HEAD
-DATA_ROOT=/data/data
-CONFIG_ROOT=/config
-
-DATA_ROOT=/data/db
-NEW_INSTALL=false
-=======
 DATA_ROOT="$ROOT"
 ADDON_CONFIG_ROOT=/config
 HA_CONFIG_ROOT=/homeassistant/addons/vocechat
->>>>>>> 7ea015a3d95c68fff93e7a1b3f2b2b21eb9baa7e
 
 NEW_INSTALL=false
 if ! bashio::fs.directory_exists "${DATA_ROOT}/db"; then
@@ -36,17 +28,6 @@ mkdir -p "${HA_CONFIG_ROOT}"
 mkdir -p /etc/vocechat
 mkdir -p /run/vocechat
 
-<<<<<<< HEAD
-# Copy Templates if not exists
-if [ -d /config ]; then
-    if [ ! -d /config/addons/vocechat/ ]; then
-        mkdir -p /config/addons/vocechat/
-        cp -f /etc/vocechat/templates/login_by_email.html /config/addons/vocechat
-    fi
-fi
-
-# Redirect log output
-=======
 if [ ! -f "${HA_CONFIG_ROOT}/register_by_email.html" ]; then
     bashio::log.info "Copy register_by_email.html template"
     cp -f /etc/vocechat/templates/register_by_email.html "${HA_CONFIG_ROOT}"
@@ -84,6 +65,5 @@ file = "${HA_CONFIG_ROOT}/login_by_email.html"
 EOF
 
 bashio::log.debug Redirect log output
->>>>>>> 7ea015a3d95c68fff93e7a1b3f2b2b21eb9baa7e
 rm -f "${ROOT}/app.err"
 ln -s /proc/1/fd/1 "${ROOT}/app.err"

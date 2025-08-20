@@ -38,11 +38,8 @@ rm -rf vocechat-server.zip;
 chmod a+x vocechat-server
 cp -f vocechat-server /usr/bin/vocechat-server
 
-<<<<<<< HEAD
-=======
 mkdir -p /etc/vocechat/templates
 cp -f /build/vocechat/templates/login_by_email.html /etc/vocechat/templates
 cp -f /build/vocechat/templates/register_by_email.html /etc/vocechat/templates
 
->>>>>>> 7ea015a3d95c68fff93e7a1b3f2b2b21eb9baa7e
 rm -rf "${INSTALL_DIR}"

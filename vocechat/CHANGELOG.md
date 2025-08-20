@@ -22,3 +22,7 @@
 ## 1.2.2
 
 - Add webui url for Dashboard
+
+## 1.2.3
+
+- Fix spelling errors
