@@ -2,23 +2,82 @@
 # vim: ft=bash
 # shellcheck shell=bash
 ROOT=/data
-DATA_ROOT=/data/db
-LOG_ROOT=/data/logs
-NEW_INSTALL=false
+DATA_ROOT="$ROOT"
+RUN_ROOT="/run/mongodb"
+ADDON_SERVICE_ROOT=/etc/s6-overlay/s6-rc.d/mongodb-pre
+MONGOD_CONFIG="/etc/mongod.conf"
 
-if ! bashio::fs.directory_exists "${DATA_ROOT}"; then
+NEW_INSTALL=false
+if [ -f "${MONGOD_CONFIG}" ]; then
+    if grep -q "modified" "${MONGOD_CONFIG}"; then
+        NEW_INSTALL=false
+    else
+        NEW_INSTALL=true
+    fi
+else
     NEW_INSTALL=true
 fi
-
-# Save variables
-echo -n "${DATA_ROOT}" > /var/run/s6/container_environment/DATA_ROOT
-echo -n "${LOG_ROOT}" > /var/run/s6/container_environment/LOG_ROOT
 echo -n "${NEW_INSTALL}" > /var/run/s6/container_environment/NEW_INSTALL
 
-# Create folders
-mkdir -p "${DATA_ROOT}"
-mkdir -p "${LOG_ROOT}"
+bashio::log.info "Prepare MongoDB configuration"
+bashio::log.debug "Create folders"
+mkdir -p "${RUN_ROOT}"
 
-# Redirect log output
+if [ "${NEW_INSTALL}" = true ]; then
+    bashio::log.info "Initialize MongoDB"
+    
+    ADMIN_USER="admin"
+    ADMIN_PASSWORD=
+
+    if bashio::config.has_value 'admin_password'; then
+        ADMIN_PASSWORD=$(bashio::config 'admin_password')
+    else
+        bashio::log.error "No admin password set!"
+        exit 1
+    fi
+
+    echo -n "${DATA_ROOT}" > /var/run/s6/container_environment/DATA_ROOT
+    echo -n "${ADMIN_USER}" > /var/run/s6/container_environment/ADMIN_USER
+    echo -n "${ADMIN_PASSWORD}" > /var/run/s6/container_environment/ADMIN_PASSWORD
+
+    bashio::log.debug "Create data folder"
+    "${ADDON_SERVICE_ROOT}"/init.sh
+
+    bashio::log.debug "Prestart MongoDB and create admin user"
+    mongod --fork --quiet --config "${MONGOD_CONFIG}" --logpath /var/log/mongodb/init.log
+    sleep 5
+    mongosh /tmp/create.js || true
+
+    bashio::log.debug "Ensure MongoDB is stopped"
+    PID=$(pgrep mongod)
+    if [ ! -z "${PID}" ]; then
+        bashio::log.debug "Found running MongoDB process with PID ${PID}, attempting to stop it gracefully."
+        mongosh --eval "db.getSiblingDB('admin').shutdownServer()" || true
+        sleep 5
+        if pgrep -x "mongod" > /dev/null; then
+            bashio::log.debug "MongoDb did not stop gracefully, attempting to kill it."
+            kill $PID || true
+        fi        
+    fi
+    
+    bashio::log.debug "Enable security in MongoDB"
+    cat <<EOF >> "${MONGOD_CONFIG}"
+systemLog:
+  verbosity: 0
+  quiet: false
+
+security:
+  authorization: enabled
+  javascriptEnabled: false
+# <-- modified
+EOF
+
+    bashio::log.debug Cleanup temporary files
+    rm -f /tmp/create.js
+else
+    bashio::log.info "MongoDb already initialized, skipping!"
+fi
+
+bashio::log.debug Redirect log output
 rm -f "${ROOT}/app.err"
 ln -s /proc/1/fd/1 "${ROOT}/app.err"

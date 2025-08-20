@@ -1,6 +1,7 @@
 ARG BUILD_FROM
 ARG BUILD_VERSION
-FROM ${BUILD_FROM:-ghcr.io/home-assistant/amd64-base-ubuntu:20.04}
+
+FROM ${BUILD_FROM}
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -27,7 +28,7 @@ RUN set -x \
         numactl \
         openssl \
         procps \
-    && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
+    && curl --proto "=https" --tlsv1.2 -sSf -L https://www.mongodb.org/static/pgp/server-7.0.asc | \
         gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor \
     && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/7.0 multiverse" | \
         tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
@@ -54,7 +55,6 @@ ARG BUILD_DESCRIPTION
 ARG BUILD_NAME
 ARG BUILD_REF
 ARG BUILD_REPOSITORY
-ARG BUILD_VERSION
 
 # Labels
 LABEL \
@@ -63,15 +63,15 @@ LABEL \
     io.hass.arch="${BUILD_ARCH}" \
     io.hass.type="addon" \
     io.hass.version=${BUILD_VERSION} \
-    maintainer="danlorb (https://github.com/danlorb)" \
+    maintainer="velvet-lab (https://github.com/velvet-lab)" \
     org.opencontainers.image.title="${BUILD_NAME}" \
     org.opencontainers.image.description="${BUILD_DESCRIPTION}" \
     org.opencontainers.image.vendor="Home Assistant Add-ons" \
-    org.opencontainers.image.authors="danlorb (https://github.com/danlorb)" \
+    org.opencontainers.image.authors="velvet-lab (https://github.com/velvet-lab)" \
     org.opencontainers.image.licenses="MIT" \
-    org.opencontainers.image.url="https://github.com/danlorb" \
-    org.opencontainers.image.source="https://github.com/danlorb/hassio-addons/tree/main/mongodb" \
-    org.opencontainers.image.documentation="https://github.com/danlorb/hassio-addons/blob/main/mongodb/README.md" \
+    org.opencontainers.image.url="https://github.com/velvet-lab" \
+    org.opencontainers.image.source="https://github.com/velvet-lab/hassio-addons/tree/main/mongodb" \
+    org.opencontainers.image.documentation="https://github.com/velvet-lab/hassio-addons/blob/main/mongodb/README.md" \
     org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}

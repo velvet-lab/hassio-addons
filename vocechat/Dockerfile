@@ -1,5 +1,6 @@
 ARG BUILD_FROM
 ARG BUILD_VERSION
+
 FROM ${BUILD_FROM}
 
 # Set some Environment Variables
@@ -41,7 +42,6 @@ ARG BUILD_DESCRIPTION
 ARG BUILD_NAME
 ARG BUILD_REF
 ARG BUILD_REPOSITORY
-ARG BUILD_VERSION
 
 # Labels
 LABEL \
@@ -50,15 +50,15 @@ LABEL \
     io.hass.arch="${BUILD_ARCH}" \
     io.hass.type="addon" \
     io.hass.version=${BUILD_VERSION} \
-    maintainer="danlorb (https://github.com/danlorb)" \
+    maintainer="velvet-lab (https://github.com/velvet-lab)" \
     org.opencontainers.image.title="${BUILD_NAME}" \
     org.opencontainers.image.description="${BUILD_DESCRIPTION}" \
     org.opencontainers.image.vendor="Home Assistant Add-ons" \
-    org.opencontainers.image.authors="danlorb (https://github.com/danlorb)" \
+    org.opencontainers.image.authors="velvet-lab (https://github.com/velvet-lab)" \
     org.opencontainers.image.licenses="MIT" \
-    org.opencontainers.image.url="https://github.com/danlorb" \
-    org.opencontainers.image.source="https://github.com/danlorb/hassio-addons/tree/main/virola" \
-    org.opencontainers.image.documentation="https://github.com/danlorb/hassio-addons/blob/main/virola/README.md" \
+    org.opencontainers.image.url="https://github.com/velvet-lab" \
+    org.opencontainers.image.source="https://github.com/velvet-lab/hassio-addons/tree/main/virola" \
+    org.opencontainers.image.documentation="https://github.com/velvet-lab/hassio-addons/blob/main/virola/README.md" \
     org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}

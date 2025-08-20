@@ -1,4 +1,9 @@
 {
-    "domain": "my-domain.com",
-    "log_level": "info"    
+    "domain": "homeassistant.local",
+    "token_expiry_seconds": 300,
+    "refresh_token_expiry_seconds": 864000000,
+    "magic_token_expiry_seconds": 600,
+    "log_level": "info",
+    "template_register_by_email": "Register code",
+    "template_login_by_email": "Your sign-in link for Vocechat"
 }

@@ -9,19 +9,6 @@
 # Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'warning')"
 
-mkdir -p /run/mongodb
-
 bashio::log.info "Start MongoDB ..."
-exec mongod \
-    --bind_ip_all \
-    --port 27017 \
-    --directoryperdb \
-    --dbpath "${DATA_ROOT}" \
-    --pidfilepath /run/mongodb/mongod.pid \
-    --timeZoneInfo /usr/share/zoneinfo \
-    --nounixsocket \
-    --noauth \
-    --noscripting \
-    --tlsMode disabled \
-    < /dev/null
+exec mongod --config /etc/mongod.conf 
 

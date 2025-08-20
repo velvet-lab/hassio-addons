@@ -1,10 +1,6 @@
 #!/command/with-contenv bashio
 # vim: ft=bash
 # shellcheck shell=bash
-# ==============================================================================
-# Home Assistant Community Add-on: MongoDb
-# Take down the S6 supervision tree when daemon fails
-# ==============================================================================
 
 readonly exit_code_container=$(</run/s6-linux-init-container-results/exitcode)
 readonly exit_code_service="${1}"

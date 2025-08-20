@@ -2,3 +2,24 @@ configuration:
   log_level:
     name: Log Level
     description: Choose the Log Level
+  domain:
+    name: Domain
+    description: Domain for the VoceChat instance, e.g., homeassistant.local  
+  token_expiry_seconds:
+    name: Token Expiry Seconds
+    description: Duration in seconds for which the token is valid
+  refresh_token_expiry_seconds:
+    name: Refresh Token Expiry Seconds
+    description: Duration in seconds for which the refresh token is valid
+  magic_token_expiry_seconds:
+    name: Magic Token Expiry Seconds
+    description: Duration in seconds for which the magic token is valid
+  template_register_by_email:
+    name: Template Register by Email
+    description: Subject for the registration email template
+  template_login_by_email:
+    name: Template Login by Email
+    description: Subject for the login email template
+
+network:
+  3000/tcp: VoceChat service port  

@@ -3,4 +3,4 @@ build_from:
   aarch64: ghcr.io/home-assistant/aarch64-base-ubuntu:20.04
 squash: false
 codenotary:
-  signer: breitschaftroland@gmail.com
+  signer: info@velvet-lab.org
