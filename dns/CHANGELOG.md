@@ -72,3 +72,9 @@
 - Update to Debian Bookworm
 - Update Dotnet to 9.0
 - Add Raspberry PI Architecture
+
+## 2.0.0
+
+- Change init system for docker to new s6 format
+- Fix server download url in dockerfile
+

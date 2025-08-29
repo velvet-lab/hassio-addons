@@ -11,12 +11,6 @@ Before you can install/update this AddOn, change DNS Setting of your Home Assist
 The installation of this add-on is pretty straightforward and not different in
 comparison to installing any other Home Assistant add-on.
 
-1. Click the Home Assistant My button below to open the add-on on your Home
-   Assistant instance.
-
-   [![Open this add-on in your Home Assistant instance.][addon-badge]][addon]
-
-1. Click the "Install" button to install the add-on.
 1. Set a `domain`, `admin_password` and `forwarders`
 1. Start the "Dns/Dhcp Server" add-on.
 1. Check the logs of "Dns/Dhcp Server" to see if everything went well.

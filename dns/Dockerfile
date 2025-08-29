@@ -5,31 +5,26 @@ FROM ${BUILD_FROM}
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND noninteractive
-ENV S6_CMD_WAIT_FOR_SERVICES 1
-ENV S6_CMD_WAIT_FOR_SERVICES_MAXTIME 0
-ENV S6_SERVICES_GRACETIME 0
-
-# Set shell
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Copy root filesystem
 COPY rootfs /
 
 # Corrects permissions for s6
 RUN if [ -d /etc/cont-init.d ]; then chmod -R 755 /etc/cont-init.d; fi && \
-    if [ -d /etc/services.d ]; then chmod -R 755 /etc/services.d; fi && \
+    if [ -d /etc/s6-overlay/s6-rc.d ]; then chmod -R 755 /etc/s6-overlay/s6-rc.d; fi && \
     if [ -f /entrypoint.sh ]; then chmod 755 /entrypoint.sh; fi
 
 # Set Workdir
 WORKDIR /tmp
 
-RUN apt-get update \
+RUN set -x \
+    && apt-get update \
     && apt-get install -qy --no-install-recommends \
         curl \
         icu-devtools \
         wget \
     && curl --proto "=https" --tlsv1.2 -sSf -L https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir /opt/dotnet --channel LTS --version latest --runtime aspnetcore \
-    && wget --secure-protocol=TLSv1_2 --max-redirect=0 -q -0 https://download.technitium.com/dns/DnsServerPortable.tar.gz \
+    && curl --proto "=https" --tlsv1.2 -sSf -L https://download.technitium.com/dns/DnsServerPortable.tar.gz -o /tmp/DnsServerPortable.tar.gz \
     && mkdir -p /opt/dns \
     && tar -zxf DnsServerPortable.tar.gz -C /opt/dns/ \
     && apt-get purge -y --auto-remove \
@@ -43,10 +38,6 @@ RUN apt-get update \
         /opt/dns/*.pdb \
         /opt/dns/systemd.service \
     && chown -R root:root /opt/dns
-
-# Health check
-HEALTHCHECK --start-period=5m \
-    CMD curl --fail http://127.0.0.1:5380 || exit 1
 
 WORKDIR /opt/dns/
 
