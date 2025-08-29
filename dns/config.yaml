@@ -1,6 +1,6 @@
 ---
 name: Dns/Dhcp Server
-version: 1.2.0
+version: 2.0.0
 stage: stable
 slug: dns
 description: >-
@@ -24,7 +24,7 @@ backup_exclude:
   - "/data/config/stats/*.dstat"
 watchdog: tcp://[HOST]:53
 ports:
-  53/tcp: 53
+  53/tcp: 53Fifin
   53/udp: 53
   67/udp: 67
   68/udp: 68

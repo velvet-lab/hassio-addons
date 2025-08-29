@@ -26,3 +26,7 @@
 ## 1.2.3
 
 - Fix spelling errors
+
+## 1.2.4
+
+- Expose port in docker

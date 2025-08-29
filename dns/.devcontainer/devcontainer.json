@@ -21,8 +21,9 @@
         }
     },
     "appPort": [
-        "5380:5380"
+        "127.0.0.1:5380:5380"
     ],
+    "privileged": true,
     "customizations": {
         "vscode": {
             "extensions": [
@@ -48,6 +49,5 @@
     },
     "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/post-create.sh",
     "postStartCommand": "${containerWorkspaceFolder}/.devcontainer/post-start.sh",
-    "postAttachCommand": "${containerWorkspaceFolder}/.devcontainer/post-attach.sh",
-    "remoteUser": "root"
+    "postAttachCommand": "${containerWorkspaceFolder}/.devcontainer/post-attach.sh"
 }

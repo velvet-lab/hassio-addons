@@ -4,3 +4,6 @@ vocechat/.devcontainer/mounts/config/
 mongodb/.devcontainer/mounts/data/
 mongodb/.devcontainer/mounts/config/
 !mongodb/.devcontainer/mounts/data/options.json
+dns/.devcontainer/mounts/data/
+dns/.devcontainer/mounts/config/
+!dns/.devcontainer/mounts/data/options.json

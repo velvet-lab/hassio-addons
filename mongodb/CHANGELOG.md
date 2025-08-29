@@ -35,3 +35,7 @@
 ## 1.1.6
 
 - Remove shutdown from init script
+
+## 1.1.7
+
+- Expose port in docker

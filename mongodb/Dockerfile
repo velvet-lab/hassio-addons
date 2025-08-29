@@ -47,7 +47,9 @@ ENV GLIBC_TUNABLES=glibc.pthread.rseq=0
 
 # ensure that if running as custom user that "mongosh" has a valid "HOME"
 # https://github.com/docker-library/mongo/issues/524
-ENV HOME=/data/db
+ENV HOME=/data
+
+EXPOSE 27017/tcp
 
 ARG BUILD_ARCH
 ARG BUILD_DATE

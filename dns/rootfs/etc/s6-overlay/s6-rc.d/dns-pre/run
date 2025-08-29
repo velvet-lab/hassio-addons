@@ -1,0 +1,46 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+ROOT=/data
+DATA_ROOT="$ROOT/config"
+
+NEW_INSTALL=false
+if [ -f "${DATA_ROOT}" ]; then
+    NEW_INSTALL=false    
+else
+    NEW_INSTALL=true
+fi
+echo -n "${NEW_INSTALL}" > /var/run/s6/container_environment/NEW_INSTALL
+
+# Set some Environment Variables if available
+bashio::log.info "Load Dns/Dhcp Server Configuration..."
+
+# Define array of config items and their corresponding environment variables
+declare -A config_vars=(
+    ["domain"]="DNS_SERVER_DOMAIN"
+    ["admin_password"]="DNS_SERVER_ADMIN_PASSWORD"
+    ["prefer_ipv6"]="DNS_SERVER_PREFER_IPV6"
+    ["dns_over_http"]="DNS_SERVER_OPTIONAL_PROTOCOL_DNS_OVER_HTTP"
+    ["recursion"]="DNS_SERVER_RECURSION"
+    ["recursion_denied_networks"]="DNS_SERVER_RECURSION_DENIED_NETWORKS"
+    ["recursion_allowed_networks"]="DNS_SERVER_RECURSION_ALLOWED_NETWORKS"
+    ["enable_blocking"]="DNS_SERVER_ENABLE_BLOCKING"
+    ["allow_txt_blocking_report"]="DNS_SERVER_ALLOW_TXT_BLOCKING_REPORT"
+    ["block_list_urls"]="DNS_SERVER_BLOCK_LIST_URLS"
+    ["forwarders"]="DNS_SERVER_FORWARDERS"
+    ["forwarder_protocol"]="DNS_SERVER_FORWARDER_PROTOCOL"
+    ["local_time"]="DNS_SERVER_LOG_USING_LOCAL_TIME"
+)
+
+# Loop through config items and set environment variables
+for config_key in "${!config_vars[@]}"; do
+    env_var="${config_vars[$config_key]}"
+    if bashio::config.has_value "$config_key"; then
+        echo -n "$(bashio::config "$config_key")" > "/var/run/s6/container_environment/${env_var}"
+        bashio::log.info "${config_key} set"
+    fi
+done
+
+bashio::log.debug Redirect log output
+rm -f "${ROOT}/app.err"
+ln -s /proc/1/fd/1 "${ROOT}/app.err"

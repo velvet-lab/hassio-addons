@@ -1,4 +1,4 @@
-# Home Assistant Community Add-on: Dns/Dhcp Server
+# Home Assistant Community Add-on: MongoDb Server
 
 Technitium DNS Server is an open source authoritative as well as recursive DNS server that can be used for self hosting a Dns/Dhcp Server for privacy & security. It works out-of-the-box with no or minimal configuration and provides a user friendly web console accessible using any modern web browser. For more information, please see [Technitium DNS][dns].
 

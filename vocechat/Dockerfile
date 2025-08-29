@@ -36,6 +36,8 @@ RUN set -x \
         /var/lib/apt/lists/* \
         /root/.cache
 
+EXPOSE 3000/tcp
+
 ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
