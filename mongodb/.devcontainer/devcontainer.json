@@ -17,11 +17,11 @@
     "build": {
         "dockerfile": "../Dockerfile",
         "args": {
-            "BUILD_FROM": "ghcr.io/home-assistant/amd64-base-ubuntu:20.04"
+            "BUILD_FROM": "ghcr.io/home-assistant/amd64-base-debian:bookworm"
         }
     },
     "appPort": [
-        "27017"
+        "127.0.0.1:27018:27017"
     ],
     "privileged": true,
     "customizations": {
