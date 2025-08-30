@@ -39,3 +39,7 @@
 ## 1.1.7
 
 - Expose port in docker
+
+## 1.2.0
+
+- Change base image from debian to ubuntu
