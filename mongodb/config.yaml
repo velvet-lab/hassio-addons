@@ -1,6 +1,6 @@
 ---
 name: MongoDB
-version: 1.2.0
+version: 2.0.0
 stage: stable
 slug: mongodb
 description: >-
@@ -10,21 +10,19 @@ arch:
   - amd64
   - aarch64
 codenotary: info@velvet-lab.org
-host_network: true
+host_network: false
 startup: system
 homeassistant: 2025.05.5
 init: false
-advanced: true
 apparmor: true
-panel_admin: true
 backup: cold
 backup_exclude:
   - "/data/app.err"
 watchdog: tcp://[HOST]:27017
 ports:
   27017/tcp: 27017
-options:
-  admin_password: null
 schema:  
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  replica_set: bool?
+  auth_enabled: bool?
   admin_password: password?

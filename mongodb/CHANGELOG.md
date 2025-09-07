@@ -43,3 +43,11 @@
 ## 1.2.0
 
 - Change base image from debian to ubuntu
+
+## 2.0.0
+
+- Add replica set support
+- Make dynamic configuration for mongod
+- Configure apparmor settings
+- Disable Host Network setttings
+- Make auth configurable
