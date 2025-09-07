@@ -22,19 +22,27 @@ operationProfiling:
 # Where and how to store data.
 storage:
   dbPath: ${DATA_ROOT}
-  directoryPerDB: true  
+  directoryPerDB: true 
+EOF
+)
 
+if  [ "${LOGGING_ENABLED}" = true ]; then
+    bashio::log.debug "Enable security in configuration"  
+    LOGGING_CONFIG=$(cat << EOF
 systemLog:
   verbosity: 0
   quiet: false
 EOF
 )
+    MONGO_CONFIG="${MONGO_CONFIG}\n${LOGGING_CONFIG}"
+fi
 
 if  [ "${AUTH_ENABLED}" = true ]; then
     bashio::log.debug "Enable security in configuration"  
     SECURITY_CONFIG=$(cat << EOF
-authorization: enabled
-javascriptEnabled: false
+security:
+  authorization: enabled
+  javascriptEnabled: false
 EOF
 )
     MONGO_CONFIG="${MONGO_CONFIG}\n${SECURITY_CONFIG}"

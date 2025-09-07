@@ -7,5 +7,3 @@ bashio::log.level "$(bashio::config 'log_level' 'warning')"
 
 bashio::log.info "Start MongoDB ..."
 exec mongod --config /etc/mongod.conf --configExpand "exec"
-
-
