@@ -5,7 +5,7 @@ A really simple implementation of MongoDb Community Edition 7.x.
 ![GitHub Sponsor][sponsor] ![Supports amd64 Architecture][amd64] ![Supports aarch64 Architecture][aarch64]
 
 
-**Remarks:** Currently only MongoDb till Version 7.x works on Raspberry. Version 8.x has issues with tsmalloc.
+**Remarks for Raspberry:** Only Raspberry PI 5 and higher will supported.
 
 ## About
 

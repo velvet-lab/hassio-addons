@@ -51,3 +51,10 @@
 - Configure apparmor settings
 - Disable Host Network setttings
 - Make auth configurable
+
+## 2.0.1
+
+- Fix replica set initialization
+- Fix replica set re-initialization
+- Fix replica set configuration for existing replica sets, databases and users
+- Add support for keyfile authentication

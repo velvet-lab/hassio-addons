@@ -2,6 +2,20 @@
 
 bashio::log.info "Create MongoDB configuration file"
 
+if [ "${REPLICA_ENABLED}" = true ] && [ "${AUTH_ENABLED}" = true ]; then
+  if [ ! -f /data/keyfile ]; then
+    bashio::log.info "Create keyfile for replica set"
+    KEYFILE_CONTENT=$(openssl rand -base64 756 | tr -d '\n' | tr -d '\r')
+    echo -n "${KEYFILE_CONTENT}" > /data/keyfile
+    chmod 400 /data/keyfile
+  fi
+else
+  if [ "${PRE_RUN}" = false ] && [ -f /data/keyfile ]; then
+    bashio::log.info "Remove existing keyfile, not needed"
+    rm -f /data/keyfile
+  fi
+fi
+
 MONGO_CONFIG=$(cat << EOF
 net:
   port: 27017
@@ -45,7 +59,11 @@ security:
   javascriptEnabled: false
 EOF
 )
-    MONGO_CONFIG="${MONGO_CONFIG}\n${SECURITY_CONFIG}"
+  if  [ "${REPLICA_ENABLED}" = true ]; then
+    SECURITY_CONFIG="${SECURITY_CONFIG}\n  keyFile: /data/keyfile"
+  fi
+  
+  MONGO_CONFIG="${MONGO_CONFIG}\n${SECURITY_CONFIG}"
 fi
 
 if  [ "${REPLICA_ENABLED}" = true ]; then
@@ -54,10 +72,10 @@ if  [ "${REPLICA_ENABLED}" = true ]; then
     REPL_CONFIG=$(cat << EOF
 # Replication settings
 replication:
-  replSetName: rs01
+  replSetName: rs0
 EOF
 )
     MONGO_CONFIG="${MONGO_CONFIG}\n${REPL_CONFIG}"
 fi
 
-echo -e "${MONGO_CONFIG}" > /etc/mongod.conf
+echo -e "${MONGO_CONFIG}"

@@ -2,70 +2,65 @@
 # vim: ft=bash
 # shellcheck shell=bash
 ROOT=/data
-DATA_ROOT="$ROOT"
+DATA_ROOT="$ROOT/db"
 RUN_ROOT="/run/mongodb"
-ADDON_SERVICE_ROOT=/etc/s6-overlay/s6-rc.d/mongodb-pre
 MONGOD_CONFIG="/etc/mongod.conf"
 
-NEW_INSTALL=false
-if [ -f "${MONGOD_CONFIG}" ]; then
-    if grep -q "modified" "${MONGOD_CONFIG}"; then
-        NEW_INSTALL=false
-    else
-        NEW_INSTALL=true
-    fi
-else
-    NEW_INSTALL=true
-fi
-
-rm -f "${MONGOD_CONFIG}"
+rm -f "${MONGOD_CONFIG}" || true
 cp /etc/mongod.d/mongod.conf "${MONGOD_CONFIG}"
 chmod +x /etc/mongod.d/*.sh
 
-REPLICA_ENABLED=$(bashio::config 'replica_set' 'false')
-AUTH_ENABLED=false
-LOGGING_ENABLED=false
+PRE_RUN=true
+REPLICA_ENABLED=$(bashio::config 'repl_enabled' 'false')
+AUTH_ENABLED=$(bashio::config 'auth_enabled' 'false')
 ADMIN_USER="admin"
 ADMIN_PASSWORD=
+LOG_LEVEL=$(bashio::config 'log_level' 'warning') 
+LOGGING_ENABLED=$([ "$LOG_LEVEL" = "trace" ] || [ "$LOG_LEVEL" = "debug" ] ||[ "$LOG_LEVEL" = "info" ] || [ "$LOG_LEVEL" = "notice" ] && echo "true" || echo "false")
 
 if bashio::config.has_value 'admin_password'; then
     ADMIN_PASSWORD=$(bashio::config 'admin_password')
 fi
 
-echo -n "${NEW_INSTALL}" > /var/run/s6/container_environment/NEW_INSTALL
+echo -n "${PRE_RUN}" > /var/run/s6/container_environment/PRE_RUN
 echo -n "${DATA_ROOT}" > /var/run/s6/container_environment/DATA_ROOT
 echo -n "${REPLICA_ENABLED}" > /var/run/s6/container_environment/REPLICA_ENABLED
-echo -n "${AUTH_ENABLED}" > /var/run/s6/container_environment/AUTH_ENABLED
-echo -n "${LOGGING_ENABLED}" > /var/run/s6/container_environment/LOGGING_ENABLED
+echo -n "false" > /var/run/s6/container_environment/AUTH_ENABLED
+echo -n "false" > /var/run/s6/container_environment/LOGGING_ENABLED
 echo -n "${ADMIN_USER}" > /var/run/s6/container_environment/ADMIN_USER
 echo -n "${ADMIN_PASSWORD}" > /var/run/s6/container_environment/ADMIN_PASSWORD
 
 bashio::log.info "Prepare MongoDB configuration"
 bashio::log.debug "Create folders"
 mkdir -p "${RUN_ROOT}"
+mkdir -p "${DATA_ROOT}"
 
 bashio::log.debug "Prestart MongoDB and execute initial scripts"
 mongod --fork --quiet --config "${MONGOD_CONFIG}" --logpath /var/log/mongodb/init.log --configExpand "exec"
 sleep 5
 
 if [ "${AUTH_ENABLED}" = true ]; then
+    if [ -z "${ADMIN_PASSWORD}" ]; then
+        bashio::log.fatal "You must set an admin password when enabling authentication"
+        exit 1
+    fi
     bashio::log.info "Create admin user"
-    mongosh /etc/mongod.d/scripts/modify-user.js || true
+    mongosh --eval "const args = ['${ADMIN_USER}', '${ADMIN_PASSWORD}'];" /etc/mongod.d/modify-user.js || true
 fi
 
 if  [ "${REPLICA_ENABLED}" = true ]; then
     bashio::log.info "Enable replica set"
-    mongosh /etc/mongod.d/scripts/enable-replica.js || true
+    mongosh /etc/mongod.d/enable-replica.js || true
 else
     bashio::log.info "Disable replica set"
-    mongosh /etc/mongod.d/scripts/disable-replica.js || true
+    mongosh --eval "printjson(db.getSiblingDB('local').dropDatabase());" || true
 fi  
 
 bashio::log.debug "Ensure MongoDB is stopped"
 PID=$(pgrep mongod)
 if [ ! -z "${PID}" ]; then
     bashio::log.debug "Found running MongoDB process with PID ${PID}, attempting to stop it gracefully."
-    mongosh --eval "db.getSiblingDB('admin').shutdownServer()" || true
+    mongosh --eval "printjson(db.shutdownServer())" || true
     sleep 5
     if pgrep -x "mongod" > /dev/null; then
         bashio::log.debug "MongoDb did not stop gracefully, attempting to kill it."
@@ -73,12 +68,10 @@ if [ ! -z "${PID}" ]; then
     fi        
 fi
 
-AUTH_ENABLED=$(bashio::config 'auth_enabled' 'false')
-LOG_LEVEL=$(bashio::config 'log_level' 'warning') 
-LOGGING_ENABLED=$([ "$LOG_LEVEL" = "trace" ] || [ "$LOG_LEVEL" = "debug" ] ||[ "$LOG_LEVEL" = "info" ] || [ "$LOG_LEVEL" = "notice" ] && echo "true" || echo "false")
-
+PRE_RUN=false
 echo -n "${AUTH_ENABLED}" > /var/run/s6/container_environment/AUTH_ENABLED
 echo -n "${LOGGING_ENABLED}" > /var/run/s6/container_environment/LOGGING_ENABLED
+echo -n "${PRE_RUN}" > /var/run/s6/container_environment/PRE_RUN
 
 bashio::log.debug Redirect log output
 rm -f "${ROOT}/app.err"

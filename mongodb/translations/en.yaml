@@ -5,3 +5,9 @@ configuration:
   admin_password:
     name: Admin Password
     description: Set the password for the MongoDB admin user
+  repl_enabled:
+    name: Replica Set
+    description: Enable replica set (required for MongoDB clusters)
+  auth_enabled:
+    name: Authentication
+    description: Enable authentication for MongoDB

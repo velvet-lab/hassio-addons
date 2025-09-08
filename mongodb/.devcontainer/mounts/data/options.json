@@ -1,4 +1,6 @@
 {    
     "log_level": "info",
-    "admin_password": "admin"
+    "admin_password": "admin",
+    "auth_enabled": true,
+    "repl_enabled": true
 }
