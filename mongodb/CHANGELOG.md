@@ -74,3 +74,7 @@
 ## 2.0.5
 
 - Fix replica set re-initialization when port and ip are configured
+
+## 2.0.6
+
+- Enable hassio_role and hassio_api

@@ -37,7 +37,7 @@ if (!status || status.ok === 0) {
             });
         }
     } catch (err) {
-        printjsong({
+        printjson({
             message: "Error initializing replica set",
             err
         });
