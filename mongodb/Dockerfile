@@ -49,8 +49,6 @@ ENV GLIBC_TUNABLES=glibc.pthread.rseq=0
 # https://github.com/docker-library/mongo/issues/524
 ENV HOME=/data
 
-EXPOSE 27017/tcp
-
 ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION

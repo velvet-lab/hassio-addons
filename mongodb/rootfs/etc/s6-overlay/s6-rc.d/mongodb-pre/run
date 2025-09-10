@@ -6,10 +6,16 @@ DATA_ROOT="$ROOT/db"
 RUN_ROOT="/run/mongodb"
 MONGOD_CONFIG="/etc/mongod.conf"
 
+bashio::log.debug "Replace original mongod.conf with our template"
 rm -f "${MONGOD_CONFIG}" || true
 cp /etc/mongod.d/mongod.conf "${MONGOD_CONFIG}"
 chmod +x /etc/mongod.d/*.sh
 
+bashio::log.debug "Create folders"
+mkdir -p "${RUN_ROOT}"
+mkdir -p "${DATA_ROOT}"
+
+bashio::log.debug "Read configuration options"
 PRE_RUN=true
 REPLICA_ENABLED=$(bashio::config 'repl_enabled' 'false')
 AUTH_ENABLED=$(bashio::config 'auth_enabled' 'false')
@@ -17,6 +23,16 @@ ADMIN_USER="admin"
 ADMIN_PASSWORD=
 LOG_LEVEL=$(bashio::config 'log_level' 'warning') 
 LOGGING_ENABLED=$([ "$LOG_LEVEL" = "trace" ] || [ "$LOG_LEVEL" = "debug" ] ||[ "$LOG_LEVEL" = "info" ] || [ "$LOG_LEVEL" = "notice" ] && echo "true" || echo "false")
+IP4_ADDRESS=$(bashio::network.ipv4_address) || true
+PORT=$(bashio::addon.port 27017) || true
+BIND_ALL=false
+if [ -z "${IP4_ADDRESS}" ]; then
+    BIND_ALL=true
+fi
+
+if [ -z "${PORT}" ]; then
+    PORT=27017
+fi
 
 if bashio::config.has_value 'admin_password'; then
     ADMIN_PASSWORD=$(bashio::config 'admin_password')
@@ -29,12 +45,11 @@ echo -n "false" > /var/run/s6/container_environment/AUTH_ENABLED
 echo -n "false" > /var/run/s6/container_environment/LOGGING_ENABLED
 echo -n "${ADMIN_USER}" > /var/run/s6/container_environment/ADMIN_USER
 echo -n "${ADMIN_PASSWORD}" > /var/run/s6/container_environment/ADMIN_PASSWORD
+echo -n "${BIND_ALL}" > /var/run/s6/container_environment/BIND_ALL
+echo -n "${IP4_ADDRESS}" > /var/run/s6/container_environment/IP4_ADDRESS
+echo -n "${PORT}" > /var/run/s6/container_environment/PORT
 
 bashio::log.info "Prepare MongoDB configuration"
-bashio::log.debug "Create folders"
-mkdir -p "${RUN_ROOT}"
-mkdir -p "${DATA_ROOT}"
-
 bashio::log.debug "Prestart MongoDB and execute initial scripts"
 mongod --fork --quiet --config "${MONGOD_CONFIG}" --logpath /var/log/mongodb/init.log --configExpand "exec"
 sleep 5
@@ -56,7 +71,10 @@ else
     mongosh --eval "printjson(db.getSiblingDB('local').dropDatabase());" || true
 fi  
 
-bashio::log.debug "Ensure MongoDB is stopped"
+bashio::log.info "Disable telemetry"
+mongosh --eval "disableTelemetry();" || true
+
+bashio::log.info "Ensure MongoDB is stopped"
 PID=$(pgrep mongod)
 if [ ! -z "${PID}" ]; then
     bashio::log.debug "Found running MongoDB process with PID ${PID}, attempting to stop it gracefully."

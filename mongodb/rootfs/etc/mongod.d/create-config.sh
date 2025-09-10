@@ -16,10 +16,16 @@ else
   fi
 fi
 
+if [ "${BIND_ALL}" = true ]; then
+  ipString="bindIpAll: true"
+else
+  ipString="bindIp: ${IP4_ADDRESS}"
+fi
+
 MONGO_CONFIG=$(cat << EOF
 net:
-  port: 27017
-  bindIpAll: true
+  port: ${PORT}
+  ${ipString}
   ipv6: false
   unixDomainSocket:
     enabled: false

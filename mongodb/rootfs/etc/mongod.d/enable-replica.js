@@ -23,7 +23,8 @@ if (!status || status.ok === 0) {
             message: "Enable replica set with config"
         });
 
-        const result = rs.initiate(config);
+        //const result = rs.initiate(config);
+        const result = rs.initiate();
         if (result && result.ok === 1) {
             print("Replica set initialized successfully");
         } else {

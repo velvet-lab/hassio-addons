@@ -58,3 +58,7 @@
 - Fix replica set re-initialization
 - Fix replica set configuration for existing replica sets, databases and users
 - Add support for keyfile authentication
+
+## 2.0.2
+
+- Fix port configuration
