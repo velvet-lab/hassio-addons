@@ -1,6 +1,6 @@
 ---
 name: MongoDB
-version: 2.0.4
+version: 2.0.5
 stage: stable
 slug: mongodb
 description: >-

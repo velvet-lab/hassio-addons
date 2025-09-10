@@ -70,3 +70,7 @@
 ## 2.0.4
 
 - Add port and ip configuration for replica set members
+
+## 2.0.5
+
+- Fix replica set re-initialization when port and ip are configured
