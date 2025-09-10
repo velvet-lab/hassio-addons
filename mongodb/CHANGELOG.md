@@ -66,3 +66,7 @@
 ## 2.0.3
 
 - Add support for Home Assistant API
+
+## 2.0.4
+
+- Add port and ip configuration for replica set members

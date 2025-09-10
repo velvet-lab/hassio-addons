@@ -1,3 +1,7 @@
+eval(process.argv.slice(3)[0]);
+
+const ipAddress=  args[0].trim();
+const port=  args[1].trim();
 
 let status = null;
 
@@ -12,7 +16,7 @@ const config = {
     _id: "rs0",
     version: 1,
     members: [
-        { _id: 0, host: "localhost:27017" }
+        { _id: 0, host: `${ipAddress}:${port}` }
     ]
 }
 

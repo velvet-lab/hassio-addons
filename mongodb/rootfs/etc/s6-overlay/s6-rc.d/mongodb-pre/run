@@ -65,7 +65,7 @@ fi
 
 if  [ "${REPLICA_ENABLED}" = true ]; then
     bashio::log.info "Enable replica set"
-    mongosh /etc/mongod.d/enable-replica.js || true
+    mongosh --eval "const args = ['${IP4_ADDRESS}', '${PORT}'];" /etc/mongod.d/enable-replica.js || true
 else
     bashio::log.info "Disable replica set"
     mongosh --eval "printjson(db.getSiblingDB('local').dropDatabase());" || true
