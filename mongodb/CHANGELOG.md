@@ -62,3 +62,7 @@
 ## 2.0.2
 
 - Fix port configuration
+
+## 2.0.3
+
+- Add support for Home Assistant API

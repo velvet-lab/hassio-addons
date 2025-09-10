@@ -1,6 +1,6 @@
 ---
 name: MongoDB
-version: 2.0.2
+version: 2.0.3
 stage: stable
 slug: mongodb
 description: >-
@@ -13,6 +13,7 @@ codenotary: info@velvet-lab.org
 host_network: false
 startup: system
 homeassistant: 2025.05.5
+homeassistant_api: true
 init: false
 apparmor: true
 backup: cold
