@@ -78,3 +78,7 @@
 ## 2.0.6
 
 - Enable hassio_role and hassio_api
+
+## 2.0.7
+
+- Enable binding for all ips

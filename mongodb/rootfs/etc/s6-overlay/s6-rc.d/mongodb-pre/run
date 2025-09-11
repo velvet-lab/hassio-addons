@@ -25,6 +25,11 @@ LOG_LEVEL=$(bashio::config 'log_level' 'warning')
 LOGGING_ENABLED=$([ "$LOG_LEVEL" = "trace" ] || [ "$LOG_LEVEL" = "debug" ] ||[ "$LOG_LEVEL" = "info" ] || [ "$LOG_LEVEL" = "notice" ] && echo "true" || echo "false")
 IP4_ADDRESS=$(bashio::network.ipv4_address) || true
 PORT=$(bashio::addon.port 27017) || true
+
+if [ ! -z "${IP4_ADDRESS}" ]; then
+    IP4_ADDRESS=$(echo "${IP4_ADDRESS}" | cut -d'/' -f1)
+fi
+
 if [ -z "${IP4_ADDRESS}" ]; then
     IP4_ADDRESS="0.0.0.0"
 fi
@@ -66,11 +71,9 @@ if  [ "${REPLICA_ENABLED}" = true ]; then
     mongosh --eval "const args = ['${IP4_ADDRESS}', '${PORT}'];" /etc/mongod.d/enable-replica.js || true
 else
     bashio::log.info "Disable replica set"
-    mongosh --eval "printjson(db.getSiblingDB('local').dropDatabase());" || true
+    mongosh --eval "printjson(db.getSiblingDB('local').dropDatabase())" || true
 fi  
 
-bashio::log.info "Disable telemetry"
-mongosh --eval "disableTelemetry();" || true
 
 bashio::log.info "Ensure MongoDB is stopped"
 PID=$(pgrep mongod)
