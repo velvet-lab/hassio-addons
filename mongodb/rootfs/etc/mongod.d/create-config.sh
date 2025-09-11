@@ -16,7 +16,7 @@ else
   fi
 fi
 
-if [ "${BIND_ALL}" = true ]; then
+if [ "${IP4_ADDRESS}" = "0.0.0.0" ]; then
   ipString="bindIpAll: true"
 else
   ipString="bindIp: ${IP4_ADDRESS}"

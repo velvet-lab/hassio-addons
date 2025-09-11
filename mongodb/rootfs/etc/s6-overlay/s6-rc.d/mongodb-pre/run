@@ -25,9 +25,8 @@ LOG_LEVEL=$(bashio::config 'log_level' 'warning')
 LOGGING_ENABLED=$([ "$LOG_LEVEL" = "trace" ] || [ "$LOG_LEVEL" = "debug" ] ||[ "$LOG_LEVEL" = "info" ] || [ "$LOG_LEVEL" = "notice" ] && echo "true" || echo "false")
 IP4_ADDRESS=$(bashio::network.ipv4_address) || true
 PORT=$(bashio::addon.port 27017) || true
-BIND_ALL=false
 if [ -z "${IP4_ADDRESS}" ]; then
-    BIND_ALL=true
+    IP4_ADDRESS="0.0.0.0"
 fi
 
 if [ -z "${PORT}" ]; then
@@ -45,13 +44,13 @@ echo -n "false" > /var/run/s6/container_environment/AUTH_ENABLED
 echo -n "false" > /var/run/s6/container_environment/LOGGING_ENABLED
 echo -n "${ADMIN_USER}" > /var/run/s6/container_environment/ADMIN_USER
 echo -n "${ADMIN_PASSWORD}" > /var/run/s6/container_environment/ADMIN_PASSWORD
-echo -n "${BIND_ALL}" > /var/run/s6/container_environment/BIND_ALL
 echo -n "${IP4_ADDRESS}" > /var/run/s6/container_environment/IP4_ADDRESS
 echo -n "${PORT}" > /var/run/s6/container_environment/PORT
 
 bashio::log.info "Prepare MongoDB configuration"
 bashio::log.debug "Prestart MongoDB and execute initial scripts"
-mongod --fork --quiet --config "${MONGOD_CONFIG}" --logpath /var/log/mongodb/init.log --configExpand "exec"
+mongod --quiet --config "${MONGOD_CONFIG}" --logpath /var/log/mongodb/init.log --configExpand "exec"
+# --fork 
 sleep 5
 
 if [ "${AUTH_ENABLED}" = true ]; then
