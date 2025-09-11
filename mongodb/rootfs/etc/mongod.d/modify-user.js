@@ -16,6 +16,7 @@ try {
       roles: [
         { role: "userAdminAnyDatabase", db: "admin" },
         { role: "readWriteAnyDatabase", db: "admin" },
+        { role: "clusterMonitor", db: "admin" },
       ],
     })
     print("Admin user created.");

@@ -13,7 +13,7 @@ MongoDB is a source-available, cross-platform, document-oriented database progra
 
 ## Configuration
 
-Before starting the addon please set a strong admin password on configuration page. After starting the addon the connectionstring will be `mongodb://admin:<password>@<your-homeassistant-ip>:27017`.
+Before starting the addon please set a strong admin password on configuration page. After starting the addon the connectionstring will be `mongodb://admin:<password>@<your-homeassistant-ip>:27017`. Default user is `admin`.
 
 ## Replication
 

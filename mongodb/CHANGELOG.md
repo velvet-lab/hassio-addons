@@ -87,3 +87,7 @@
 
 - Enable logging validation
 - Extend readme with replication instructions
+
+## 2.0.9
+
+- Add admin role for replicat set users
