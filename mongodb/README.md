@@ -15,6 +15,10 @@ MongoDB is a source-available, cross-platform, document-oriented database progra
 
 Before starting the addon please set a strong admin password on configuration page. After starting the addon the connectionstring will be `mongodb://admin:<password>@<your-homeassistant-ip>:27017`.
 
+## Replication
+
+If Replication is enabled, the addon will automatically configure a single-node replica set. This is required for some applications like  `RocketChat` integration. The default Replica Set name is `rs0`.
+
 ## Support
 
 Got questions?

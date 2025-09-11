@@ -82,3 +82,8 @@
 ## 2.0.7
 
 - Enable binding for all ips
+
+## 2.0.8
+
+- Enable logging validation
+- Extend readme with replication instructions

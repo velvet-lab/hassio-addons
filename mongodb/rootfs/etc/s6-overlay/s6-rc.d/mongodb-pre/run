@@ -5,15 +5,12 @@ ROOT=/data
 DATA_ROOT="$ROOT/db"
 RUN_ROOT="/run/mongodb"
 MONGOD_CONFIG="/etc/mongod.conf"
+LOG_LEVEL=$(bashio::config 'log_level' 'warning') 
 
-bashio::log.debug "Replace original mongod.conf with our template"
-rm -f "${MONGOD_CONFIG}" || true
-cp /etc/mongod.d/mongod.conf "${MONGOD_CONFIG}"
-chmod +x /etc/mongod.d/*.sh
+# Set Log Level
+bashio::log.level "${LOG_LEVEL}"
 
-bashio::log.debug "Create folders"
-mkdir -p "${RUN_ROOT}"
-mkdir -p "${DATA_ROOT}"
+bashio::log.info "Prepare MongoDB configuration"
 
 bashio::log.debug "Read configuration options"
 PRE_RUN=true
@@ -21,11 +18,11 @@ REPLICA_ENABLED=$(bashio::config 'repl_enabled' 'false')
 AUTH_ENABLED=$(bashio::config 'auth_enabled' 'false')
 ADMIN_USER="admin"
 ADMIN_PASSWORD=
-LOG_LEVEL=$(bashio::config 'log_level' 'warning') 
 LOGGING_ENABLED=$([ "$LOG_LEVEL" = "trace" ] || [ "$LOG_LEVEL" = "debug" ] ||[ "$LOG_LEVEL" = "info" ] || [ "$LOG_LEVEL" = "notice" ] && echo "true" || echo "false")
 IP4_ADDRESS=$(bashio::network.ipv4_address) || true
 PORT=$(bashio::addon.port 27017) || true
 
+bashio::log.debug "Validate variables"
 if [ ! -z "${IP4_ADDRESS}" ]; then
     IP4_ADDRESS=$(echo "${IP4_ADDRESS}" | cut -d'/' -f1)
 fi
@@ -42,6 +39,7 @@ if bashio::config.has_value 'admin_password'; then
     ADMIN_PASSWORD=$(bashio::config 'admin_password')
 fi
 
+bashio::log.debug "Export variables for use in other scripts"
 echo -n "${PRE_RUN}" > /var/run/s6/container_environment/PRE_RUN
 echo -n "${DATA_ROOT}" > /var/run/s6/container_environment/DATA_ROOT
 echo -n "${REPLICA_ENABLED}" > /var/run/s6/container_environment/REPLICA_ENABLED
@@ -52,7 +50,15 @@ echo -n "${ADMIN_PASSWORD}" > /var/run/s6/container_environment/ADMIN_PASSWORD
 echo -n "${IP4_ADDRESS}" > /var/run/s6/container_environment/IP4_ADDRESS
 echo -n "${PORT}" > /var/run/s6/container_environment/PORT
 
-bashio::log.info "Prepare MongoDB configuration"
+bashio::log.debug "Replace original mongod.conf with our template"
+rm -f "${MONGOD_CONFIG}" || true
+cp /etc/mongod.d/mongod.conf "${MONGOD_CONFIG}"
+chmod +x /etc/mongod.d/*.sh
+
+bashio::log.debug "Create folders"
+mkdir -p "${RUN_ROOT}"
+mkdir -p "${DATA_ROOT}"
+
 bashio::log.debug "Prestart MongoDB and execute initial scripts"
 mongod --fork --quiet --config "${MONGOD_CONFIG}" --logpath /var/log/mongodb/init.log --configExpand "exec"
 sleep 5
@@ -73,7 +79,6 @@ else
     bashio::log.info "Disable replica set"
     mongosh --eval "printjson(db.getSiblingDB('local').dropDatabase())" || true
 fi  
-
 
 bashio::log.info "Ensure MongoDB is stopped"
 PID=$(pgrep mongod)

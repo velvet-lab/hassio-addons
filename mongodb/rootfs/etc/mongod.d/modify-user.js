@@ -10,21 +10,21 @@ try {
   const adminUser = adminDb.getUser(user);
   if (!adminUser) {
     print("Creating admin user...");
-    printjson(adminDb.createUser({
+    adminDb.createUser({
       user,
       pwd,
       roles: [
         { role: "userAdminAnyDatabase", db: "admin" },
         { role: "readWriteAnyDatabase", db: "admin" },
       ],
-    }));
+    })
     print("Admin user created.");
   }
   else{
     print("Admin user exists. Changing password...");
-    printjson(adminDb.changeUserPassword(user, pwd));
+    adminDb.changeUserPassword(user, pwd);
     print("Password changed.");
   }
 } catch (e) {
-  throw "Error creating admin user. (Reason: " + e + ")";
+  throw `Error creating admin user. (Reason: ${e})`;
 }
