@@ -15,7 +15,6 @@ startup: system
 hassio_role: default
 hassio_api: true
 homeassistant: 2025.05.5
-homeassistant_api: true
 init: false
 apparmor: true
 backup: cold
