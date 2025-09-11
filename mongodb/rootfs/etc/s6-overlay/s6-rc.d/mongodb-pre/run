@@ -49,8 +49,7 @@ echo -n "${PORT}" > /var/run/s6/container_environment/PORT
 
 bashio::log.info "Prepare MongoDB configuration"
 bashio::log.debug "Prestart MongoDB and execute initial scripts"
-mongod --quiet --config "${MONGOD_CONFIG}" --logpath /var/log/mongodb/init.log --configExpand "exec"
-# --fork 
+mongod --fork --quiet --config "${MONGOD_CONFIG}" --logpath /var/log/mongodb/init.log --configExpand "exec"
 sleep 5
 
 if [ "${AUTH_ENABLED}" = true ]; then
