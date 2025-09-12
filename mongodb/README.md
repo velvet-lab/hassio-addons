@@ -11,13 +11,13 @@ A really simple implementation of MongoDb Community Edition 7.x.
 
 MongoDB is a source-available, cross-platform, document-oriented database program. Classified as a NoSQL database product, MongoDB uses JSON-like documents with optional schemas. Released in February 2009 by 10gen (now MongoDB Inc.), it supports features like sharding, replication, and ACID transactions.
 
-## Configuration
+## Authentication
 
-Before starting the addon please set a strong admin password on configuration page. After starting the addon the connectionstring will be `mongodb://admin:<password>@<your-homeassistant-ip>:27017`. Default user is `admin`.
+If you want to enable authentication please set a strong password in the configuration page of the addon. After starting the addon the connectionstring will be `mongodb://admin:<password>@<your-homeassistant-ip>:27017`. Default user is `admin`.
 
 ## Replication
 
-If Replication is enabled, the addon will automatically configure a single-node replica set. This is required for some applications like  `RocketChat` integration. The default Replica Set name is `rs0`.
+If you want to enable Replication, set a Replication Set Name for the addon. It will automatically configure a single-node replica set. This is required for some applications like  `RocketChat` integration. The default Replica Set name is `rs01`.
 
 ## Support
 

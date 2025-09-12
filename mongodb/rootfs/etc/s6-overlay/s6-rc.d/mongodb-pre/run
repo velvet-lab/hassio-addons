@@ -6,6 +6,12 @@ DATA_ROOT="$ROOT/db"
 RUN_ROOT="/run/mongodb"
 MONGOD_CONFIG="/etc/mongod.conf"
 LOG_LEVEL=$(bashio::config 'log_level' 'warning') 
+PRE_RUN=true
+ADMIN_USER="admin"
+ADMIN_PASSWORD=
+REPLICA_SET_NAME=
+AUTH_ENABLED=false
+REPLICA_ENABLED=false
 
 # Set Log Level
 bashio::log.level "${LOG_LEVEL}"
@@ -13,12 +19,6 @@ bashio::log.level "${LOG_LEVEL}"
 bashio::log.info "Prepare MongoDB configuration"
 
 bashio::log.debug "Read configuration options"
-PRE_RUN=true
-REPLICA_ENABLED=$(bashio::config 'repl_enabled' 'false')
-REPLICA_SET_NAME=$(bashio::config 'repl_name' 'rs01')
-AUTH_ENABLED=$(bashio::config 'auth_enabled' 'false')
-ADMIN_USER="admin"
-ADMIN_PASSWORD=
 LOGGING_ENABLED=$([ "$LOG_LEVEL" = "trace" ] || [ "$LOG_LEVEL" = "debug" ] ||[ "$LOG_LEVEL" = "info" ] || [ "$LOG_LEVEL" = "notice" ] && echo "true" || echo "false")
 IP4_ADDRESS=$(bashio::network.ipv4_address) || true
 PORT=$(bashio::addon.port 27017) || true
@@ -38,6 +38,12 @@ fi
 
 if bashio::config.has_value 'admin_password'; then
     ADMIN_PASSWORD=$(bashio::config 'admin_password')
+    AUTH_ENABLED=true
+fi
+
+if bashio::config.has_value 'repl_name'; then
+    REPLICA_SET_NAME=$(bashio::config 'repl_name' 'rs01')
+    REPLICA_ENABLED=true
 fi
 
 bashio::log.debug "Export variables for use in other scripts"
@@ -45,12 +51,14 @@ echo -n "${PRE_RUN}" > /var/run/s6/container_environment/PRE_RUN
 echo -n "${DATA_ROOT}" > /var/run/s6/container_environment/DATA_ROOT
 echo -n "${REPLICA_ENABLED}" > /var/run/s6/container_environment/REPLICA_ENABLED
 echo -n "${REPLICA_SET_NAME}" > /var/run/s6/container_environment/REPLICA_SET_NAME
-echo -n "false" > /var/run/s6/container_environment/AUTH_ENABLED
-echo -n "false" > /var/run/s6/container_environment/LOGGING_ENABLED
 echo -n "${ADMIN_USER}" > /var/run/s6/container_environment/ADMIN_USER
 echo -n "${ADMIN_PASSWORD}" > /var/run/s6/container_environment/ADMIN_PASSWORD
 echo -n "${IP4_ADDRESS}" > /var/run/s6/container_environment/IP4_ADDRESS
 echo -n "${PORT}" > /var/run/s6/container_environment/PORT
+
+# Specifically set these to false for the pre-run script
+echo -n "false" > /var/run/s6/container_environment/AUTH_ENABLED
+echo -n "false" > /var/run/s6/container_environment/LOGGING_ENABLED
 
 bashio::log.debug "Replace original mongod.conf with our template"
 rm -f "${MONGOD_CONFIG}" || true
@@ -65,11 +73,7 @@ bashio::log.debug "Prestart MongoDB and execute initial scripts"
 mongod --fork --quiet --config "${MONGOD_CONFIG}" --logpath /var/log/mongodb/init.log --configExpand "exec"
 sleep 5
 
-if [ "${AUTH_ENABLED}" = true ]; then
-    if [ -z "${ADMIN_PASSWORD}" ]; then
-        bashio::log.fatal "You must set an admin password when enabling authentication"
-        exit 1
-    fi
+if [ "${AUTH_ENABLED}" = true ]; then    
     bashio::log.info "Create admin user"
     mongosh --eval "const args = ['${ADMIN_USER}', '${ADMIN_PASSWORD}'];" /etc/mongod.d/modify-user.js || true
 fi

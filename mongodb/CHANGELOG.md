@@ -99,3 +99,9 @@
 ## 2.1.1
 
 - Fix replica set name configuration
+
+## 2.2.0
+
+- Determine if authentication is enabled and require a password
+- Remove unused logging configuration
+- Remove unused authentication configuration
