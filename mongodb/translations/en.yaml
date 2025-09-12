@@ -8,6 +8,9 @@ configuration:
   repl_enabled:
     name: Replica Set
     description: Enable replica set (required for MongoDB clusters)
+  repl_name:
+    name: Replica Set Name
+    description: Set the name of the replica set (default: rs01)
   auth_enabled:
     name: Authentication
     description: Enable authentication for MongoDB
