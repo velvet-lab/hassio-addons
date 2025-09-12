@@ -2,6 +2,7 @@ eval(process.argv.slice(3)[0]);
 
 const ipAddress = args[0].trim();
 const port = args[1].trim();
+const replicaSetName = args[2].trim();
 
 let status = null;
 let isConfigured = false;
@@ -14,8 +15,12 @@ try {
     // this is ok, if no replica set is configured
 }
 
+if (!replicaSetName) {
+    replicaSetName = "rs0";
+}
+
 const config = {
-    _id: "rs0",
+    _id: replicaSetName,
     version: 1,
     members: [
         { _id: 0, host: `${ipAddress}:${port}` }

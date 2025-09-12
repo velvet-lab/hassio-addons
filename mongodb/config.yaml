@@ -1,6 +1,6 @@
 ---
 name: MongoDB
-version: 2.0.9
+version: 2.1.0
 stage: stable
 slug: mongodb
 description: >-
@@ -26,5 +26,6 @@ ports:
 schema:  
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   repl_enabled: bool?
+  repl_name: str?
   auth_enabled: bool?
   admin_password: password?

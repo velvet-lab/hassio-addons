@@ -91,3 +91,7 @@
 ## 2.0.9
 
 - Add admin role for replicat set users
+
+## 2.1.0
+
+- Make replica set name configurable

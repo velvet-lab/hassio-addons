@@ -15,6 +15,7 @@ bashio::log.info "Prepare MongoDB configuration"
 bashio::log.debug "Read configuration options"
 PRE_RUN=true
 REPLICA_ENABLED=$(bashio::config 'repl_enabled' 'false')
+REPLICA_SET_NAME=$(bashio::config 'repl_name' 'rs01')
 AUTH_ENABLED=$(bashio::config 'auth_enabled' 'false')
 ADMIN_USER="admin"
 ADMIN_PASSWORD=
@@ -43,6 +44,7 @@ bashio::log.debug "Export variables for use in other scripts"
 echo -n "${PRE_RUN}" > /var/run/s6/container_environment/PRE_RUN
 echo -n "${DATA_ROOT}" > /var/run/s6/container_environment/DATA_ROOT
 echo -n "${REPLICA_ENABLED}" > /var/run/s6/container_environment/REPLICA_ENABLED
+echo -n "${REPLICA_SET_NAME}" > /var/run/s6/container_environment/REPLICA_SET_NAME
 echo -n "false" > /var/run/s6/container_environment/AUTH_ENABLED
 echo -n "false" > /var/run/s6/container_environment/LOGGING_ENABLED
 echo -n "${ADMIN_USER}" > /var/run/s6/container_environment/ADMIN_USER
@@ -74,7 +76,7 @@ fi
 
 if  [ "${REPLICA_ENABLED}" = true ]; then
     bashio::log.info "Enable replica set"
-    mongosh --eval "const args = ['${IP4_ADDRESS}', '${PORT}'];" /etc/mongod.d/enable-replica.js || true
+    mongosh --eval "const args = ['${IP4_ADDRESS}', '${PORT}', '${REPLICA_SET_NAME}'];" /etc/mongod.d/enable-replica.js || true
 else
     bashio::log.info "Disable replica set"
     mongosh --eval "printjson(db.getSiblingDB('local').dropDatabase())" || true
