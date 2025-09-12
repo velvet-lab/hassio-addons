@@ -72,7 +72,7 @@ if  [ "${REPLICA_ENABLED}" = true ]; then
     REPL_CONFIG=$(cat << EOF
 # Replication settings
 replication:
-  replSetName: rs0
+  replSetName: ${REPLICA_SET_NAME}
 EOF
 )
     MONGO_CONFIG="${MONGO_CONFIG}\n${REPL_CONFIG}"

@@ -95,3 +95,7 @@
 ## 2.1.0
 
 - Make replica set name configurable
+
+## 2.1.1
+
+- Fix replica set name configuration
