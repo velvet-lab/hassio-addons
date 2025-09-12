@@ -4,7 +4,7 @@ configuration:
     description: Choose the Log Level  
   admin_password:
     name: Admin Password
-    description: Set the password for the MongoDB admin user
+    description: Set the password for the MongoDB admin user. Username is 'admin'
   repl_enabled:
     name: Replica Set
     description: Enable replica set (required for MongoDB clusters)

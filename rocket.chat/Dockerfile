@@ -20,15 +20,21 @@ WORKDIR /tmp
 RUN set -x \
     && apt-get update \
     && apt-get install -qy --no-install-recommends \
+        build-essential \
         curl \
         gnupg \
+        graphicsmagick \
         libssl-dev \
         openssl \
         unzip \ 
-        wget \  
-    && chmod +x /build/build.sh \
-    && /build/build.sh \
-    && rm -rf /build  \
+        wget \           
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -qy nodejs \
+    && npm install -g deno \
+    && curl -L https://releases.rocket.chat/7.10.0/download -o /tmp/rocket.chat.tgz \
+    && tar -xzf /tmp/rocket.chat.tgz -C /tmp \
+    && cd /tmp/bundle/programs/server && npm install --production \
+    && mv /tmp/bundle /opt/Rocket.Chat \
     && apt-get purge -y --auto-remove \
     && apt-get clean \
     && rm -rf \
@@ -59,8 +65,8 @@ LABEL \
     org.opencontainers.image.authors="velvet-lab (https://github.com/velvet-lab)" \
     org.opencontainers.image.licenses="MIT" \
     org.opencontainers.image.url="https://github.com/velvet-lab" \
-    org.opencontainers.image.source="https://github.com/velvet-lab/hassio-addons/tree/main/vocechat" \
-    org.opencontainers.image.documentation="https://github.com/velvet-lab/hassio-addons/blob/main/vocechat/README.md" \
+    org.opencontainers.image.source="https://github.com/velvet-lab/hassio-addons/tree/main/rocket.chat" \
+    org.opencontainers.image.documentation="https://github.com/velvet-lab/hassio-addons/blob/main/rocket.chat/README.md" \
     org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.revision=${BUILD_REF} \
     org.opencontainers.image.version=${BUILD_VERSION}
