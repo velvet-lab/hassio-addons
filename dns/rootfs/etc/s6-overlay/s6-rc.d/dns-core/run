@@ -5,11 +5,6 @@
 # Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'warning')"
 
-currentIPv4=$(hostname -i || true)
-currentIPv6=$(hostname -I | grep -oP '[a-f0-9:]+:+[a-f0-9]+' || true)
-
 bashio::log.info "Starting Dns/Dhcp Server..."
-bashio::log.info "Use IP '${currentIPv4}' for Home Assistant IPv4 DNS Server Konfiguration"
-bashio::log.info "Use IP '${currentIPv6}' for Home Assistant IPv6 DNS Server Konfiguration"
 exec /opt/dotnet/dotnet /opt/dns/DnsServerApp.dll /data/config
 

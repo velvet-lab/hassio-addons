@@ -78,3 +78,7 @@
 - Change init system for docker to new s6 format
 - Fix server download url in dockerfile
 
+## 2.1.0
+
+- Remove options which are could configured in the Dns/Dhcp Server directly
+- Remove default port (8053/tcp)

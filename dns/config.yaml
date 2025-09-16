@@ -1,6 +1,6 @@
 ---
 name: Dns/Dhcp Server
-version: 2.0.0
+version: 2.1.0
 stage: stable
 slug: dns
 description: >-
@@ -27,31 +27,16 @@ ports:
   53/tcp: 53
   53/udp: 53
   67/udp: 67
-  68/udp: 68
+  68/udp: 67
   5380/tcp: 5380
-  8053/tcp: 8053
+  8053/tcp: null
   853/tcp: null
   80/tcp: null
   443/tcp: null
 options:
   domain: homeassistant.local
-  admin_password: null
-  forwarders: null
-  local_time: true
-  dns_over_http: true
-  log_level: info
+  admin_password: null  
 schema:
   domain: str
   admin_password: password
-  prefer_ipv6: bool?
-  dns_over_http: bool?
-  recursion: list(Allow|Deny|AllowOnlyForPrivateNetworks|UseSpecifiedNetworks)?
-  recursion_denied_networks: str?
-  recursion_allowed_networks: str?
-  enable_blocking: bool?
-  allow_txt_blocking_report: bool?
-  block_list_urls: str?
-  forwarders: str
-  forwarder_protocol: list(Udp|Tcp|Tls|Https|HttpsJson)
-  local_time: bool
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
