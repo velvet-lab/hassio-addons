@@ -23,7 +23,7 @@ RUN set -x \
         curl \
         icu-devtools \
         wget \
-    && curl --proto "=https" --tlsv1.2 -sSf -L https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir /opt/dotnet --channel LTS --version latest --runtime aspnetcore \
+    && curl --proto "=https" --tlsv1.2 -sSf -L https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir /opt/dotnet --channel 9.0 --version latest --runtime aspnetcore \
     && curl --proto "=https" --tlsv1.2 -sSf -L https://download.technitium.com/dns/DnsServerPortable.tar.gz -o /tmp/DnsServerPortable.tar.gz \
     && mkdir -p /opt/dns \
     && tar -zxf DnsServerPortable.tar.gz -C /opt/dns/ \
