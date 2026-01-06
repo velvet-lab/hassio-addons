@@ -11,7 +11,7 @@ Before you can install/update this AddOn, change DNS Setting of your Home Assist
 The installation of this add-on is pretty straightforward and not different in
 comparison to installing any other Home Assistant add-on.
 
-1. Set a `domain`, `admin_password` and `forwarders`
+1. Set a `domain` and `admin_password`
 1. Start the "Dns/Dhcp Server" add-on.
 1. Check the logs of "Dns/Dhcp Server" to see if everything went well.
 1. Open the Web Admin UI by open Url `http://your-homeassistant-ip:5380`.
@@ -32,17 +32,6 @@ Example add-on configuration:
 ```yaml
 domain: homeassistant.local
 admin_password: Supercalifragilisticexpialidocious
-forwarders: "192.168.0.1, 192.168.0.2"
-local_time: true
-forwarder_protocol: Udp
-prefer_ipv6: true
-dns_over_http: true
-recursion: AllowOnlyForPrivateNetworks
-recursion_denied_networks: "192.168.0.100, 192.168.0.110"
-recursion_allowed_networks: "192.168.0.200, 192.168.0.210"
-enable_blocking: true
-allow_txt_blocking_report: true
-block_list_urls: "www.google.com, www.microsoft.com"
 log_level: warning
 ```
 
@@ -73,54 +62,6 @@ The primary domain name used by this DNS Server to identify itself
 ### Option: `admin_password`
 
 The DNS web console admin user password
-
-### Option: `prefer_ipv6`
-
-DNS Server will use IPv6 for querying whenever possible with this option enabled. Set it `true` to enable it, `false` otherwise.
-
-### Option: `dns_over_http`
-
-Enables DNS server optional protocol DNS-over-HTTP on TCP port 8053 to be used with a TLS terminating reverse proxy like nginx. Set it `true` to enable it, `false` otherwise
-
-**Note**: _Do not forget to configure the Port for this. Otherwise this will not work_
-
-### Option: `recursion`
-
-Recursion options are Allow, Deny, AllowOnlyForPrivateNetworks, UseSpecifiedNetworks.
-
-### Option: `recursion_denied_networks`
-
-Comma separated list of IP addresses or network addresses to deny recursion. Valid only for UseSpecifiedNetworks recursion option.
-
-### Option: `recursion_allowed_networks`
-
-Comma separated list of IP addresses or network addresses to allow recursion. Valid only for UseSpecifiedNetworks recursion option.
-
-### Option: `enable_blocking`
-
-Sets the DNS server to block domain names using Blocked Zone and Block List Zone.
-
-### Option: `allow_txt_blocking_report`
-
-Specifies if the DNS Server should respond with TXT records containing a blocked domain report for TXT type requests.
-
-### Option: `block_list_urls`
-
-A comma separated list of block list URLs.
-
-### Option: `forwarders`
-
-Comma separated list of forwarder addresses.
-
-**Note**: _Typically your Routers IP Address_
-
-### Option: `forwarder_protocol`
-
-Forwarder protocol options: Udp, Tcp, Tls, Https, HttpsJson. Default is Udp.
-
-### Option: `local_time`
-
-Enable this option to use local time instead of UTC for logging.
 
 ## Configuration folder
 

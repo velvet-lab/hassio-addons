@@ -4,40 +4,7 @@ configuration:
     description: The primary domain name used by this DNS Server to identify itself.
   admin_password:
     name: Admin Password
-    description: The DNS web console admin user password.
-  prefer_ipv6:
-    name: Enable IPv6
-    description: DNS Server will use IPv6 for querying whenever possible with this option enabled.
-  dns_over_http:
-    name: Enable DNS-over-HTTP
-    description: Enables DNS server optional protocol DNS-over-HTTP on TCP port 8053 to be used with a TLS terminating reverse proxy like nginx.
-  recursion:
-    name: DNS Recursion
-    description: "Recursion options: Allow, Deny, AllowOnlyForPrivateNetworks, UseSpecifiedNetworks."
-  recursion_denied_networks:
-    name: Denied networks
-    description: Comma separated list of IP addresses or network addresses to deny recursion. Valid only for UseSpecifiedNetworks recursion option.
-  recursion_allowed_networks:
-    name: Allowed Networks
-    description: Comma separated list of IP addresses or network addresses to allow recursion. Valid only for UseSpecifiedNetworks recursion option.
-  enable_blocking:
-    name: Enable Blocking
-    description: Sets the DNS server to block domain names using Blocked Zone and Block List Zone.
-  allow_txt_blocking_report:
-    name: Allow TXT Blocking Reports
-    description: Specifies if the DNS Server should respond with TXT records containing a blocked domain report for TXT type requests.
-  block_list_urls:
-    name: Blocked Urls
-    description: A comma separated list of block list URLs.
-  forwarders:
-    name: Forwarders
-    description: Comma separated list of forwarder addresses.
-  forwarder_protocol:
-    name: Forwarder Protocol
-    description: "Forwarder protocol options: Udp, Tcp, Tls, Https, HttpsJson."
-  local_time:
-    name: Local Time
-    description: Enable this option to use local time instead of UTC for logging.
+    description: The DNS web console admin user password.  
   log_level:
     name: Log Level
     description: Choose the Log Level

@@ -29,6 +29,7 @@ ports:
   67/udp: 67
   68/udp: 67
   5380/tcp: 5380
+  53443/tcp: null
   8053/tcp: null
   853/tcp: null
   80/tcp: null
