@@ -1,44 +1,19 @@
 {
     "version": "2.0.0",
     "tasks": [
-        {
-            "label": "Build Image",
-            "type": "shell",
-            "command": "docker build --build-arg BUILD_FROM='ghcr.io/home-assistant/amd64-base-debian:bullseye' --tag 'velvet-lab/${input:project_name}:latest' .",
-            "options": {
-                "cwd": "${workspaceFolder}/${input:project_name}"
-            },
-            "problemMatcher": []
+      {
+        "label": "Start Home Assistant",
+        "type": "shell",
+        "command": "supervisor_run",
+        "group": {
+          "kind": "test",
+          "isDefault": true
         },
-        {
-            "label": "Run Image",
-            "type": "shell",
-            "command": "docker run -d --rm -v '${workspaceFolder}/${input:project_name}/.devcontainer/mounts/data:/data' 'velvet-lab/${input:project_name}:latest'",
-            "problemMatcher": []
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
         },
-        {
-            "label": "Run Image with Ports",
-            "type": "shell",
-            "command": "docker run -d --rm -p '${input:addon_ports}' -v '${workspaceFolder}/${input:project_name}/.devcontainer/mounts/data:/data' 'velvet-lab/${input:project_name}:latest'",
-            "problemMatcher": []
-        }
-    ],
-    "inputs": [
-        {
-            "id": "project_name",
-            "type": "pickString",
-            "description": "Choose the Project to build",
-            "default": "dns",
-            "options": [
-                "dns",
-                "dyndns"
-            ]
-        },
-        {
-            "id": "addon_ports",
-            "type": "promptString",
-            "description": "Define the AddOn Ports in Docker Notation (e.g. <host>:<container>)",
-            "default": "8080:8080"
-        }
+        "problemMatcher": []
+      }
     ]
-}
+  }

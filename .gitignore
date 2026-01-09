@@ -1,9 +1,9 @@
-vocechat/.devcontainer/mounts/data/
-vocechat/.devcontainer/mounts/config/
-!vocechat/.devcontainer/mounts/data/options.json
 mongodb/.devcontainer/mounts/data/
 mongodb/.devcontainer/mounts/config/
 !mongodb/.devcontainer/mounts/data/options.json
 dns/.devcontainer/mounts/data/
 dns/.devcontainer/mounts/config/
 !dns/.devcontainer/mounts/data/options.json
+conduit/.devcontainer/mounts/data/
+conduit/.devcontainer/mounts/config/
+!conduit/.devcontainer/mounts/data/options.json
