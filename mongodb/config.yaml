@@ -23,7 +23,7 @@ backup_exclude:
 watchdog: tcp://[HOST]:27017
 ports:
   27017/tcp: 27017
-schema:  
+schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
-  repl_name: str?  
+  repl_name: str?
   admin_password: password?
