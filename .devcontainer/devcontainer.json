@@ -1,0 +1,58 @@
+{
+  "name": "Home Assistant Add-ons",
+  "image": "ghcr.io/home-assistant/devcontainer:2-addons",
+  "appPort": ["127.0.0.1:7123:8123", "127.0.0.1:7357:4357"],
+  "runArgs": ["-e", "GIT_EDITOR=code --wait", "--privileged"],
+  "remoteUser": "root",
+  "workspaceFolder": "/mnt/supervisor/addons/local/${localWorkspaceFolderBasename}",
+  "workspaceMount": "source=${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind,consistency=cached",
+  "containerEnv": {
+    "WORKSPACE_DIRECTORY": "${containerWorkspaceFolder}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "IBM.output-colorizer",
+        "Remisa.shellman",
+        "bat-snippets.bat-snippets",
+        "eriklynd.json-tools",
+        "esbenp.prettier-vscode",
+        "exiasr.hadolint",
+        "foxundermoon.shell-format",
+        "jeff-hykin.better-dockerfile-syntax",
+        "jetmartin.bats",
+        "lizebang.bash-extension-pack",
+        "mads-hartmann.bash-ide-vscode",
+        "mikeburgh.xml-format",
+        "nullvariant.git-id-switcher",
+        "redhat.vscode-xml",
+        "redhat.vscode-yaml",
+        "rogalmic.bash-debug",
+        "rpinski.shebang-snippets",
+        "timonwong.shellcheck",
+        "vscode-icons-team.vscode-icons",
+        "wdhongtw.gpg-indicator",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "/usr/bin/zsh"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "editor.formatOnPaste": false,
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "files.trimTrailingWhitespace": true
+      }
+    }
+  },
+  "mounts": [
+    "type=volume,target=/var/lib/docker",
+    "type=volume,target=/mnt/supervisor"
+  ],
+  "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/post-create.sh",
+  "postStartCommand": "${containerWorkspaceFolder}/.devcontainer/post-start.sh",
+  "postAttachCommand": "${containerWorkspaceFolder}/.devcontainer/post-attach.sh"
+}
