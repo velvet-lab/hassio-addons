@@ -20,7 +20,7 @@
       "BUILD_FROM": "ghcr.io/home-assistant/amd64-base-debian:bookworm"
     }
   },
-  "appPort": ["127.0.0.1:8000:8000/tcp"],
+  "appPort": ["127.0.0.1:8008:8008/tcp"],
   "privileged": true,
   "customizations": {
     "vscode": {

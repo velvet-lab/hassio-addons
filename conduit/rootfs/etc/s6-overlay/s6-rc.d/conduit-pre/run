@@ -55,7 +55,7 @@ if [ "$log_level" == "warning" ]; then
     log_level="warn"
 fi
 log_level=$(bashio::string.upper "$log_level")
-if bashio::var.is_empty "$registration_token"; then
+if bashio::var.has_value "$registration_token"; then
     registration_token="# registration_token = \"\" # No registration token set"
 else
     registration_token="registration_token = \"$registration_token\""
@@ -64,7 +64,7 @@ fi
 bashio::config.require 'server_name' "You need to set a server name for the Matrix Conduit server."
 
 bashio::log.debug "Checking for server name changes..."
-if ! bashio::var.is_empty "$current_server_name" && ! bashio::var.equals "$current_server_name" "$server_name"; then
+if bashio::var.has_value "$current_server_name" && ! bashio::var.equals "$current_server_name" "$server_name"; then
     bashio::log.warning "Server name could not changed. Uninstall, delete data and reinstall the addon to change the server name."
     server_name="$current_server_name"
 fi
