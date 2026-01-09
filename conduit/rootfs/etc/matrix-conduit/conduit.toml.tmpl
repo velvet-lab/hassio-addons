@@ -1,0 +1,81 @@
+[global]
+server_name = "${SERVER_NAME}"
+address = "0.0.0.0"
+
+# This is the only directory where Conduit will save its data
+database_backend = "rocksdb"
+database_path = "${DATA_ROOT}"
+
+# The port Conduit will be running on. You need to set up a reverse proxy in
+# your web server (e.g. apache or nginx), so all requests to /_matrix on port
+# 443 and 8448 will be forwarded to the Conduit instance running on this port
+# Docker users: Don't change this, you'll need to map an external port to this.
+port = ${PORT}
+
+# Max size for uploads
+max_request_size = ${MAX_REQUEST_SIZE}
+
+# Enables registration. If set to false, no users can register on this server.
+allow_registration = ${ALLOW_REGISTRATION}
+
+# A static registration token that new users will have to provide when creating
+# an account. YOU NEED TO EDIT THIS.
+# - Insert a password that users will have to enter on registration
+# - Start the line with '#' to remove the condition
+${REGISTRATION_TOKEN}
+
+allow_check_for_updates = false
+allow_federation = ${ALLOW_FEDERATION}
+allow_encryption = ${ALLOW_ENCRYPTION}
+allow_room_creation = ${ALLOW_ROOM_CREATION}
+allow_unstable_room_versions = ${ALLOW_UNSTABLE_ROOM_VERSIONS}
+default_room_version = "${DEFAULT_ROOM_VERSION}"
+
+# Enable the display name lightning bolt on registration.
+enable_lightning_bolt = false
+
+# Servers listed here will be used to gather public keys of other servers.
+# Generally, copying this exactly should be enough. (Currently, Conduit doesn't
+# support batched key requests, so this list should only contain Synapse
+# servers.)
+trusted_servers = ["matrix.org"]
+
+max_concurrent_requests = ${MAX_CONCURRENT_REQUESTS} # How many requests Conduit sends to other servers at the same time
+
+# Controls the log verbosity. See also https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html#directives
+log = "${LOG_LEVEL}"
+
+[global.well_known]
+# Conduit handles the /.well-known/matrix/* endpoints, making both clients and servers try to access conduit with the host
+# server_name and port 443 by default.
+# If you want to override these defaults, uncomment and edit the following lines accordingly:
+#server = your.server.name:443
+#client = https://your.server.name
+
+[global.media]
+backend = "filesystem"
+
+# Total for all media
+[[global.media.retention]]
+space = "${RETENTION_DEFAULT_SPACE}"
+accessed = "${RETENTION_DEFAULT_ACCESSED}"
+created = "${RETENTION_DEFAULT_CREATED}"
+
+[[global.media.retention]]
+scope = "remote"
+accessed = "${RETENTION_REMOTE_ACCESSED}"
+created = "${RETENTION_REMOTE_CREATED}"
+space = "${RETENTION_REMOTE_SPACE}"
+
+[[global.media.retention]]
+scope = "local"
+accessed = "${RETENTION_LOCAL_ACCESSED}"
+created = "${RETENTION_LOCAL_CREATED}"
+space = "${RETENTION_LOCAL_SPACE}"
+
+[[global.media.retention]]
+scope = "thumbnail"
+accessed = "${RETENTION_THUMBNAIL_ACCESSED}"
+created = "${RETENTION_THUMBNAIL_CREATED}"
+space = "${RETENTION_THUMBNAIL_SPACE}"
+

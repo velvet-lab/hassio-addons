@@ -1,0 +1,111 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+root=/data
+data_root="$root/conduit"
+
+default_port=8000
+default_log_level="info"
+server_name_file="${root}/server_name"
+
+# Set Log Level
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "$log_level"
+
+bashio::log.info "Starting Conduit pre-initialization script..."
+
+bashio::log.debug "Ensuring data directory exists..."
+if ! bashio::fs.directory_exists "$data_root"; then
+    mkdir -p "$data_root"
+    chmod 755 "$data_root"
+fi
+
+bashio::log.debug "Checking for existing server name..."
+if ! bashio::fs.file_exists "${server_name_file}"; then
+    touch "${server_name_file}"
+fi
+current_server_name=$(cat "${server_name_file}" 2>/dev/null || echo "")
+
+bashio::log.debug "Reading configuration options..."
+server_name=$(bashio::config 'server_name')
+allow_registration=$(bashio::config 'allow_registration' false)
+allow_federation=$(bashio::config 'allow_federation' false)
+allow_encryption=$(bashio::config 'allow_encryption' false)
+allow_room_creation=$(bashio::config 'allow_room_creation' false)
+allow_unstable_room_versions=$(bashio::config 'allow_unstable_room_versions' false)
+default_room_version=$(bashio::config 'default_room_version' "10")
+max_concurrent_requests=$(bashio::config 'max_concurrent_requests' 100)
+max_request_size=$(bashio::config 'max_request_size' 20000000)
+registration_token=$(bashio::config 'registration_token')
+retention_default_accessed=$(bashio::config 'retention_default_accessed' '30days')
+retention_default_created=$(bashio::config 'retention_default_created' '90days')
+retention_default_space=$(bashio::config 'retention_default_space' '50GB')
+retention_remote_accessed=$(bashio::config 'retention_remote_accessed' "$retention_default_accessed")
+retention_remote_created=$(bashio::config 'retention_remote_created' "$retention_default_created")
+retention_remote_space=$(bashio::config 'retention_remote_space' "$retention_default_space")
+retention_local_accessed=$(bashio::config 'retention_local_accessed' "$retention_default_accessed")
+retention_local_created=$(bashio::config 'retention_local_created' "$retention_default_created")
+retention_local_space=$(bashio::config 'retention_local_space' "$retention_default_space")
+retention_thumbnail_accessed=$(bashio::config 'retention_thumbnail_accessed' "$retention_default_accessed")
+retention_thumbnail_created=$(bashio::config 'retention_thumbnail_created' "$retention_default_created")
+retention_thumbnail_space=$(bashio::config 'retention_thumbnail_space' "$retention_default_space")
+port=$(bashio::addon.port "$default_port") || true
+
+bashio::log.debug "Preparing and validating environment variables..."
+if [ "$log_level" == "warning" ]; then
+    log_level="warn"
+fi
+log_level=$(bashio::string.upper "$log_level")
+if bashio::var.is_empty "$registration_token"; then
+    registration_token="# registration_token = \"\" # No registration token set"
+else
+    registration_token="registration_token = \"$registration_token\""
+fi
+
+if bashio::var.is_empty "$port"; then
+    port=$default_port
+fi
+
+bashio::config.require 'server_name' "You need to set a server name for the Matrix Conduit server."
+
+bashio::log.debug "Checking for server name changes..."
+if ! bashio::var.is_empty "$current_server_name" && ! bashio::var.equals "$current_server_name" "$server_name"; then
+    bashio::log.warning "Server name could not changed. Uninstall, delete data and reinstall the addon to change the server name."
+    server_name="$current_server_name"
+fi
+
+bashio::log.debug "Set environment variables for conduit..."
+export SERVER_NAME=$server_name
+export DATA_ROOT=$data_root
+export ALLOW_REGISTRATION=$allow_registration
+export ALLOW_FEDERATION=$allow_federation
+export MAX_REQUEST_SIZE=$max_request_size
+export MAX_CONCURRENT_REQUESTS=$max_concurrent_requests
+export ALLOW_ENCRYPTION=$allow_encryption
+export ALLOW_ROOM_CREATION=$allow_room_creation
+export ALLOW_UNSTABLE_ROOM_VERSIONS=$allow_unstable_room_versions
+export DEFAULT_ROOM_VERSION=$default_room_version
+export REGISTRATION_TOKEN=$registration_token
+export RETENTION_DEFAULT_ACCESSED=$retention_default_accessed
+export RETENTION_DEFAULT_CREATED=$retention_default_created
+export RETENTION_DEFAULT_SPACE=$retention_default_space
+export RETENTION_REMOTE_ACCESSED=$retention_remote_accessed
+export RETENTION_REMOTE_CREATED=$retention_remote_created
+export RETENTION_REMOTE_SPACE=$retention_remote_space
+export RETENTION_LOCAL_ACCESSED=$retention_local_accessed
+export RETENTION_LOCAL_CREATED=$retention_local_created
+export RETENTION_LOCAL_SPACE=$retention_local_space
+export RETENTION_THUMBNAIL_ACCESSED=$retention_thumbnail_accessed
+export RETENTION_THUMBNAIL_CREATED=$retention_thumbnail_created
+export RETENTION_THUMBNAIL_SPACE=$retention_thumbnail_space
+export PORT=$port
+export LOG_LEVEL=$log_level
+
+bashio::log.debug "Create conduit server configuration..."
+envsubst < /etc/matrix-conduit/conduit.toml.tmpl > /etc/matrix-conduit/conduit.toml
+chown -R root:root /etc/matrix-conduit
+chmod 755 /etc/matrix-conduit
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"

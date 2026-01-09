@@ -18,7 +18,7 @@ If you want to do add the repository manually, please follow the procedure highl
 
 Greate Dns/Dhcp Server provided by [Technitium](https://technitium.com/dns) boxed in a HA AddOn
 
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)  
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ### MongoDb Community Edition 7.x
@@ -27,14 +27,14 @@ A really simple implementation of MongoDb without TLS and Auth.
 
 **Remarks:** Currently only MongoDb till Version 7.x works on Raspberry. Version 8.x has issues with tsmalloc.
 
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)  
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ### Conduit
 
 Conduit is a simple, fast and reliable chat server powered by \[matrix\]
 
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)  
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ## Support
@@ -43,13 +43,13 @@ Got questions?
 
 You have several options to get them answered:
 
-*   [Discord chat server](https://www.home-assistant.io/join-chat) for general Home Assistant discussions and questions.
-*   [Community Forum](https://community.home-assistant.io)
-*   Join the Reddit in [r/homeassistant](https://reddit.com/r/homeassistant)
-*   Follow on X, use [@homeassistant](https://x.com/home_assistant)
-*   Join the [Facebook community](https://www.facebook.com/homeassistantio)
-*   You can also ask for help in the add-on's [GitHub Discussions](https://github.com/orgs/velvet-lab/discussions)
-*   If you think you found a bug in the add-on, please report it on [GitHub](https://github.com/velvet-lab/hassio-addons/issues)
+* [Discord chat server](https://www.home-assistant.io/join-chat) for general Home Assistant discussions and questions.
+* [Community Forum](https://community.home-assistant.io)
+* Join the Reddit in [r/homeassistant](https://reddit.com/r/homeassistant)
+* Follow on X, use [@homeassistant](https://x.com/home_assistant)
+* Join the [Facebook community](https://www.facebook.com/homeassistantio)
+* You can also ask for help in the add-on's [GitHub Discussions](https://github.com/orgs/velvet-lab/discussions)
+* If you think you found a bug in the add-on, please report it on [GitHub](https://github.com/velvet-lab/hassio-addons/issues)
 
 ## Authors & Contributors
 

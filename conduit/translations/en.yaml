@@ -1,0 +1,70 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: Choose the log level for the service (e.g., info, debug, warning, error).
+  server_name:
+    name: Server Name
+    description: The public name of your Matrix server (e.g., matrix.example.com).
+  allow_registration:
+    name: Allow Registration
+    description: Allow new users to register accounts on this server.
+  allow_federation:
+    name: Allow Federation
+    description: Enable or disable federation with other Matrix servers.
+  allow_encryption:
+    name: Allow Encryption
+    description: Allow end-to-end encryption for rooms and messages.
+  allow_room_creation:
+    name: Allow Room Creation
+    description: Allow users to create new rooms on this server.
+  allow_unstable_room_versions:
+    name: Allow Unstable Room Versions
+    description: Permit the use of experimental or unstable room versions.
+  default_room_version:
+    name: Default Room Version
+    description: The default version to use when creating new rooms.
+  max_concurrent_requests:
+    name: Max Concurrent Requests
+    description: Maximum number of simultaneous requests the server will handle.
+  max_request_size:
+    name: Max Request Size
+    description: Maximum size (in bytes) for incoming requests.
+  registration_token:
+    name: Registration Token
+    description: Token required for user registration (if registration is restricted).
+  retention_default_accessed:
+    name: Retention Default Accessed
+    description: Default retention period (in days) for accessed messages/files.
+  retention_default_created:
+    name: Retention Default Created
+    description: Default retention period (in days) for newly created messages/files.
+  retention_default_space:
+    name: Retention Default Space
+    description: Default storage space (in MB) allocated for message/file retention.
+  retention_remote_accessed:
+    name: Retention Remote Accessed
+    description: Retention period (in days) for accessed remote messages/files.
+  retention_remote_created:
+    name: Retention Remote Created
+    description: Retention period (in days) for newly created remote messages/files.
+  retention_remote_space:
+    name: Retention Remote Space
+    description: Storage space (in MB) for remote message/file retention.
+  retention_local_accessed:
+    name: Retention Local Accessed
+    description: Retention period (in days) for accessed local messages/files.
+  retention_local_created:
+    name: Retention Local Created
+    description: Retention period (in days) for newly created local messages/files.
+  retention_local_space:
+    name: Retention Local Space
+    description: Storage space (in MB) for local message/file retention.
+  retention_thumbnail_accessed:
+    name: Retention Thumbnail Accessed
+    description: Retention period (in days) for accessed thumbnails.
+  retention_thumbnail_created:
+    name: Retention Thumbnail Created
+    description: Retention period (in days) for newly created thumbnails.
+  retention_thumbnail_space:
+    name: Retention Thumbnail Space
+    description: Storage space (in MB) for thumbnail retention.

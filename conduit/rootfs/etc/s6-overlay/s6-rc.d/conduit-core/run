@@ -1,0 +1,18 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'warning')"
+
+bashio::log.info "Prepare start for conduit server..."
+
+# bashio::log.debug "Create configuration"
+# envsubst < /etc/matrix-conduit/conduit.toml.tmpl > /etc/matrix-conduit/conduit.toml
+# chown -R root:root /etc/matrix-conduit
+# chmod 755 /etc/matrix-conduit
+
+bashio::log.info "Starting conduit server..."
+export CONDUIT_CONFIG=/etc/matrix-conduit/conduit.toml
+exec /usr/local/bin/matrix-conduit
+
