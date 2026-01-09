@@ -20,9 +20,9 @@ apparmor: true
 backup: cold
 backup_exclude:
   - /data/app.err
-watchdog: tcp://[HOST]:[PORT:8000]
+watchdog: tcp://[HOST]:[PORT:8008]
 ports:
-  8000/tcp: 8000
+  8008/tcp: 8008
   8448/tcp: 8448
 options:
   server_name: null
