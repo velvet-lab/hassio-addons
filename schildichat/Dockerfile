@@ -25,18 +25,7 @@ RUN set -x \
         ca-certificates \
         gettext-base \
         nginx \
-    && ARCH="$(uname -m)" \
-    && if [ "$ARCH" = "x86_64" ]; then \
-            ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/master/raw/x86_64-unknown-linux-musl?job=artifacts"; \
-        elif [ "$ARCH" = "aarch64" ]; then \
-            ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/master/raw/aarch64-unknown-linux-musl?job=artifacts"; \
-        else \
-            echo "Unsupported architecture: $ARCH" && exit 1; \
-        fi \
-    && curl --proto "=https" --tlsv1.2 -sSf -L "$ARTIFACT_URL" -o  /tmp/conduit  \
     && curl --proto "=https" --tlsv1.2 -sSf -L "https://github.com/SchildiChat/schildichat-desktop/releases/download/v1.11.36-sc.3/schildichat-web-1.11.36-sc.3.tar.gz" -o /tmp/schildichat.tar.gz \
-    && chmod +x /tmp/conduit \
-    && mv /tmp/conduit /usr/local/bin/matrix-conduit \
     && tar -xzf /tmp/schildichat.tar.gz -C /opt/ \
     && mv /opt/schildichat-web-1.11.36-sc.3 /opt/schildichat-web \
     && apt-get purge -y --auto-remove \
@@ -46,8 +35,6 @@ RUN set -x \
         /var/lib/apt/lists/* \
         /root/.cache
 
-EXPOSE 8448/tcp
-EXPOSE 8000/tcp
 EXPOSE 8080/tcp
 
 ARG BUILD_ARCH

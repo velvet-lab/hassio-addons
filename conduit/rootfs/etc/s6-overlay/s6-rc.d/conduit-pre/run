@@ -4,7 +4,6 @@
 root=/data
 data_root="$root/conduit"
 
-default_port=8000
 default_log_level="info"
 server_name_file="${root}/server_name"
 
@@ -94,6 +93,8 @@ export RETENTION_THUMBNAIL_ACCESSED=$retention_thumbnail_accessed
 export RETENTION_THUMBNAIL_CREATED=$retention_thumbnail_created
 export RETENTION_THUMBNAIL_SPACE=$retention_thumbnail_space
 export LOG_LEVEL=$log_level
+
+echo -n "/etc/matrix-conduit/conduit.toml" > "/var/run/s6/container_environment/CONDUIT_CONFIG"
 
 bashio::log.debug "Create conduit server configuration..."
 envsubst < /etc/matrix-conduit/conduit.toml.tmpl > /etc/matrix-conduit/conduit.toml

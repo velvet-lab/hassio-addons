@@ -5,8 +5,8 @@
 # Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'warning')"
 
-bashio::log.info "Prepare start for conduit server..."
+bashio::log.info "Prepare start for nginx server..."
 
-bashio::log.info "Starting conduit server..."
-exec /usr/local/bin/matrix-conduit
+bashio::log.info "Starting nginx server..."
+exec nginx -g 'daemon off;'
 

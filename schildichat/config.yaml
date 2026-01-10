@@ -1,10 +1,10 @@
 ---
-name: Conduit
+name: SchildiChat
 version: 1.0.0
 stage: stable
-slug: conduit
+slug: schildichat
 description: >-
-  A simple, fast and reliable chat server powered by matrix
+  SchildiChat is a feature-rich messenger for Matrix based on Element with some extras and tweaks.
 url: https://github.com/velvet-lab/hassio-addons/tree/main/conduit
 arch:
   - amd64
@@ -20,10 +20,8 @@ apparmor: true
 backup: cold
 backup_exclude:
   - /data/app.err
-watchdog: tcp://[HOST]:[PORT:8000]
+watchdog: tcp://[HOST]:[PORT:8080]
 ports:
-  8000/tcp: 8000
-  8448/tcp: 8448
   8080/tcp: 8080
 options:
   server_name: null

@@ -1,6 +1,6 @@
-# Home Assistant Add-on: Conduit
+# Home Assistant Add-on: SchildiChat
 
-Conduit is a simple, fast and reliable chat server powered by \[matrix\]
+SchildiChat is a feature-rich messenger for \[Matrix\] based on Element with some extras and tweaks.
 
 ![GitHub Sponsor](https://img.shields.io/github/sponsors/danlorb?label=Sponsor&logo=githubsponsors) ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)
 

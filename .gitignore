@@ -10,3 +10,6 @@ conduit/.devcontainer/mounts/config/
 rustfs/.devcontainer/mounts/data/
 rustfs/.devcontainer/mounts/config/
 !rustfs/.devcontainer/mounts/data/options.json
+schildichat/.devcontainer/mounts/data/
+schildichat/.devcontainer/mounts/config/
+!schildichat/.devcontainer/mounts/data/options.json
