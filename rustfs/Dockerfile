@@ -36,7 +36,7 @@ RUN set -x \
     && unzip rustfs.zip \
     && chmod +x /tmp/rustfs \
     && mv /tmp/rustfs /usr/local/bin/ \
-    && apt-get remove -y curl unzip  \
+    && apt-get remove -y unzip  \
     && apt-get purge -y --auto-remove \
     && apt-get clean \
     && rm -rf \
