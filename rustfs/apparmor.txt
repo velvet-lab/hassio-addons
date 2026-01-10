@@ -1,56 +1,52 @@
 #include <tunables/global>
 
-profile dns flags=(attach_disconnected,mediate_deleted) {
+profile rustfs flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
   # Capabilities
-  capability,
   file,
-  signal,
-  mount,
-  umount,
-  remount,
-  network udp,
-  network tcp,
-  network dgram,
-  network stream,
-  network inet raw,
-  network inet6 raw,
-  network netlink raw,
-  network unix dgram,
-
-  capability setgid,
-  capability setuid,
-  capability sys_admin,
-  capability net_bind_service,
-  capability dac_read_search,
-  # capability dac_override,
-  # capability sys_rawio,
+  signal (send) set=(kill,term,int,hup,cont),
 
   # S6-Overlay
   /init ix,
   /bin/** ix,
   /usr/bin/** ix,
-  /etc/s6/** rix,
-  /run/s6/** rix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
   /etc/services.d/** rwix,
   /etc/cont-init.d/** rwix,
   /etc/cont-finish.d/** rwix,
-  /run/** rwk,
+  /run/{,**} rwk,
+  /dev/tty rw,
 
   # Bashio
   /usr/lib/bashio/** ix,
-  /tmp/** rw,
+  /tmp/** rwk,
 
-  # Data access
+  # Access to options.json and other files within your addon
   /data/** rw,
 
-  # Execution program
-  /usr/bin/dotnet ix,
+  # Start new profile for service
+  /usr/local/bin/rustfs cx -> rustfs_service,
 
-  # Supress PTrace denials when using 'docker ps' or using 'ps' inside a container
-  ptrace (trace,read) peer=docker-default,
+  profile rustfs_service flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
 
-  # Docker Daemon confinement requires explict allow rule for signal
-  signal (receive) set=(kill,term) peer=/usr/bin/docker,
+    # Receive signals from S6-Overlay
+    signal (receive) peer=*_rustfs,
+
+    # Access to options.json and other files within your addon
+    /data/** rw,
+
+    # Access to mapped volumes specified in config.json
+    /share/** rw,
+
+    # Access required for service functionality
+    /usr/local/bin/rustf r,
+    /bin/bash rix,
+    /bin/echo ix,
+    /etc/passwd r,
+    /dev/tty rw,
+  }
 }
