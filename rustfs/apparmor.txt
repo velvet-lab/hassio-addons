@@ -37,34 +37,34 @@ profile rustfs flags=(attach_disconnected,mediate_deleted) {
   /dev/urandom r,                # Entropiequelle
 
   # Service‑Profil
-  /usr/local/bin/rustfs cx -> rustfs_service
-}
+  /usr/local/bin/rustfs cx -> rustfs_service,
 
-profile rustfs_service flags=(attach_disconnected,mediate_deleted) {
-  #include <abstractions/base>
+  profile rustfs_service flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
 
-  # Receive signals from S6-Overlay
-  signal (receive) peer=*_rustfs,
+    # Receive signals from S6-Overlay
+    signal (receive) peer=*_rustfs,
 
-  # Access to options.json and other files within your addon
-  /data/** rw,
+    # Access to options.json and other files within your addon
+    /data/** rw,
 
-  # Access to mapped volumes specified in config.json
-  /share/** rw,
+    # Access to mapped volumes specified in config.json
+    /share/** rw,
 
-  # Access required for service functionality
-  /usr/local/bin/rustf r,
-  /bin/bash rix,
-  /bin/echo ix,
-  /etc/passwd r,
-  /dev/tty rw,
+    # Access required for service functionality
+    /usr/local/bin/rustf r,
+    /bin/bash rix,
+    /bin/echo ix,
+    /etc/passwd r,
+    /dev/tty rw,
 
-  #--- Ergänzungen --------------------------------------
-  capability sys_ptrace,
-  capability dac_override,
-  /proc/** r,
-  /proc/self/** r,
-  /dev/shm/** mrwix,
-  owner /** mrwix,
-  /dev/urandom r,
+    #--- Ergänzungen --------------------------------------
+    capability sys_ptrace,
+    capability dac_override,
+    /proc/** r,
+    /proc/self/** r,
+    /dev/shm/** mrwix,
+    owner /** mrwix,
+    /dev/urandom r,
+  }
 }
