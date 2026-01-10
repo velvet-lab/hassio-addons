@@ -30,9 +30,9 @@ name: SonarCloud analysis
 
 on:
   push:
-    branches: [ "main", "next" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "next" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -40,7 +40,7 @@ permissions:
 
 jobs:
   Analysis:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Prepare environment variables for sonar scan
         id: prepare_env
