@@ -10,20 +10,20 @@ arch:
   - amd64
   - aarch64
 codenotary: info@velvet-lab.org
-host_network: false
-startup: system
-hassio_role: default
-hassio_api: true
+startup: services
 homeassistant: 2026.1.0
 ingress: true
 ingress_port: 9001
 init: false
 apparmor: true
+services:
+  - s3:provide
 backup: hot
 backup_exclude:
   - /data/app.err
   - /data/logs/*
 watchdog: tcp://[HOST]:[PORT:9000]
+webui:
 ports:
   9000/tcp: 9000
   9001/tcp: 9001
