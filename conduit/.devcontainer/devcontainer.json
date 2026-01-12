@@ -10,7 +10,7 @@
     },
     {
       "source": "${localWorkspaceFolder}/.devcontainer/mounts/config",
-      "target": "/config",
+      "target": "/homeassistant",
       "type": "bind"
     }
   ],

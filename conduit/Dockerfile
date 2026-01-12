@@ -20,11 +20,10 @@ WORKDIR /tmp
 RUN set -x \
     && apt-get update \
     && apt-get install -qy --no-install-recommends \
-        curl \
-        icu-devtools \
         ca-certificates \
+        curl \
         gettext-base \
-        nginx \
+        icu-devtools \
     && ARCH="$(uname -m)" \
     && if [ "$ARCH" = "x86_64" ]; then \
             ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/master/raw/x86_64-unknown-linux-musl?job=artifacts"; \
@@ -34,11 +33,8 @@ RUN set -x \
             echo "Unsupported architecture: $ARCH" && exit 1; \
         fi \
     && curl --proto "=https" --tlsv1.2 -sSf -L "$ARTIFACT_URL" -o  /tmp/conduit  \
-    && curl --proto "=https" --tlsv1.2 -sSf -L "https://github.com/SchildiChat/schildichat-desktop/releases/download/v1.11.36-sc.3/schildichat-web-1.11.36-sc.3.tar.gz" -o /tmp/schildichat.tar.gz \
-    && chmod +x /tmp/conduit \
+        && chmod +x /tmp/conduit \
     && mv /tmp/conduit /usr/local/bin/matrix-conduit \
-    && tar -xzf /tmp/schildichat.tar.gz -C /opt/ \
-    && mv /opt/schildichat-web-1.11.36-sc.3 /opt/schildichat-web \
     && apt-get purge -y --auto-remove \
     && apt-get clean \
     && rm -rf \
