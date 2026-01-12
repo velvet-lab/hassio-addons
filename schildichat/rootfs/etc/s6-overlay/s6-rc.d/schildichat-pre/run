@@ -3,7 +3,8 @@
 # shellcheck shell=bash
 root=/data
 data_root="$root/rustfs"
-config_root="/homeassistant/addons/schildichat"
+homeassistant_root="/homeassistant"
+config_root="$homeassistant_root/addons/schildichat"
 web_root="/opt/schildichat-web"
 
 default_log_level="info"
@@ -25,6 +26,9 @@ if ! bashio::fs.directory_exists "$config_root"; then
     mkdir -p "$config_root"
     chmod 755 "$config_root"
 fi
+
+bashio::log.debug "Ensuring Home Assistant config root has correct rights..."
+chmod 755 "$homeassistant_root"
 
 if ! bashio::fs.file_exists "$config_root/config.json"; then
     bashio::log.info "Creating default configuration file..."
