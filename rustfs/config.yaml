@@ -16,8 +16,6 @@ ingress: true
 ingress_port: 9001
 init: false
 apparmor: true
-services:
-  - s3:provide
 backup: hot
 backup_exclude:
   - /data/app.err
