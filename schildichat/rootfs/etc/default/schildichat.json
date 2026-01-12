@@ -8,10 +8,10 @@
             "base_url": "https://vector.im"
         }
     },
-    "disable_custom_urls": false,
-    "disable_guests": false,
-    "disable_login_language_selector": false,
-    "disable_3pid_login": false,
+    "disable_custom_urls": true,
+    "disable_guests": true,
+    "disable_login_language_selector": true,
+    "disable_3pid_login": true,
     "brand": "SchildiChat",
     "integrations_ui_url": "https://scalar.vector.im/",
     "integrations_rest_url": "https://scalar.vector.im/api",
@@ -22,10 +22,10 @@
         "https://scalar-staging.vector.im/api",
         "https://scalar-staging.riot.im/scalar/api"
     ],
-    "default_country_code": "GB",
-    "show_labs_settings": true,
+    "default_country_code": "DE",
+    "show_labs_settings": false,
     "features": {},
-    "default_federate": true,
+    "default_federate": false,
     "default_theme": "light",
     "room_directory": {
         "servers": ["matrix.org"]

@@ -20,14 +20,15 @@ WORKDIR /tmp
 RUN set -x \
     && apt-get update \
     && apt-get install -qy --no-install-recommends \
-        curl \
-        icu-devtools \
         ca-certificates \
+        curl \
         gettext-base \
+        icu-devtools \
         nginx \
     && curl --proto "=https" --tlsv1.2 -sSf -L "https://github.com/SchildiChat/schildichat-desktop/releases/download/v1.11.36-sc.3/schildichat-web-1.11.36-sc.3.tar.gz" -o /tmp/schildichat.tar.gz \
     && tar -xzf /tmp/schildichat.tar.gz -C /opt/ \
     && mv /opt/schildichat-web-1.11.36-sc.3 /opt/schildichat-web \
+    && ln -s /etc/nginx/sites-available/schildichat /etc/nginx/sites-enabled/schildichat \
     && apt-get purge -y --auto-remove \
     && apt-get clean \
     && rm -rf \
@@ -56,10 +57,10 @@ LABEL \
     org.opencontainers.image.authors="velvet-lab (https://github.com/velvet-lab)" \
     org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.description="${BUILD_DESCRIPTION}" \
-    org.opencontainers.image.documentation="https://github.com/velvet-lab/hassio-addons/blob/main/conduit/README.md" \
+    org.opencontainers.image.documentation="https://github.com/velvet-lab/hassio-addons/blob/main/schildichat/README.md" \
     org.opencontainers.image.licenses="MIT" \
     org.opencontainers.image.revision=${BUILD_REF} \
-    org.opencontainers.image.source="https://github.com/velvet-lab/hassio-addons/tree/main/conduit" \
+    org.opencontainers.image.source="https://github.com/velvet-lab/hassio-addons/tree/main/schildichat" \
     org.opencontainers.image.title="${BUILD_NAME}" \
     org.opencontainers.image.url="https://github.com/velvet-lab" \
     org.opencontainers.image.vendor="Home Assistant Add-ons" \

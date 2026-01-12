@@ -1,0 +1,42 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+root=/data
+data_root="$root/rustfs"
+config_root="/config/addons/schildichat"
+web_root="/opt/schildichat-web"
+
+default_log_level="info"
+
+# Set Log Level
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "$log_level"
+
+bashio::log.info "Starting Schildichat pre-initialization script..."
+
+bashio::log.debug "Ensuring data directory exists..."
+if ! bashio::fs.directory_exists "$data_root"; then
+    mkdir -p "$data_root"
+    chmod 755 "$data_root"
+fi
+
+bashio::log.debug "Ensuring config directory exists..."
+if ! bashio::fs.directory_exists "$config_root"; then
+    mkdir -p "$config_root"
+    chmod 755 "$config_root"
+fi
+
+if ! bashio::fs.file_exists "$config_root/config.json"; then
+    bashio::log.info "Creating default configuration file..."
+    cp /etc/default/schildichat.json "$config_root/config.json"
+    chmod 644 "$config_root/config.json"
+fi
+
+if ! bashio::fs.file_exists "$web_root/config.json"; then
+    bashio::log.info "Linking configuration file to web root..."
+    ln -s "$config_root"/config.json "$web_root/config.json"
+fi
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"
