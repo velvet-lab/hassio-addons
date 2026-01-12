@@ -17,6 +17,9 @@ hassio_api: true
 homeassistant: 2026.1.0
 init: false
 apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
 backup: cold
 backup_exclude:
   - /data/app.err
@@ -24,30 +27,8 @@ watchdog: tcp://[HOST]:[PORT:8000]
 ports:
   8000/tcp: 8000
   8448/tcp: 8448
-  8080/tcp: 8080
 options:
   server_name: null
 schema:
   server_name: str
-  allow_registration: bool?
-  allow_federation: bool?
-  allow_encryption: bool?
-  allow_room_creation: bool?
-  allow_unstable_room_versions: bool?
-  default_room_version: str?
-  max_concurrent_requests: int?
-  max_request_size: int?
-  registration_token: password?
-  retention_default_accessed: str?
-  retention_default_created: str?
-  retention_default_space: str?
-  retention_remote_accessed: str?
-  retention_remote_created: str?
-  retention_remote_space: str?
-  retention_local_accessed: str?
-  retention_local_created: str?
-  retention_local_space: str?
-  retention_thumbnail_accessed: str?
-  retention_thumbnail_created: str?
-  retention_thumbnail_space: str?
   log_level: list(trace|debug|info|notice|warning|error|fatal)?

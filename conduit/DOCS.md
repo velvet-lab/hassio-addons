@@ -1,7 +1,5 @@
 # Home Assistant Community Add-on: Conduit
 
-[Matrix](https://matrix.org/) is an open network for secure and decentralized communication. Users from every Matrix homeserver can chat with users from all other Matrix servers. You can even use bridges to communicate with users outside of Matrix, like a community on Discord. For more information, please see [Conduit](https://conduit.rs/).
-
 ## Installation
 
 The installation of this add-on is pretty straightforward and not different in comparison to installing any other Home Assistant add-on.
@@ -14,6 +12,9 @@ The installation of this add-on is pretty straightforward and not different in c
 **Note**: The add-on is **pre-configured** out of the box! There is no need to add/change/update the server connection settings!
 
 ## Configuration
+
+On first start, the add-on will copy its default configuration file to the `/homeassistant/addons/conduit` folder. You can
+then modify the configuration by adding options to the configuration, for example with Visual Studio Code or any text editor.
 
 **Note**: _Remember to restart the add-on when the configuration is changed._
 
@@ -47,26 +48,6 @@ you are troubleshooting.
 ### Option: `server_name`
 
 The name of the server. Must be a dns compatible name
-
-### Option: `allow_registration`
-
-Opens your homeserver to public registration
-
-### Option: `allow_federation`
-
-Allow federation with other servers
-
-### Option: `max_concurrent_requests`
-
-The maximum number of concurrent requests
-
-### Option: `max_request_size`
-
-The maximum request size, in bytes
-
-### Option: `registration_token`
-
-The token users need to have when registering to your homeserver
 
 ## Data folder
 
