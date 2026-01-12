@@ -17,8 +17,8 @@ hassio_api: true
 homeassistant: 2026.1.0
 init: false
 map:
-  - homeassistant_config:
-      read_only: false
+  - type: homeassistant_config
+    read_only: false
 apparmor: true
 backup: cold
 backup_exclude:
