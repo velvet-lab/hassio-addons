@@ -1,26 +1,25 @@
-# Home Assistant Community Add-on: Conduit
-
-[Matrix](https://matrix.org/) is an open network for secure and decentralized communication. Users from every Matrix homeserver can chat with users from all other Matrix servers. You can even use bridges to communicate with users outside of Matrix, like a community on Discord. For more information, please see [Conduit](https://conduit.rs/).
+# Home Assistant Community Add-on: SchildiChat
 
 ## Installation
 
 The installation of this add-on is pretty straightforward and not different in comparison to installing any other Home Assistant add-on.
 
-1.  Set a `server_name`
-2.  Start the "Conduit Server" add-on.
-3.  Check the logs of "Dns/Dhcp Server" to see if everything went well.
-4.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:6736`.
+1.  Start the "SchildiChat" add-on.
+2.  Check the logs of "SchildiChant" to see if everything went well.
+3.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:8080`.
 
 **Note**: The add-on is **pre-configured** out of the box! There is no need to add/change/update the server connection settings!
 
 ## Configuration
+
+On first start, the add-on will copy its default configuration file to the `/homeassistant/addons/schildichat` folder. You can
+then modify the configuration by adding options to the configuration, for example with Visual Studio Code or any text editor.
 
 **Note**: _Remember to restart the add-on when the configuration is changed._
 
 Example add-on configuration:
 
 ```
-server_name: homeassistant.local
 log_level: warning
 ```
 
@@ -43,30 +42,6 @@ Please note that each level automatically includes log messages from a
 more severe level, e.g., `debug` also shows `info` messages. By default,
 the `log_level` is set to `info`, which is the recommended setting unless
 you are troubleshooting.
-
-### Option: `server_name`
-
-The name of the server. Must be a dns compatible name
-
-### Option: `allow_registration`
-
-Opens your homeserver to public registration
-
-### Option: `allow_federation`
-
-Allow federation with other servers
-
-### Option: `max_concurrent_requests`
-
-The maximum number of concurrent requests
-
-### Option: `max_request_size`
-
-The maximum request size, in bytes
-
-### Option: `registration_token`
-
-The token users need to have when registering to your homeserver
 
 ## Data folder
 

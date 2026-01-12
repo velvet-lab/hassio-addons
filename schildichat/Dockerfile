@@ -36,6 +36,8 @@ RUN set -x \
         /var/lib/apt/lists/* \
         /root/.cache
 
+WORKDIR /opt/schildichat-web
+
 EXPOSE 8080/tcp
 
 ARG BUILD_ARCH

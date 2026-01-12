@@ -3,7 +3,7 @@
 # shellcheck shell=bash
 root=/data
 data_root="$root/rustfs"
-config_root="/config/addons/schildichat"
+config_root="/homeassistant/addons/schildichat"
 web_root="/opt/schildichat-web"
 
 default_log_level="info"
