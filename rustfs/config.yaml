@@ -21,14 +21,17 @@ backup_exclude:
   - /data/app.err
   - /data/logs/*
 watchdog: tcp://[HOST]:[PORT:9000]
+webui: "[PROTO:ssl]://[HOST]:[PORT:9001]/rustfs/console/auth/login"
 ports:
   9000/tcp: 9000
   9001/tcp: 9001
 options:
   access_key: rustfsadmin
   secret_key: rustfsadmin
+  ssl: false
 schema:
   access_key: str
   secret_key: password
   console_enable: bool?
+  ssl: bool?
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
