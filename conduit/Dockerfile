@@ -33,7 +33,7 @@ RUN set -x \
             echo "Unsupported architecture: $ARCH" && exit 1; \
         fi \
     && curl --proto "=https" --tlsv1.2 -sSf -L "$ARTIFACT_URL" -o  /tmp/conduit  \
-        && chmod +x /tmp/conduit \
+    && chmod +x /tmp/conduit \
     && mv /tmp/conduit /usr/local/bin/matrix-conduit \
     && apt-get purge -y --auto-remove \
     && apt-get clean \
