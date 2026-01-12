@@ -28,7 +28,7 @@ ports:
   8000/tcp: 8000
   8448/tcp: 8448
 options:
-  server_name: null
+  server_name: homeassistant.local
 schema:
   server_name: str
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
