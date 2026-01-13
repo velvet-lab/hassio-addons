@@ -17,13 +17,17 @@ hassio_api: true
 homeassistant: 2025.05.5
 init: false
 apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
 backup: cold
 backup_exclude:
   - "/data/app.err"
-watchdog: tcp://[HOST]:27017
+watchdog: tcp://[HOST]:[PORT:27017]
 ports:
   27017/tcp: 27017
+options:
+  admin_password: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
-  repl_name: str?
   admin_password: password?

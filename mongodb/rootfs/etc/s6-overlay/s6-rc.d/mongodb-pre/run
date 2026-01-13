@@ -1,108 +1,107 @@
 #!/command/with-contenv bashio
 # vim: ft=bash
 # shellcheck shell=bash
-ROOT=/data
-DATA_ROOT="$ROOT/db"
-RUN_ROOT="/run/mongodb"
-MONGOD_CONFIG="/etc/mongod.conf"
-LOG_LEVEL=$(bashio::config 'log_level' 'warning') 
-PRE_RUN=true
-ADMIN_USER="admin"
-ADMIN_PASSWORD=
-REPLICA_SET_NAME=
-AUTH_ENABLED=false
-REPLICA_ENABLED=false
+root=/data
+data_root="$root/mongodb"
+homeassistant_root="/homeassistant"
+config_root="$homeassistant_root/addons/mongodb"
+mongodb_config="$config_root/config.conf"
 
-# Set Log Level
-bashio::log.level "${LOG_LEVEL}"
+run_root="/run/mongodb"
+
+default_log_level="warning"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "${log_level}"
 
 bashio::log.info "Prepare MongoDB configuration"
 
+bashio::log.debug "Create folders"
+if ! bashio::fs.directory_exists "${run_root}"; then
+    bashio::log.debug "Creating run root directory at ${run_root}"
+    mkdir -p "${run_root}"
+    chmod 755 "${run_root}"
+fi
+
+if ! bashio::fs.directory_exists "${data_root}"; then
+    bashio::log.debug "Creating data root directory at ${data_root}"
+    mkdir -p "${data_root}"
+    chmod 755 "${data_root}"
+fi
+
+if ! bashio::fs.directory_exists "${config_root}"; then
+    bashio::log.debug "Creating config root directory at ${config_root}"
+    mkdir -p "${config_root}"
+    chmod 755 "${config_root}"
+fi
+
+if ! bashio::fs.file_exists /data/keyfile ]; then
+    bashio::log.info "Create keyfile for security"
+    content=$(openssl rand -base64 756 | tr -d '\n' | tr -d '\r')
+    echo -n "${content}" > /data/keyfile
+    chmod 400 /data/keyfile
+fi
+
 bashio::log.debug "Read configuration options"
-LOGGING_ENABLED=$([ "$LOG_LEVEL" = "trace" ] || [ "$LOG_LEVEL" = "debug" ] ||[ "$LOG_LEVEL" = "info" ] || [ "$LOG_LEVEL" = "notice" ] && echo "true" || echo "false")
-IP4_ADDRESS=$(bashio::network.ipv4_address) || true
-PORT=$(bashio::addon.port 27017) || true
+# IP4_ADDRESS=$(bashio::network.ipv4_address) || true
+# PORT=$(bashio::addon.port 27017) || true
+ip4_address=
+port=
+admin_user="admin"
+admin_password=$(bashio::config 'admin_password')
 
 bashio::log.debug "Validate variables"
-if [ ! -z "${IP4_ADDRESS}" ]; then
-    IP4_ADDRESS=$(echo "${IP4_ADDRESS}" | cut -d'/' -f1)
+if [ ! -z "${ip4_address}" ]; then
+    ip4_address=$(echo "${ip4_address}" | cut -d'/' -f1)
 fi
 
-if [ -z "${IP4_ADDRESS}" ]; then
-    IP4_ADDRESS="0.0.0.0"
+if [ -z "${ip4_address}" ]; then
+    ip4_address="0.0.0.0"
 fi
 
-if [ -z "${PORT}" ]; then
-    PORT=27017
+if [ -z "${port}" ]; then
+    port=27017
 fi
 
-if bashio::config.has_value 'admin_password'; then
-    ADMIN_PASSWORD=$(bashio::config 'admin_password')
-    AUTH_ENABLED=true
-fi
+bashio::config.require.password 'admin_password'
 
-if bashio::config.has_value 'repl_name'; then
-    REPLICA_SET_NAME=$(bashio::config 'repl_name' 'rs01')
-    REPLICA_ENABLED=true
-fi
-
-bashio::log.debug "Export variables for use in other scripts"
-echo -n "${PRE_RUN}" > /var/run/s6/container_environment/PRE_RUN
-echo -n "${DATA_ROOT}" > /var/run/s6/container_environment/DATA_ROOT
-echo -n "${REPLICA_ENABLED}" > /var/run/s6/container_environment/REPLICA_ENABLED
-echo -n "${REPLICA_SET_NAME}" > /var/run/s6/container_environment/REPLICA_SET_NAME
-echo -n "${ADMIN_USER}" > /var/run/s6/container_environment/ADMIN_USER
-echo -n "${ADMIN_PASSWORD}" > /var/run/s6/container_environment/ADMIN_PASSWORD
-echo -n "${IP4_ADDRESS}" > /var/run/s6/container_environment/IP4_ADDRESS
-echo -n "${PORT}" > /var/run/s6/container_environment/PORT
-
-# Specifically set these to false for the pre-run script
-echo -n "false" > /var/run/s6/container_environment/AUTH_ENABLED
-echo -n "false" > /var/run/s6/container_environment/LOGGING_ENABLED
-
-bashio::log.debug "Replace original mongod.conf with our template"
-rm -f "${MONGOD_CONFIG}" || true
-cp /etc/mongod.d/mongod.conf "${MONGOD_CONFIG}"
-chmod +x /etc/mongod.d/*.sh
-
-bashio::log.debug "Create folders"
-mkdir -p "${RUN_ROOT}"
-mkdir -p "${DATA_ROOT}"
+bashio::log.debug "Export environment variables"
+export DATA_ROOT="${data_root}"
+export PORT="${port}"
 
 bashio::log.debug "Prestart MongoDB and execute initial scripts"
-mongod --fork --quiet --config "${MONGOD_CONFIG}" --logpath /var/log/mongodb/init.log --configExpand "exec"
+envsubst < /etc/default/mongod.pre.conf > /tmp/config.conf
+chmod 644 /tmp/config.conf
+
+mongod --fork --quiet --config "/tmp/config.conf" --logpath /var/log/mongodb/init.log
 sleep 5
 
-if [ "${AUTH_ENABLED}" = true ]; then    
+if bashio::var.has_value "$admin_password"; then
     bashio::log.info "Create admin user"
-    mongosh --eval "const args = ['${ADMIN_USER}', '${ADMIN_PASSWORD}'];" /etc/mongod.d/modify-user.js || true
+    mongosh --eval "const args = ['${admin_user}', '${admin_password}'];" /etc/mongod.d/modify-user.js || true
 fi
 
-if  [ "${REPLICA_ENABLED}" = true ]; then
-    bashio::log.info "Enable replica set"
-    mongosh --eval "const args = ['${IP4_ADDRESS}', '${PORT}', '${REPLICA_SET_NAME}'];" /etc/mongod.d/enable-replica.js || true
-else
-    bashio::log.info "Disable replica set"
-    mongosh --eval "printjson(db.getSiblingDB('local').dropDatabase())" || true
-fi  
-
 bashio::log.info "Ensure MongoDB is stopped"
-PID=$(pgrep mongod)
-if [ ! -z "${PID}" ]; then
-    bashio::log.debug "Found running MongoDB process with PID ${PID}, attempting to stop it gracefully."
+pid=$(pgrep mongod)
+if [ ! -z "${pid}" ]; then
+    bashio::log.debug "Found running MongoDB process with PID ${pid}, attempting to stop it gracefully."
     mongosh --eval "printjson(db.shutdownServer())" || true
     sleep 5
     if pgrep -x "mongod" > /dev/null; then
         bashio::log.debug "MongoDb did not stop gracefully, attempting to kill it."
-        kill $PID || true
-    fi        
+        kill "$pid" || true
+    fi
 fi
 
-PRE_RUN=false
-echo -n "${AUTH_ENABLED}" > /var/run/s6/container_environment/AUTH_ENABLED
-echo -n "${LOGGING_ENABLED}" > /var/run/s6/container_environment/LOGGING_ENABLED
-echo -n "${PRE_RUN}" > /var/run/s6/container_environment/PRE_RUN
+if ! bashio::fs.file_exists "$config_root/config.conf"; then
+    bashio::log.info "No existing configuration found, creating default configuration..."
+    envsubst < /etc/default/mongod.conf > "$config_root"/config.conf
+fi
 
 bashio::log.debug Redirect log output
-rm -f "${ROOT}/app.err"
-ln -s /proc/1/fd/1 "${ROOT}/app.err"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"
+
+bashio::log.debug "Export final environment variables for MongoDB core"
+echo -n "${mongodb_config}" > /var/run/s6/container_environment/MONGODB_CONFIG
+# echo -n "${log_level}" > /var/run/s6/container_environment/LOG_LEVEL

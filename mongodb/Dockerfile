@@ -15,12 +15,13 @@ RUN if [ -d /etc/cont-init.d ]; then chmod -R 755 /etc/cont-init.d; fi && \
     if [ -f /entrypoint.sh ]; then chmod 755 /entrypoint.sh; fi
 
 # Set Workdir
-WORKDIR /
+WORKDIR /tmp
 
 RUN set -x \
     && apt-get update \
     && apt-get install -qy --no-install-recommends \
         curl \
+        gettext-base \
         gnupg \
         jq \
         libcurl4 \
@@ -33,7 +34,7 @@ RUN set -x \
     && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/7.0 multiverse" | \
         tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
     && apt-get update \
-    && apt-get install -qy --no-install-recommends mongodb-org \    
+    && apt-get install -qy --no-install-recommends mongodb-org \
     && apt-get purge -y --auto-remove \
     && apt-get clean \
     && rm -rf \
@@ -47,7 +48,7 @@ ENV GLIBC_TUNABLES=glibc.pthread.rseq=0
 
 # ensure that if running as custom user that "mongosh" has a valid "HOME"
 # https://github.com/docker-library/mongo/issues/524
-ENV HOME=/data
+# ENV HOME=/data
 
 ARG BUILD_ARCH
 ARG BUILD_DATE
