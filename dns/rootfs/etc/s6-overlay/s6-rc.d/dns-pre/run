@@ -2,44 +2,33 @@
 # vim: ft=bash
 # shellcheck shell=bash
 ROOT=/data
-DATA_ROOT="$ROOT/config"
+data_root="$ROOT/config"
+data_root_new="$ROOT/dns"
 
-NEW_INSTALL=false
-if [ -f "${DATA_ROOT}" ]; then
-    NEW_INSTALL=false    
-else
-    NEW_INSTALL=true
-fi
-echo -n "${NEW_INSTALL}" > /var/run/s6/container_environment/NEW_INSTALL
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "$log_level"
 
 # Set some Environment Variables if available
 bashio::log.info "Load Dns/Dhcp Server Configuration..."
 
-# Define array of config items and their corresponding environment variables
-declare -A config_vars=(
-    ["domain"]="DNS_SERVER_DOMAIN"
-    ["admin_password"]="DNS_SERVER_ADMIN_PASSWORD"
-    # ["prefer_ipv6"]="DNS_SERVER_PREFER_IPV6"
-    # ["dns_over_http"]="DNS_SERVER_OPTIONAL_PROTOCOL_DNS_OVER_HTTP"
-    # ["recursion"]="DNS_SERVER_RECURSION"
-    # ["recursion_denied_networks"]="DNS_SERVER_RECURSION_DENIED_NETWORKS"
-    # ["recursion_allowed_networks"]="DNS_SERVER_RECURSION_ALLOWED_NETWORKS"
-    # ["enable_blocking"]="DNS_SERVER_ENABLE_BLOCKING"
-    # ["allow_txt_blocking_report"]="DNS_SERVER_ALLOW_TXT_BLOCKING_REPORT"
-    # ["block_list_urls"]="DNS_SERVER_BLOCK_LIST_URLS"
-    # ["forwarders"]="DNS_SERVER_FORWARDERS"
-    # ["forwarder_protocol"]="DNS_SERVER_FORWARDER_PROTOCOL"
-    # ["local_time"]="DNS_SERVER_LOG_USING_LOCAL_TIME"
-)
+bashio::log.debug "Ensuring data directory exists..."
+if ! bashio::fs.directory_exists "$data_root_new"; then
+    mkdir -p "$data_root_new"
+    chmod 755 "$data_root_new"
+fi
 
-# Loop through config items and set environment variables
-for config_key in "${!config_vars[@]}"; do
-    env_var="${config_vars[$config_key]}"
-    if bashio::config.has_value "$config_key"; then
-        echo -n "$(bashio::config "$config_key")" > "/var/run/s6/container_environment/${env_var}"
-        bashio::log.info "${config_key} set"
-    fi
-done
+bashio::log.debug "Preparing and validating environment variables..."
+echo -n "$(bashio::config "domain")" > "/var/run/s6/container_environment/DNS_SERVER_DOMAIN"
+echo -n "$(bashio::config "admin_password")" > "/var/run/s6/container_environment/DNS_SERVER_ADMIN_PASSWORD"
+
+bashio::log.debug "Migrating existing configuration if needed..."
+if bashio::fs.directory_exists "$data_root"; then
+    bashio::log.debug "Migrating existing configuration to new location..."
+    mv "$data_root"/* "$data_root_new"/
+    rm -rf "$data_root"
+fi
 
 bashio::log.debug Redirect log output
 rm -f "${ROOT}/app.err"

@@ -22,7 +22,7 @@ backup_exclude:
   - "/data/config/logs/*.log"
   - "/data/config/stats/*.stat"
   - "/data/config/stats/*.dstat"
-watchdog: tcp://[HOST]:53
+watchdog: tcp://[HOST]:[PORT:53]
 ports:
   53/tcp: 53
   53/udp: 53
@@ -36,7 +36,7 @@ ports:
   443/tcp: null
 options:
   domain: homeassistant.local
-  admin_password: null  
+  admin_password: null
 schema:
   domain: str
   admin_password: password
