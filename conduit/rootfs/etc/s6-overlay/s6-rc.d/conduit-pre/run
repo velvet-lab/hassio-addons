@@ -9,7 +9,6 @@ config_root="$homeassistant_root/addons/conduit"
 default_log_level="info"
 server_name_file="${root}/server_name"
 
-# Set Log Level
 log_level=$(bashio::config 'log_level' "$default_log_level")
 bashio::log.level "$log_level"
 
@@ -53,9 +52,6 @@ if bashio::var.has_value "$current_server_name" && ! bashio::var.equals "$curren
     server_name="$current_server_name"
 fi
 
-bashio::log.debug "Set environment variables for conduit..."
-echo -n "/homeassistant/addons/conduit/config.toml" > "/var/run/s6/container_environment/CONDUIT_CONFIG"
-
 export SERVER_NAME=$server_name
 export DATA_ROOT=$data_root
 export LOG_LEVEL=$log_level
@@ -69,3 +65,6 @@ fi
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
 ln -s /proc/1/fd/1 "${root}/app.err"
+
+bashio::log.debug "Export final environment variables for MongoDB core"
+echo -n "/homeassistant/addons/conduit/config.toml" > "/var/run/s6/container_environment/CONDUIT_CONFIG"
