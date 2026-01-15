@@ -1,0 +1,70 @@
+#include <tunables/global>
+
+profile rustfs flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # Capabilities
+  file,
+  signal (send) set=(kill,term,int,hup,cont),
+  capability sys_ptrace,
+  capability dac_override,
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+  /tmp/** rwk,
+
+  # Add‑on Daten
+  /data/** rw,
+
+  # Memory‑Mapping & Proc
+  /proc/** r,
+  /proc/self/** r,
+  /dev/shm/** mrwix,
+  owner /** mrwix,               # erlaubt anonyme mmap/exec (vorsichtig!)
+  /dev/urandom r,                # Entropiequelle
+
+  # Service‑Profil
+  /usr/local/bin/rustfs cx -> rustfs_service,
+
+  profile rustfs_service flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
+
+    # Receive signals from S6-Overlay
+    signal (receive) peer=*_rustfs,
+
+    # Access to options.json and other files within your addon
+    /data/** rw,
+
+    # Access to mapped volumes specified in config.json
+    /share/** rw,
+
+    # Access required for service functionality
+    /usr/local/bin/rustf r,
+    /bin/bash rix,
+    /bin/echo ix,
+    /etc/passwd r,
+    /dev/tty rw,
+
+    #--- Ergänzungen --------------------------------------
+    capability sys_ptrace,
+    capability dac_override,
+    /proc/** r,
+    /proc/self/** r,
+    /dev/shm/** mrwix,
+    owner /** mrwix,
+    /dev/urandom r,
+  }
+}

@@ -1,0 +1,58 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+root=/data
+data_root="$root/productivity"
+app_root="/opt/super-productivity"
+
+default_log_level="info"
+
+# Set Log Level
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "$log_level"
+
+bashio::log.info "Starting super-productivity pre-initialization script..."
+
+bashio::log.debug "Ensuring data directory exists..."
+if ! bashio::fs.directory_exists "$data_root"; then
+    mkdir -p "$data_root"
+    chmod 755 "$data_root"
+fi
+
+bashio::log.debug "Reading configuration options..."
+unsplash_key=$(bashio::config 'unsplash_key')
+sync_interval=$(bashio::config 'sync_interval')
+compression_enabled=$(bashio::config 'compression_enabled' true)
+encryption_enabled=$(bashio::config 'encryption_enabled' false)
+sync_user=$(bashio::config 'sync_user')
+sync_password=$(bashio::config 'sync_password')
+
+bashio::log.debug "Preparing and validating environment variables..."
+bashio::config.require 'sync_user' "Sync User is not set in the configuration"
+bashio::config.require.password 'sync_password'
+bashio::config.require.password 'unsplash_key'
+
+export IS_COMPRESSION_ENABLED="$compression_enabled"
+export IS_ENCRYPTION_ENABLED="$encryption_enabled"
+export SYNC_INTERVAL="$sync_interval"
+export WEBDAV_BASE_URL="http://localhost:6053"
+export WEBDAV_SYNC_FOLDER_PATH="/"
+export WEBDAV_PASSWORD="$sync_password"
+export WEBDAV_USERNAME="$sync_user"
+
+bashio::log.debug "Generating productivity configuration file..."
+envsubst < /etc/default/productivity.config > /usr/share/nginx/html/assets/sync-config-default-override.json
+chmod 644 /usr/share/nginx/html/assets/sync-config-default-override.json
+
+bashio::info "Building super-productivity frontend..."
+cd "$app_root" || exit 1
+npm install --ignore-scripts
+npm run env
+npm UNSPLASH_KEY="$unsplash_key" run buildFrontend:prodWeb
+cp ./nginx/default.conf.template /etc/nginx/sites-available/productivity
+ln -s /etc/nginx/sites-available/productivity /etc/nginx/sites-enabled/productivity
+cp -rf ./dist/browser/* /usr/share/nginx/html
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"

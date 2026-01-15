@@ -1,0 +1,32 @@
+---
+name: SuperProductivity
+version: 1.0.0
+stage: stable
+slug: productivity
+description: >-
+  A to-do app that helps you get organized, stay focused, and get into the flow. Simple yet powerful – designed for professionals who value clarity.
+url: https://github.com/velvet-lab/hassio-addons/tree/main/productivity
+arch:
+  - amd64
+  - aarch64
+codenotary: info@velvet-lab.org
+startup: services
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+backup: hot
+backup_exclude:
+  - /data/app.err
+  - /data/logs/*
+watchdog: tcp://[HOST]:[PORT:9000]
+ports:
+  9000/tcp: 9000
+  9001/tcp: 9001
+options:
+  access_key: rustfsadmin
+  secret_key: rustfsadmin
+schema:
+  access_key: str
+  secret_key: password
+  console_enable: bool?
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
