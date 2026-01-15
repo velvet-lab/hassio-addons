@@ -1,4 +1,12 @@
-mongodb/.devcontainer/mounts/data/db/
+# VSCode Server ignores
+**/mounts/data/.cache/
+**/mounts/data/.devcontainer/
+**/mounts/data/.dotnet/
+**/mounts/data/.vscode-server/
+**/mounts/data/.devcontainer/.updateContentCommandMarker
+
+# Application data ignores
+mongodb/.devcontainer/mounts/data/mongodb/
 mongodb/.devcontainer/mounts/data/keyfile
 mongodb/.devcontainer/mounts/data/app.err
 mongodb/.devcontainer/mounts/config/
