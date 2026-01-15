@@ -19,6 +19,7 @@ WORKDIR /tmp
 
 RUN set -x \
     && apt-get update \
+    && apt-get upgrade -qy \
     && apt-get install -qy --no-install-recommends \
         curl \
         icu-devtools \
