@@ -82,3 +82,7 @@
 
 - Remove options which are could configured in the Dns/Dhcp Server directly
 - Remove default port (8053/tcp)
+
+## 3.0.0
+
+- Change Datafolder
