@@ -13,8 +13,7 @@ The installation of this add-on is pretty straightforward and not different in c
 
 ## Configuration
 
-On first start, the add-on will copy its default configuration file to the `/homeassistant/addons/conduit` folder. You can
-then modify the configuration by adding options to the configuration, for example with Visual Studio Code or any text editor.
+On first start, the add-on will copy its default configuration file to the `/homeassistant/addons/conduit` folder. You can then modify the configuration by adding options to the configuration, for example with Visual Studio Code or any text editor.
 
 **Note**: _Remember to restart the add-on when the configuration is changed._
 
