@@ -1,30 +1,18 @@
 # VSCode Server ignores
-**/mounts/data/.cache/
-**/mounts/data/.devcontainer/
-**/mounts/data/.dotnet/
-**/mounts/data/.vscode-server/
-**/mounts/data/.devcontainer/.updateContentCommandMarker
+**/.devcontainer/mounts/data/.cache/
+**/.devcontainer/mounts/data/.devcontainer/
+**/.devcontainer/mounts/data/.dotnet/
+**/.devcontainer/mounts/data/.vscode-server/
+**/.devcontainer/mounts/data/.gnupg/
+**/.devcontainer/mounts/data/.mongodb/
+**/.devcontainer/mounts/data/.devcontainer/.updateContentCommandMarker
+**/.devcontainer/mounts/data/app.err
+**/.devcontainer/mounts/config/
 
 # Application data ignores
-mongodb/.devcontainer/mounts/data/mongodb/
-mongodb/.devcontainer/mounts/data/keyfile
-mongodb/.devcontainer/mounts/data/app.err
-mongodb/.devcontainer/mounts/config/
-
-dns/.devcontainer/mounts/data/config
-dns/.devcontainer/mounts/data/app.err
-dns/.devcontainer/mounts/config/
-
-conduit/.devcontainer/mounts/data/conduit/
-conduit/.devcontainer/mounts/data/app.err
-conduit/.devcontainer/mounts/config/
-
-rustfs/.devcontainer/mounts/data/rustfs/
-rustfs/.devcontainer/mounts/data/app.err
-rustfs/.devcontainer/mounts/config/
-
-schildichat/.devcontainer/mounts/data/schildichat/
-schildichat/.devcontainer/mounts/data/app.err
-schildichat/.devcontainer/mounts/config/
-
-
+**/.devcontainer/mounts/data/mongodb/
+**/.devcontainer/mounts/data/keyfile
+**/.devcontainer/mounts/data/conduit/
+**/.devcontainer/mounts/data/rustfs/
+**/.devcontainer/mounts/data/schildichat/
+**/.devcontainer/mounts/data/productivity/
