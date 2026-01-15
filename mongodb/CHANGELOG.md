@@ -111,3 +111,4 @@
 - Remove replica set support
 - Simplify configuration
 - Change Datafolder
+- Add configuration to homeassistant configuration folder
