@@ -17,7 +17,7 @@
   "build": {
     "dockerfile": "../Dockerfile",
     "args": {
-      "BUILD_FROM": "ghcr.io/home-assistant/amd64-base-debian:bookworm"
+      "BUILD_FROM": "ghcr.io/home-assistant/amd64-base-debian:trixie"
     }
   },
   "appPort": ["127.0.0.1:8008:8008/tcp"],
