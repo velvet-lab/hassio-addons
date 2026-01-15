@@ -19,10 +19,11 @@ WORKDIR /tmp
 
 RUN set -x \
     && apt-get update \
+    && apt-get upgrade -qy \
     && apt-get install -qy --no-install-recommends \
+        ca-certificates \
         curl \
         icu-devtools \
-        ca-certificates \
         unzip \
     && ARCH="$(uname -m)" \
     && if [ "$ARCH" = "x86_64" ]; then \
