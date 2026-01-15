@@ -105,3 +105,9 @@
 - Determine if authentication is enabled and require a password
 - Remove unused logging configuration
 - Remove unused authentication configuration
+
+## 3.0.0
+
+- Remove replica set support
+- Simplify configuration
+- Change Datafolder

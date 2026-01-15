@@ -43,31 +43,14 @@ if ! bashio::fs.file_exists /data/keyfile ]; then
 fi
 
 bashio::log.debug "Read configuration options"
-# IP4_ADDRESS=$(bashio::network.ipv4_address) || true
-# PORT=$(bashio::addon.port 27017) || true
-ip4_address=
-port=
 admin_user="admin"
 admin_password=$(bashio::config 'admin_password')
 
 bashio::log.debug "Validate variables"
-if [ ! -z "${ip4_address}" ]; then
-    ip4_address=$(echo "${ip4_address}" | cut -d'/' -f1)
-fi
-
-if [ -z "${ip4_address}" ]; then
-    ip4_address="0.0.0.0"
-fi
-
-if [ -z "${port}" ]; then
-    port=27017
-fi
-
 bashio::config.require.password 'admin_password'
 
 bashio::log.debug "Export environment variables"
 export DATA_ROOT="${data_root}"
-export PORT="${port}"
 
 bashio::log.debug "Prestart MongoDB and execute initial scripts"
 envsubst < /etc/default/mongod.pre.conf > /tmp/config.conf
@@ -93,9 +76,9 @@ if [ ! -z "${pid}" ]; then
     fi
 fi
 
-if ! bashio::fs.file_exists "$config_root/config.conf"; then
+if ! bashio::fs.file_exists "$mongodb_config"; then
     bashio::log.info "No existing configuration found, creating default configuration..."
-    envsubst < /etc/default/mongod.conf > "$config_root"/config.conf
+    envsubst < /etc/default/mongod.conf > "$mongodb_config"
 fi
 
 bashio::log.debug Redirect log output
@@ -104,4 +87,3 @@ ln -s /proc/1/fd/1 "${root}/app.err"
 
 bashio::log.debug "Export final environment variables for MongoDB core"
 echo -n "${mongodb_config}" > /var/run/s6/container_environment/MONGODB_CONFIG
-# echo -n "${log_level}" > /var/run/s6/container_environment/LOG_LEVEL

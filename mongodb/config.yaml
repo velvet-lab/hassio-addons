@@ -1,6 +1,6 @@
 ---
 name: MongoDB
-version: 2.2.0
+version: 3.0.0
 stage: stable
 slug: mongodb
 description: >-
@@ -14,7 +14,7 @@ host_network: false
 startup: system
 hassio_role: default
 hassio_api: true
-homeassistant: 2025.05.5
+homeassistant: 2026.1.0
 init: false
 apparmor: true
 map:
@@ -30,4 +30,4 @@ options:
   admin_password: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
-  admin_password: password?
+  admin_password: password
