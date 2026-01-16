@@ -65,7 +65,7 @@ profile productivity flags=(attach_disconnected,mediate_deleted) {
     /tmp/**                   rwk,
 
     # Temporäre Body‑Dateien, Eigentümerwechsel erlaubt
-    /var/lib/nginx/**         rw, owner,
+    /var/lib/nginx/**         rw,
 
     # System‑ und Proc‑Informationen (Read‑Only)
     /proc/**                  r,
