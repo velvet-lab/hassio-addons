@@ -1,4 +1,4 @@
-# Home Assistant Add-on: Productivity
+# Home Assistant Add-on: Super Productivity
 
 A to-do app that helps you get organized, stay focused, and get into the flow.
 

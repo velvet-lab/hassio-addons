@@ -67,9 +67,7 @@ profile productivity flags=(attach_disconnected,mediate_deleted) {
   /proc/self/**             r,
   /dev/urandom              r,
 
-  /* --------------------------------------------------------------
-    * Signal‑Handling
-    * -------------------------------------------------------------- */
+  # Signal‑Handling
   signal (receive) peer=nginx,
-  signal (send)    set=(term,quit,hup)
+  signal (send)    set=(term,quit,hup),
 }

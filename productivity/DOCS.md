@@ -1,4 +1,4 @@
-# Home Assistant Community Add-on: Productivity
+# Home Assistant Community Add-on: Super Productivity
 
 ## Installation
 
