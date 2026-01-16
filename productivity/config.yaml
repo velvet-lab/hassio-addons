@@ -25,7 +25,7 @@ options:
   users: []
 schema:
   unsplash_key: str?
-  sync_interval: int?
+  sync_interval: str?
   compression_enabled: bool?
   encryption_enabled: bool?
   users:
