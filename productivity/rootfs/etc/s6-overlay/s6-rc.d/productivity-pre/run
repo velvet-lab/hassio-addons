@@ -21,7 +21,7 @@ fi
 
 bashio::log.debug "Reading configuration options..."
 unsplash_key=$(bashio::config 'unsplash_key')
-sync_interval=$(bashio::config 'sync_interval', "15m")
+sync_interval=$(bashio::config 'sync_interval' "15m")
 compression_enabled=$(bashio::config 'compression_enabled' true)
 encryption_enabled=$(bashio::config 'encryption_enabled' false)
 
