@@ -36,8 +36,10 @@ profile productivity flags=(attach_disconnected,mediate_deleted) {
     /proc/**                  r,
     /proc/self/**             r,
     /dev/shm/**               mrwix,
-    owner /**                 mrwix,   # erlaubt anonyme mmap/exec (vorsichtig!)
-    /dev/urandom              r,       # Entropiequelle
+    # erlaubt anonyme mmap/exec (vorsichtig!)
+    owner /**                 mrwix,
+    # Entropiequelle
+    /dev/urandom              r,
 
     # Executable und Bibliotheken
     /usr/sbin/nginx           rix,
