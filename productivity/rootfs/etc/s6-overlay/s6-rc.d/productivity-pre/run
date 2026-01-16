@@ -24,35 +24,67 @@ unsplash_key=$(bashio::config 'unsplash_key')
 sync_interval=$(bashio::config 'sync_interval')
 compression_enabled=$(bashio::config 'compression_enabled' true)
 encryption_enabled=$(bashio::config 'encryption_enabled' false)
-sync_user=$(bashio::config 'sync_user')
-sync_password=$(bashio::config 'sync_password')
 
-bashio::log.debug "Preparing and validating environment variables..."
-bashio::config.require 'sync_user' "Sync User is not set in the configuration"
-bashio::config.require.password 'sync_password'
-bashio::config.require.password 'unsplash_key'
+bashio::log.debug "Processing configured users..."
+temp_users_file=$(mktemp)
+echo "users:" > "$temp_users_file"
+for user in $(bashio::config 'users|keys'); do
+    username=$(bashio::config "users[${user}].username")
+    password=$(bashio::config "users[${user}].password")
+    directory=$(bashio::config "users[${user}].directory")
+
+    bashio::log.debug "Processing user: $username"
+    if ! bashio::var.has_value "$directory" || [ "$directory" = "null" ]; then
+        directory="/${username}"
+    fi
+
+    bashio::log.debug "Ensure directory starts with /"
+    if [[ "$directory" != /* ]]; then
+        directory="/${directory}"
+    fi
+
+    userdirectory="${data_root}${directory}"
+    if ! bashio::fs.directory_exists "$userdirectory"; then
+        mkdir -p "$userdirectory"
+        chmod 755 "$userdirectory"
+    fi
+
+    encryptPassword=$(webdav bcrypt "$password")
+    cat >> "$temp_users_file" <<EOF
+  - username: "$username"
+    password: "{bcrypt}$encryptPassword"
+    directory: "$userdirectory"
+EOF
+done
+
+bashio::log.debug "Exporting environment variables for frontend build..."
 
 export IS_COMPRESSION_ENABLED="$compression_enabled"
 export IS_ENCRYPTION_ENABLED="$encryption_enabled"
 export SYNC_INTERVAL="$sync_interval"
-export WEBDAV_BASE_URL="http://localhost:6053"
-export WEBDAV_SYNC_FOLDER_PATH="/"
-export WEBDAV_PASSWORD="$sync_password"
-export WEBDAV_USERNAME="$sync_user"
+export WEBDAV_BASE_URL="http://localhost:6065"
+export UNSPLASH_KEY="$unsplash_key"
+
+bashio::log.debug "Exporting users to environment variable..."
+export USERS_YAML_CONTENTS=$(cat "$temp_users_file")
+bashio::log.debug "USERS_YAML_CONTENTS: $USERS_YAML_CONTENTS"
+rm -f "$temp_users_file"
+
+bashio::log.info "Building super-productivity frontend..."
+cd "$app_root" || exit 1
+npm run env
+npm run buildFrontend:prodWeb
 
 bashio::log.debug "Generating productivity configuration file..."
-envsubst < /etc/default/productivity.config > /usr/share/nginx/html/assets/sync-config-default-override.json
-chmod 644 /usr/share/nginx/html/assets/sync-config-default-override.json
+envsubst < /etc/default/productivity.config > /opt/super-productivity/dist/browser/assets/sync-config-default-override.json
+chmod 644 /opt/super-productivity/dist/browser/assets/sync-config-default-override.json
 
-bashio::info "Building super-productivity frontend..."
-cd "$app_root" || exit 1
-npm install --ignore-scripts
-npm run env
-npm UNSPLASH_KEY="$unsplash_key" run buildFrontend:prodWeb
-cp ./nginx/default.conf.template /etc/nginx/sites-available/productivity
-ln -s /etc/nginx/sites-available/productivity /etc/nginx/sites-enabled/productivity
-cp -rf ./dist/browser/* /usr/share/nginx/html
+envsubst < /etc/default/webdav.yml > /etc/webdav.yml
+chmod 644 /etc/webdav.yml
 
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
 ln -s /proc/1/fd/1 "${root}/app.err"
+
+bashio::log.debug "Configure Nginx to log to stdout"
+sed -i 's|error_log /var/log/nginx/error\.log;|error_log /proc/1/fd/1 error;|' /etc/nginx/nginx.conf

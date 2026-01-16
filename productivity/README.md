@@ -1,14 +1,14 @@
-# Home Assistant Add-on: RustFS
+# Home Assistant Add-on: Productivity
 
-A High-performance enterprise-grade distributed file system and S3 compatible object storage.
+A to-do app that helps you get organized, stay focused, and get into the flow.
 
 ![GitHub Sponsor](https://img.shields.io/github/sponsors/danlorb?label=Sponsor&logo=githubsponsors) ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ## About
 
-RustFS is a high-performance, distributed object storage system developed in Rust, leveraging the language's memory safety and performance. RustFS combines simplicity with efficiency, offering an open-source, free object storage solution suitable for private cloud deployments. It is fully compatible with the S3 protocol and released under the Apache 2.0 license. Built by a global community of engineers, RustFS serves as a commercially-friendly alternative to restrictive open-source storage products.
+A to-do app that helps you get organized, stay focused, and get into the flow. Simple yet powerful—designed for professionals who value clarity. It's truly about making focused work easy—plan, measure, and reflect without tracking or distractions. Super Productivity makes focused work easy by bringing tasks, time tracking, and notes together in one open-source app.
 
-RustFS is transitioning from commercial roots to a fully open-source model, aiming to democratize high-performance storage and enhance data security globally.
+No data collection. No clutter. No unnecessary features.
 
 ## Support
 
@@ -23,7 +23,7 @@ You have several options to get them answered:
 * Join the [Facebook community](https://www.facebook.com/homeassistantio)
 * You can also ask for help in the add-on's [GitHub Discussions](https://github.com/orgs/velvet-lab/discussions)
 * If you think you found a bug in the add-on, please report it on [GitHub](https://github.com/velvet-lab/hassio-addons/issues)
-* The [RustFS](https://rustfs.com)
+* The [Super Productivity](https://super-productivity.com)
 
 ## Authors & contributors
 

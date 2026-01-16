@@ -1,3 +1,16 @@
 {
-
+    "sync_user": "sync",
+    "sync_password": "sync",
+    "log_level": "trace",
+    "users": [
+        {
+            "username": "user1",
+            "password": "password1",
+            "directory": "/private"
+        },
+        {
+            "username": "user2",
+            "password": "password2"
+        }
+    ]
 }

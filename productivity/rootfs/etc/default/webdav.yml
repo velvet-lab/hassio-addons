@@ -62,6 +62,4 @@ cors:
 # check using the option:
 #
 # noPassword: true
-users:
-  - username: "{env}SYNC_USER"
-    password: "{env}SYNC_PASSWORD"
+${USERS_YAML_CONTENTS}

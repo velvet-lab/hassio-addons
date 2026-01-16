@@ -17,16 +17,19 @@ apparmor: true
 backup: hot
 backup_exclude:
   - /data/app.err
-  - /data/logs/*
-watchdog: tcp://[HOST]:[PORT:9000]
+watchdog: tcp://[HOST]:[PORT:8080]
 ports:
-  9000/tcp: 9000
-  9001/tcp: 9001
+  6065/tcp: 6065
+  8080/tcp: 8080
 options:
-  access_key: rustfsadmin
-  secret_key: rustfsadmin
+  users: []
 schema:
-  access_key: str
-  secret_key: password
-  console_enable: bool?
+  unsplash_key: str?
+  sync_interval: int?
+  compression_enabled: bool?
+  encryption_enabled: bool?
+  users:
+    - username: str
+      password: password
+      directory: str?
   log_level: list(trace|debug|info|notice|warning|error|fatal)?

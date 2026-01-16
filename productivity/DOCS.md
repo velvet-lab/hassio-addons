@@ -1,4 +1,4 @@
-# Home Assistant Community Add-on: RustFS
+# Home Assistant Community Add-on: Productivity
 
 ## Installation
 

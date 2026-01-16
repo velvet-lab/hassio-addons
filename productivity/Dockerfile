@@ -46,6 +46,8 @@ RUN set -x \
     && chmod +x /tmp/webdav/webdav \
     && mv /tmp/webdav/webdav /usr/local/bin/ \
     && rm -rf /tmp/webdav /tmp/webdav.tar.gz \
+    && ln -s /etc/nginx/sites-available/productivity /etc/nginx/sites-enabled/productivity \
+    && rm -f /etc/nginx/sites-enabled/default \
     && apt-get purge -y --auto-remove \
     && apt-get clean \
     && rm -rf \
@@ -54,7 +56,9 @@ RUN set -x \
         /root/.cache
 
 WORKDIR /opt
-RUN git clone -b v16.9.4 --single-branch --depth 1 https://github.com/super-productivity/super-productivity.git
+RUN git clone -b v16.9.4 --single-branch --depth 1 https://github.com/super-productivity/super-productivity.git \
+    && cd super-productivity \
+    && npm install --ignore-scripts
 
 EXPOSE 6065/tcp
 EXPOSE 8080/tcp
@@ -78,10 +82,10 @@ LABEL \
     org.opencontainers.image.authors="velvet-lab (https://github.com/velvet-lab)" \
     org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.description="${BUILD_DESCRIPTION}" \
-    org.opencontainers.image.documentation="https://github.com/velvet-lab/hassio-addons/blob/main/rustfs/README.md" \
+    org.opencontainers.image.documentation="https://github.com/velvet-lab/hassio-addons/blob/main/productivity/README.md" \
     org.opencontainers.image.licenses="MIT" \
     org.opencontainers.image.revision=${BUILD_REF} \
-    org.opencontainers.image.source="https://github.com/velvet-lab/hassio-addons/tree/main/rustfs" \
+    org.opencontainers.image.source="https://github.com/velvet-lab/hassio-addons/tree/main/productivity" \
     org.opencontainers.image.title="${BUILD_NAME}" \
     org.opencontainers.image.url="https://github.com/velvet-lab" \
     org.opencontainers.image.vendor="Home Assistant Add-ons" \
