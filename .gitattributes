@@ -1,3 +1,4 @@
 *       text=auto
 *.sh    eol=lf
 /**/rootfs    text eol=lf
+repository.json merge=ours
