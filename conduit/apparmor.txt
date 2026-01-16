@@ -1,15 +1,32 @@
+# ------------------------------------------------------------
+# AppArmor‑Profil für Conduit (Matrix‑Server)
+# ------------------------------------------------------------
 #include <tunables/global>
 
-profile dns flags=(attach_disconnected,mediate_deleted) {
+profile conduit flags=(attach_disconnected,mediate_deleted) {
+  # ------------------------------------------------------------------
+  # Basis‑Abstraktionen
+  # ------------------------------------------------------------------
+  # Standard‑Linux‑Abstraktionen (Dateisystem, Netzwerk, etc.)
   #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/user-tmp>
+  #include <abstractions/python>   # falls Conduit Python‑Bindings nutzt
 
+  # ------------------------------------------------------------------
   # Capabilities
+  # ------------------------------------------------------------------
   capability,
-  file,
-  signal,
-  mount,
-  umount,
-  remount,
+  capability setgid,
+  capability setuid,
+  capability sys_admin,
+  capability net_bind_service,
+  capability dac_read_search,
+  capability dac_override,
+
+  # ------------------------------------------------------------------
+  # Netzwerk‑Zugriff
+  # ------------------------------------------------------------------
   network udp,
   network tcp,
   network dgram,
@@ -19,38 +36,59 @@ profile dns flags=(attach_disconnected,mediate_deleted) {
   network netlink raw,
   network unix dgram,
 
-  capability setgid,
-  capability setuid,
-  capability sys_admin,
-  capability net_bind_service,
-  capability dac_read_search,
-  # capability dac_override,
-  # capability sys_rawio,
+  # ------------------------------------------------------------------
+  # Binärdatei (Ausführungsrechte)
+  # ------------------------------------------------------------------
+  /usr/local/bin/matrix-conduit ix,   # die eigentliche Binary
+  /usr/local/bin/conduit      ix,     # falls ein Symlink/Wrapper existiert
 
-  # S6-Overlay
-  /init ix,
-  /bin/** ix,
-  /usr/bin/** ix,
-  /etc/s6/** rix,
-  /run/s6/** rix,
-  /etc/services.d/** rwix,
-  /etc/cont-init.d/** rwix,
-  /etc/cont-finish.d/** rwix,
-  /run/** rwk,
+  # ------------------------------------------------------------------
+  # Datenverzeichnis
+  # ------------------------------------------------------------------
+  /data/conduit/**           rw,      # komplette Read/Write‑Erlaubnis
 
-  # Bashio
-  /usr/lib/bashio/** ix,
-  /tmp/** rw,
+  # ------------------------------------------------------------------
+  # S6‑Overlay (wie in deinem Original‑Snippet)
+  # ------------------------------------------------------------------
+  /init                      ix,
+  /bin/**                    ix,
+  /usr/bin/**                ix,
+  /etc/s6/**                 rix,
+  /run/s6/**                 rix,
+  /etc/services.d/**         rwix,
+  /etc/cont-init.d/**        rwix,
+  /etc/cont-finish.d/**      rwix,
+  /run/**                    rwk,
 
-  # Data access
-  /data/** rw,
+  # ------------------------------------------------------------------
+  # Bashio (falls du Home‑Assistant‑Helper nutzt)
+  # ------------------------------------------------------------------
+  /usr/lib/bashio/**         ix,
+  /tmp/**                    rw,
 
-  # Execution program
-  /usr/bin/dotnet ix,
+  # ------------------------------------------------------------------
+  # .NET‑Runtime (falls du Conduit über dotnet startest)
+  # ------------------------------------------------------------------
+  /usr/bin/dotnet            ix,
 
-  # Supress PTrace denials when using 'docker ps' or using 'ps' inside a container
+  # ------------------------------------------------------------------
+  # ptrace‑Ausnahme (Docker‑Tools)
+  # ------------------------------------------------------------------
   ptrace (trace,read) peer=docker-default,
 
-  # Docker Daemon confinement requires explict allow rule for signal
+  # ------------------------------------------------------------------
+  # Signal‑Ausnahme (Docker‑Daemon)
+  # ------------------------------------------------------------------
   signal (receive) set=(kill,term) peer=/usr/bin/docker,
+
+  # ------------------------------------------------------------------
+  # Optional: Home‑Verzeichnis des Service‑Users (falls genutzt)
+  # ------------------------------------------------------------------
+  owner @{HOME}/**           rw,
+
+  # ------------------------------------------------------------------
+  # Default‑Verhalten – alles andere verweigern
+  # ------------------------------------------------------------------
+  deny /**                   w,
+  deny /**                   m,
 }
