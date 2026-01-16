@@ -2,7 +2,7 @@
 
 Technitium Dns/Dhcp Server for Home Assistant.
 
-![GitHub Sponsor][sponsor] ![Supports amd64 Architecture][amd64] ![Supports aarch64 Architecture][aarch64]
+![GitHub Sponsor](https://img.shields.io/github/sponsors/danlorb?label=Sponsor&logo=githubsponsors) ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ## About
 
@@ -14,31 +14,39 @@ Got questions?
 
 You have several options to get them answered:
 
-- [Discord chat server][ha_discord] for general Home Assistant discussions and questions.
-- [Community Forum][ha_community]
-- Join the Reddit in [r/homeassistant][ha_reddit]
-- Follow on X, use [@homeassistant][ha_twitter]
-- Join the [Facebook community][ha_facebook]
-- You can also ask for help in the add-on's [GitHub Discussions][discussions]
-- If you think you found a bug in the add-on, please report it on [GitHub][issues]
+* [Discord chat server](https://www.home-assistant.io/join-chat) for general Home Assistant discussions and questions.
+* [Community Forum](https://community.home-assistant.io)
+* Join the Reddit in [r/homeassistant](https://reddit.com/r/homeassistant)
+* Follow on X, use [@homeassistant](https://x.com/home_assistant)
+* Join the [Facebook community](https://www.facebook.com/homeassistantio)
+* You can also ask for help in the add-on's [GitHub Discussions](https://github.com/orgs/velvet-lab/discussions)
+* If you think you found a bug in the add-on, please report it on [GitHub](https://github.com/velvet-lab/hassio-addons/issues)
+* The [Technitium DNS](https://technitium.com/dns)
 
-## Authors & Contributors
+## Authors & contributors
 
-The original setup of this repository was done by [Roland Breitschaft][danlorb].
+The original setup of this repository is by [Roland Breitschaft](https://github.com/danlorb).
 
+## License
 
-[Technitium DNS]: https://technitium.com/dns/
+MIT License
 
-[ha_community]: https://community.home-assistant.io
-[ha_discord]: https://www.home-assistant.io/join-chat
-[ha_twitter]: https://x.com/home_assistant
-[ha_reddit]: https://reddit.com/r/homeassistant
-[ha_facebook]: https://www.facebook.com/homeassistantio
+Copyright (c) 2006-2026 Roland Breitschaft
 
-[issues]: https://github.com/velvet-lab/hassio-addons/issues
-[discussions]: https://github.com/orgs/velvet-lab/discussions
-[danlorb]: https://github.com/danlorb
-[sponsor]: https://img.shields.io/github/sponsors/danlorb?label=Sponsor&logo=githubsponsors
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-[amd64]: https://img.shields.io/badge/amd64-yes-green.svg
-[aarch64]: https://img.shields.io/badge/aarch64-yes-green.svg
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
