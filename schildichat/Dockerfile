@@ -30,6 +30,7 @@ RUN set -x \
     && tar -xzf /tmp/schildichat.tar.gz -C /opt/ \
     && mv /opt/schildichat-web-1.11.36-sc.3 /opt/schildichat-web \
     && ln -s /etc/nginx/sites-available/schildichat /etc/nginx/sites-enabled/schildichat \
+    && rm -f /etc/nginx/sites-enabled/default \
     && apt-get purge -y --auto-remove \
     && apt-get clean \
     && rm -rf \
