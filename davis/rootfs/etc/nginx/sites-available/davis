@@ -1,0 +1,38 @@
+upstream docker-davis {
+    server localhost:9000;
+}
+
+server {
+    listen 8080;
+    listen [::]:8080;
+
+    server_name _;
+
+    access_log off;
+
+    root /opt/davis/public/;
+    index index.php;
+
+    rewrite ^/.well-known/caldav /dav/ redirect;
+    rewrite ^/.well-known/carddav /dav/ redirect;
+
+    charset utf-8;
+
+    location ~ /(\.ht) {
+        deny all;
+        return 404;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    location ~ ^(.+\.php)(.*)$ {
+        try_files       $fastcgi_script_name =404;
+        include         fastcgi_params;
+        fastcgi_pass    docker-davis;
+        fastcgi_param   SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        fastcgi_param   PATH_INFO        $fastcgi_path_info;
+        fastcgi_split_path_info  ^(.+\.php)(.*)$;
+    }
+}

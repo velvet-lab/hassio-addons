@@ -1,0 +1,109 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+root=/data
+data_root="$root/davis"
+log_root="$data_root/logs"
+public_root="$data_root/public"
+home_root="$data_root/homes"
+app_root="/opt/davis"
+database_driver="sqlite"
+database_url="sqlite:////data/davis/davis.db"
+
+default_log_level="info"
+
+# Set Log Level
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "$log_level"
+
+bashio::log.info "Starting davis pre-initialization script..."
+
+bashio::log.debug "Ensuring directories exists..."
+bashio::log.debug "Ensuring log directory exists..."
+if ! bashio::fs.directory_exists "$log_root"; then
+    mkdir -p "$log_root"
+fi
+
+bashio::log.debug "Ensuring public and homes directories exist..."
+if ! bashio::fs.directory_exists "$public_root"; then
+    mkdir -p "$public_root"
+fi
+
+bashio::log.debug "Reading configuration options..."
+app_timezone=$(bashio::config 'app_timezone' 'Europe/Berlin')
+birthday_reminder_offset=$(bashio::config 'birthday_reminder_offset')
+caldav_enabled=$(bashio::config 'caldav_enabled' false)
+carddav_enabled=$(bashio::config 'carddav_enabled' false)
+webdav_enabled=$(bashio::config 'webdav_enabled' false)
+home_enabled=$(bashio::config 'home_enabled' false)
+public_calendars_enabled=$(bashio::config 'public_calendars_enabled' false)
+admin_login=$(bashio::config 'admin_login')
+admin_password=$(bashio::config 'admin_password')
+invite_from_address=$(bashio::config 'invite_from_address')
+mail_host=$(bashio::config 'mail_host')
+mail_port=$(bashio::config 'mail_port')
+mail_username=$(bashio::config 'mail_username')
+mail_password=$(bashio::config 'mail_password')
+use_mysql=$(bashio::config 'use_mysql' false)
+
+bashio::log.debug "Validate options..."
+bashio::config.require 'admin_login' "Admin login must be set!"
+bashio::config.require.password 'admin_password'
+
+if bashio::var.true "$home_enabled" && ! bashio::fs.directory_exists "$home_root"; then
+    mkdir -p "$home_root"
+    home_root=
+fi
+
+if bashio::var.true "$use_mysql"; then
+    database_driver="mysql"
+
+    db_host=$(bashio::services "mysql" "host")
+    db_port=$(bashio::services "mysql" "port")
+    db_password=$(bashio::services "mysql" "password")
+    db_user=$(bashio::services "mysql" "username")
+
+    database_url="mysql://$db_user:$db_password@$db_host:$db_port/davis?charset=utf8mb4"
+fi
+
+bashio::log.debug "Exporting environment variables for frontend build..."
+export APP_TIMEZONE="$app_timezone"
+export BIRTHDAY_REMINDER_OFFSET="$birthday_reminder_offset"
+export CALDAV_ENABLED="$caldav_enabled"
+export CARDDAV_ENABLED="$carddav_enabled"
+export WEBDAV_ENABLED="$webdav_enabled"
+export PUBLIC_CALENDARS_ENABLED="$public_calendars_enabled"
+export INVITE_FROM_ADDRESS="$invite_from_address"
+export MAIL_HOST="$mail_host"
+export MAIL_PORT="$mail_port"
+export MAIL_USERNAME="$mail_username"
+export MAIL_PASSWORD="$mail_password"
+export ADMIN_LOGIN="$admin_login"
+export ADMIN_PASSWORD="$admin_password"
+export HOME_DIR="$home_root"
+export DATABASE_DRIVER="$database_driver"
+export DATABASE_URL="$database_url"
+
+bashio::log.debug "Setting permissions on data directory..."
+chmod -R 755 "$data_root"
+chown -R www-data:www-data "$data_root"
+
+bashio::log.debug "Generating davis configuration file..."
+envsubst < /etc/default/davis.conf > /opt/davis/.env.local
+
+cd "$app_root" || exit 1
+bin/console doctrine:migrations:migrate --no-interaction
+
+bashio::log.debug "Setting permissions on app and data directory..."
+chmod -R 755 "$app_root"
+chown -R www-data:www-data "$app_root"
+
+chmod -R 755 "$data_root"
+chown -R www-data:www-data "$data_root"
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"
+
+bashio::log.debug "Configure Nginx to log to stdout"
+sed -i 's|error_log /var/log/nginx/error\.log;|error_log /proc/1/fd/1 error;|' /etc/nginx/nginx.conf

@@ -1,0 +1,42 @@
+---
+name: Davis
+version: 1.0.0
+stage: stable
+slug: davis
+description: >-
+  A to-do app that helps you get organized, stay focused, and get into the flow. Simple yet powerful – designed for professionals who value clarity.
+url: https://github.com/velvet-lab/hassio-addons/tree/main/productivity
+arch:
+  - amd64
+  - aarch64
+codenotary: info@velvet-lab.org
+startup: services
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+backup: hot
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:8080]
+ports:
+  8080/tcp: 8080
+options:
+  admin_login: admin
+  admin_password: null
+schema:
+  app_timezone: str?
+  birthday_reminder_offset: str?
+  caldav_enabled: bool?
+  carddav_enabled: bool?
+  webdav_enabled: bool?
+  home_enabled: bool?
+  public_calendars_enabled: bool?
+  admin_login: str
+  admin_password: password
+  invite_from_address: str?
+  use_mysql: bool?
+  mail_host: str?
+  mail_port: int?
+  mail_username: str?
+  mail_password: password?
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?

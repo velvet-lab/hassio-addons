@@ -1,0 +1,10 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'warning')"
+
+bashio::log.info "Starting php-fpm server..."
+exec php-fpm8.2 --nodaemonize
+
