@@ -7,6 +7,8 @@ server {
 
       server_name _;
 
+      access_log off;
+
       root   /opt/schildichat-web;
       index  index.html;
 
