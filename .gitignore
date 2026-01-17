@@ -11,6 +11,7 @@
 
 # Application data ignores
 **/.devcontainer/mounts/data/mongodb/
+**/.devcontainer/mounts/data/davis/
 **/.devcontainer/mounts/data/keyfile
 **/.devcontainer/mounts/data/conduit/
 **/.devcontainer/mounts/data/rustfs/
