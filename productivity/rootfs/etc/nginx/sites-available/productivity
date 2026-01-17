@@ -4,6 +4,8 @@ server {
 
     server_name _;
 
+    access_log off;
+
     root   /opt/super-productivity/dist/browser/;
     index  index.html index.htm;
 
