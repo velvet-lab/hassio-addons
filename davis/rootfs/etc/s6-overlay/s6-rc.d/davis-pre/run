@@ -30,8 +30,8 @@ if ! bashio::fs.directory_exists "$public_root"; then
 fi
 
 bashio::log.debug "Reading configuration options..."
-app_timezone=$(bashio::config 'app_timezone' 'Europe/Berlin')
-birthday_reminder_offset=$(bashio::config 'birthday_reminder_offset')
+app_timezone=$(bashio::config 'app_timezone' '')
+birthday_reminder_offset=$(bashio::config 'birthday_reminder_offset' '')
 caldav_enabled=$(bashio::config 'caldav_enabled' false)
 carddav_enabled=$(bashio::config 'carddav_enabled' false)
 webdav_enabled=$(bashio::config 'webdav_enabled' false)
@@ -39,11 +39,11 @@ home_enabled=$(bashio::config 'home_enabled' false)
 public_calendars_enabled=$(bashio::config 'public_calendars_enabled' false)
 admin_login=$(bashio::config 'admin_login')
 admin_password=$(bashio::config 'admin_password')
-invite_from_address=$(bashio::config 'invite_from_address')
-mail_host=$(bashio::config 'mail_host')
-mail_port=$(bashio::config 'mail_port')
-mail_username=$(bashio::config 'mail_username')
-mail_password=$(bashio::config 'mail_password')
+invite_from_address=$(bashio::config 'invite_from_address' '')
+mail_host=$(bashio::config 'mail_host' '')
+mail_port=$(bashio::config 'mail_port' '')
+mail_username=$(bashio::config 'mail_username' '')
+mail_password=$(bashio::config 'mail_password' '')
 use_mysql=$(bashio::config 'use_mysql' false)
 trusted_proxies=$(bashio::config 'trusted_proxies' 'REMOTE_ADDR')
 

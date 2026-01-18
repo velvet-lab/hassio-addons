@@ -34,7 +34,7 @@ configuration:
     description: Set the email address used for sending invitations.
   use_mysql:
     name: Use MySQL
-    description: Enable or disable MySQL database usage.
+    description: Enable or disable MySQL database. If enabled, Davis will use MariaDb addon. Take care that you install and configure it first.
   mail_host:
     name: Mail Host
     description: Set the mail server host.

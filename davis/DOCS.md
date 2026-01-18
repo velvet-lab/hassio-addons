@@ -80,7 +80,7 @@ The email address that your invites are going to be sent from
 
 ### Option: `use_mysql`
 
-Use MySQL/MariaDB as database backend instead of the default SQLite. Set to `true` to use MySQL/MariaDB, or `false` to use SQLite. By default, SQLite is used.
+Use MySQL/MariaDB as database backend instead of the default SQLite. Set to `true` to use MySQL/MariaDB, or `false` to use SQLite. By default, SQLite is used. If you enable this option, make sure you have a MariaDB add-on installed and configured properly.
 
 ### Option: `mail_host`
 

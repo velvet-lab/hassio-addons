@@ -1,5 +1,5 @@
 upstream docker-davis {
-    server localhost:9000;
+    server 127.0.0.1:9000;
 }
 
 server {
