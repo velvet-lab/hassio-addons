@@ -65,7 +65,15 @@ if bashio::var.true "$use_mysql"; then
     db_user=$(bashio::services "mysql" "username")
 
     database_url="mysql://$db_user:$db_password@$db_host:$db_port/davis?charset=utf8mb4"
+
+    bashio::log.debug "Creating database if not exists..."
+    bashio::log.debug "Connecting to MariaDB at ${db_host}:${db_port} with user ${db_user}"
+    bashio::log.debug "Database URL: mysql://$db_user:**********@$db_host:$db_port/davis?charset=utf8mb4"
     mariadb -u "${db_user}" -p"${db_password}" -h "${db_host}" -P "${db_port}" --skip-ssl -e "CREATE DATABASE IF NOT EXISTS \`davis\` ;"
+
+    bashio::log.warning "Davis is using the Maria DB addon"
+    bashio::log.warning "Please ensure this is included in your backups"
+    bashio::log.warning "Uninstalling the MariaDB addon will remove any data"
 fi
 
 bashio::log.debug "Exporting environment variables for frontend build..."
