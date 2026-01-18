@@ -4,7 +4,7 @@ version: 1.0.0
 stage: stable
 slug: schildichat
 description: >-
-  SchildiChat is a feature-rich messenger for Matrix based on Element with some extras and tweaks.
+  Feature-rich messenger for Matrix based on Element with some extras and tweaks.
 url: https://github.com/velvet-lab/hassio-addons/tree/main/conduit
 arch:
   - amd64
