@@ -30,7 +30,7 @@ If you want to do add the repository manually, please follow the procedure highl
 
 Greate Dns/Dhcp Server provided by [Technitium](https://technitium.com/dns) boxed in a HA AddOn
 
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)  
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ### MongoDb Community Edition 7.x
@@ -39,14 +39,42 @@ A really simple implementation of MongoDb without TLS and Auth.
 
 **Remarks:** Currently only MongoDb till Version 7.x works on Raspberry. Version 8.x has issues with tsmalloc.
 
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)  
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ### Conduit
 
 Conduit is a simple, fast and reliable chat server powered by \[matrix\]
 
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)  
+![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+### Davis
+
+A modern, simple, feature-packed, fully translatable CalDAV, CardDav and WebDav server
+
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)  
+![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+### Super Productivity
+
+A to-do app that helps you get organized, stay focused, and get into the flow. Simple yet powerful – designed for professionals who value clarity.
+
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)  
+![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+### RustFS
+
+High-performance enterprise-grade distributed file system and S3 compatible object storage solution written in Rust.
+
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)  
+![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+### SchildiChat
+
+Feature-rich messenger for Matrix based on Element with some extras and tweaks.
+
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)  
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ## Support
