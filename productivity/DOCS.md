@@ -4,10 +4,10 @@
 
 The installation of this add-on is pretty straightforward and not different in comparison to installing any other Home Assistant add-on.
 
-1.  Set a custom `secret_key` and `access_key`
-2.  Start the "RustFS Server" add-on.
-3.  Check the logs of "RustFS Server" to see if everything went well.
-4.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:9001`.
+1.  Set a custom `unsplash_key`
+2.  Start the "Productivity Server" add-on.
+3.  Check the logs of "Productivity Server" to see if everything went well.
+4.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:8080`.
 
 **Note**: The add-on is **pre-configured** out of the box! There is no need to add/change/update the server connection settings!
 
@@ -18,8 +18,7 @@ The installation of this add-on is pretty straightforward and not different in c
 Example add-on configuration:
 
 ```
-access_key: rustfsadmin
-secret_key: rustfsadmin
+unsplash_key: skr-0000000000000000000000000000000
 log_level: warning
 ```
 
@@ -38,21 +37,13 @@ The `log_level` option controls the level of log output by the addon and can be 
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
 
-### Option: `access_key`
+### Option: `unsplash_key`
 
-The access key for authenticating with the RustFS service.
-
-### Option: `secret_key`
-
-The secret key for authenticating with the RustFS service.
-
-### Option: `console_enable`
-
-Enable or disable the RustFS web console.
+The Unsplash API key to fetch random images for the background. You can get your own API key by creating a developer account at [Unsplash Developers](https://unsplash.com/developers). If you don't provide an API key, a default key will be used, but it's recommended to use your own to avoid rate limiting.
 
 ## Data folder
 
-The addon will store most of its data in the `/data/rustfs` folder. Please ensure this is included in your backup.
+The addon will not store any Data. Backup your data directly in the application
 
 ## Reverse Proxy
 

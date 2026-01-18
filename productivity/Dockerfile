@@ -32,20 +32,6 @@ RUN set -x \
     && git config --global url."https://github.com/".insteadOf ssh://git@github.com/ \
     && apt-get install -qy --no-install-recommends \
         nodejs \
-    && ARCH="$(uname -m)" \
-    && if [ "$ARCH" = "x86_64" ]; then \
-            ARTIFACT_URL="https://github.com/hacdias/webdav/releases/download/v5.10.2/linux-amd64-webdav.tar.gz"; \
-        elif [ "$ARCH" = "aarch64" ]; then \
-            ARTIFACT_URL="https://github.com/hacdias/webdav/releases/download/v5.10.2/linux-arm64-webdav.tar.gz"; \
-        else \
-            echo "Unsupported architecture: $ARCH" && exit 1; \
-        fi \
-    && curl --proto "=https" --tlsv1.2 -sSf -L "$ARTIFACT_URL" -o  /tmp/webdav.tar.gz \
-    && mkdir -p /tmp/webdav \
-    && tar -xvzf /tmp/webdav.tar.gz -C /tmp/webdav \
-    && chmod +x /tmp/webdav/webdav \
-    && mv /tmp/webdav/webdav /usr/local/bin/ \
-    && rm -rf /tmp/webdav /tmp/webdav.tar.gz \
     && ln -s /etc/nginx/sites-available/productivity /etc/nginx/sites-enabled/productivity \
     && rm -f /etc/nginx/sites-enabled/default \
     && apt-get purge -y --auto-remove \
@@ -60,7 +46,6 @@ RUN git clone -b v16.9.4 --single-branch --depth 1 https://github.com/super-prod
     && cd super-productivity \
     && npm install --ignore-scripts
 
-EXPOSE 6065/tcp
 EXPOSE 8080/tcp
 
 ARG BUILD_ARCH

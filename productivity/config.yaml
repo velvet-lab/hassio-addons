@@ -25,11 +25,4 @@ options:
   users: []
 schema:
   unsplash_key: str?
-  sync_interval: str?
-  compression_enabled: bool?
-  encryption_enabled: bool?
-  users:
-    - username: str
-      password: password
-      directory: str?
   log_level: list(trace|debug|info|notice|warning|error|fatal)?

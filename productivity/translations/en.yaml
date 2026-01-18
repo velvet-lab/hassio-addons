@@ -5,19 +5,6 @@ configuration:
   unsplash_key:
     name: Unsplash API Key
     description: API key for accessing Unsplash images.
-  sync_interval:
-    name: Sync Interval
-    description: Interval (in minutes) for syncing data.
-  compression_enabled:
-    name: Enable Compression
-    description: Toggle to enable or disable data compression.
-  encryption_enabled:
-    name: Enable Encryption
-    description: Toggle to enable or disable data encryption.
-  users:
-    name: Users
-    description: List of users with access to the application. Each user should have a username, password, and optional directory.
 
 network:
-  6065/tcp: WebDAV Service
   8080/tcp: Web Interface
