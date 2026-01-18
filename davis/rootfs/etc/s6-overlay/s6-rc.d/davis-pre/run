@@ -60,16 +60,17 @@ if bashio::var.true "$use_mysql"; then
     database_driver="mysql"
 
     db_host=$(bashio::services "mysql" "host")
+    db_host_ipv4=$(dig +short A "$db_host")
     db_port=$(bashio::services "mysql" "port")
     db_password=$(bashio::services "mysql" "password")
     db_user=$(bashio::services "mysql" "username")
 
-    database_url="mysql://$db_user:$db_password@$db_host:$db_port/davis?charset=utf8mb4"
+    database_url="mysql://$db_user:$db_password@$db_host_ipv4:$db_port/davis?charset=utf8mb4"
 
     bashio::log.debug "Creating database if not exists..."
-    bashio::log.debug "Connecting to MariaDB at ${db_host}:${db_port} with user ${db_user}"
-    bashio::log.debug "Database URL: mysql://$db_user:**********@$db_host:$db_port/davis?charset=utf8mb4"
-    mariadb -u "${db_user}" -p"${db_password}" -h "${db_host}" -P "${db_port}" --skip-ssl -e "CREATE DATABASE IF NOT EXISTS \`davis\` ;"
+    bashio::log.debug "Connecting to MariaDB at ${db_host_ipv4}:${db_port} with user ${db_user}"
+    bashio::log.debug "Database URL: mysql://$db_user:**********@$db_host_ipv4:$db_port/davis?charset=utf8mb4"
+    mariadb -u "${db_user}" -p"${db_password}" -h "${db_host_ipv4}" -P "${db_port}" --skip-ssl -e "CREATE DATABASE IF NOT EXISTS \`davis\` ;"
 
     bashio::log.warning "Davis is using the Maria DB addon"
     bashio::log.warning "Please ensure this is included in your backups"

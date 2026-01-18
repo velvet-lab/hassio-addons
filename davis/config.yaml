@@ -14,6 +14,7 @@ startup: services
 homeassistant: 2026.1.0
 init: false
 apparmor: true
+tmpfs: true
 services:
   - mysql:want
 backup: hot

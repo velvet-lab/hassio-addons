@@ -26,6 +26,7 @@ RUN set -x \
         build-essential \
         ca-certificates \
         curl \
+        dnsutils \
         gettext-base \
         git \
         icu-devtools \
