@@ -14,7 +14,8 @@ startup: services
 homeassistant: 2026.1.0
 init: false
 apparmor: true
-hassio_api: true
+services:
+  - mysql:want
 backup: hot
 backup_exclude:
   - /data/app.err
