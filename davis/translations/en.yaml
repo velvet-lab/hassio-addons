@@ -7,7 +7,7 @@ configuration:
     description: Set the timezone for the application (e.g., UTC, America/New_York)
   birthday_reminder_offset:
     name: Birthday Reminder Offset
-    description: Set the number of days before a birthday to send a reminder.
+    description: Set the number of days before a birthday to send a reminder or leaf empty to use the default (PT9H).
   caldav_enabled:
     name: CalDAV Enabled
     description: Enable or disable CalDAV support.

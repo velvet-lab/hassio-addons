@@ -44,7 +44,7 @@ This must comply with the [official list](https://www.php.net/manual/en/timezone
 
 ### Option: `birthday_reminder_offset`
 
-For Birthday calendars, what should be the reminder offset ? The default is PT9H, 9am on the day of the event. You must specify a relative duration, as specified in the [RFC 5545 specification](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.6), e.g. PT15M for 15 minutes, PT1H for 1 hour, P1D for 1 day, etc. If you don't want a reminder for birthday events, set it to the false value (lowercase). By default, if the var is not set or empty, we use PT9H (9am on the date of the birthday).
+For Birthday calendars, what should be the reminder offset ? The default is PT9H, 9am on the day of the event. You must specify a relative duration, as specified in the [RFC 5545 specification](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.6). By default, if the var is not set or empty, we use PT9H (9am on the date of the birthday).
 
 ### Option: `caldav_enabled`
 
@@ -56,11 +56,11 @@ Enable or disable CardDAV support. Set to `true` to enable contact synchronizati
 
 ### Option: `webdav_enabled`
 
-Enable or disable WebDAV support. Set to `true` to enable file synchronization via WebDAV, or `false` to disable it. By default, WebDAV is enabled.
+Enable or disable WebDAV support. Set to `true` to enable file synchronization via WebDAV, or `false` to disable it. By default, WebDAV is disabled.
 
 ### Option: `home_enabled`
 
-By default, home directories are disabled totally. If needed, data for each user will be stored in his own directory and cannot be accessed by other users.
+By default, home directories are disabled totally. If needed, data for each user will be stored in his own directory and cannot be accessed by other users. By default, home directories are disabled.
 
 ### Option: `public_calendars_enabled`
 

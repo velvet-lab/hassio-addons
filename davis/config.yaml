@@ -4,8 +4,8 @@ version: 1.0.0
 stage: stable
 slug: davis
 description: >-
-  A to-do app that helps you get organized, stay focused, and get into the flow. Simple yet powerful – designed for professionals who value clarity.
-url: https://github.com/velvet-lab/hassio-addons/tree/main/productivity
+  A modern, simple, feature-packed, fully translatable CalDAV, CardDav and WebDav server
+url: https://github.com/velvet-lab/hassio-addons/tree/main/davis
 arch:
   - amd64
   - aarch64
@@ -14,6 +14,7 @@ startup: services
 homeassistant: 2026.1.0
 init: false
 apparmor: true
+hassio_api: true
 backup: hot
 backup_exclude:
   - /data/app.err
@@ -23,7 +24,11 @@ ports:
 options:
   admin_login: admin
   admin_password: null
+  caldav_enabled: true
+  carddav_enabled: true
 schema:
+  admin_login: str
+  admin_password: password
   app_timezone: str?
   birthday_reminder_offset: str?
   caldav_enabled: bool?
@@ -31,10 +36,8 @@ schema:
   webdav_enabled: bool?
   home_enabled: bool?
   public_calendars_enabled: bool?
-  admin_login: str
-  admin_password: password
-  invite_from_address: str?
   use_mysql: bool?
+  invite_from_address: str?
   mail_host: str?
   mail_port: int?
   mail_username: str?
