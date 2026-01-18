@@ -33,6 +33,7 @@ RUN set -x \
         libjpeg62-turbo-dev \
         libpng-dev \
         libzip-dev \
+        mariadb-client \
         nginx \
         php \
         php-bcmath \
