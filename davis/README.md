@@ -1,14 +1,24 @@
-# Home Assistant Add-on: Super Productivity
+# Home Assistant Add-on: Davis
 
-A to-do app that helps you get organized, stay focused, and get into the flow.
+A modern, simple, feature-packed, fully translatable DAV server, admin interface and frontend based on sabre/dav, built with Symfony 7 and Bootstrap 5, initially inspired by Baïkal.
 
 ![GitHub Sponsor](https://img.shields.io/github/sponsors/danlorb?label=Sponsor&logo=githubsponsors) ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ## About
 
-A to-do app that helps you get organized, stay focused, and get into the flow. Simple yet powerful—designed for professionals who value clarity. It's truly about making focused work easy—plan, measure, and reflect without tracking or distractions. Super Productivity makes focused work easy by bringing tasks, time tracking, and notes together in one open-source app.
+### Web admin dashboard
 
-No data collection. No clutter. No unnecessary features.
+Provides user edition, calendar creation and sharing, and address book creation. The interface is simple and straightforward, responsive, and provides a light and a dark mode.
+
+Supports Basic authentication, as well as IMAP and LDAP (via external providers).
+
+### DAV Server
+The underlying server implementation supports (non-exhaustive list) CalDAV, CardDAV, WebDAV, calendar sharing, scheduling, mail notifications, and server-side subscriptions (depending on the capabilities of the client).
+
+#### Additional features ✨
+- Subscriptions (to be added via the client, such as the macOS calendar, for instance)
+- Public calendars, available to anyone with the link
+- Automatic birthday calendar, updated on the fly when birthdates change in your contacts
 
 ## Support
 
@@ -23,7 +33,7 @@ You have several options to get them answered:
 * Join the [Facebook community](https://www.facebook.com/homeassistantio)
 * You can also ask for help in the add-on's [GitHub Discussions](https://github.com/orgs/velvet-lab/discussions)
 * If you think you found a bug in the add-on, please report it on [GitHub](https://github.com/velvet-lab/hassio-addons/issues)
-* The [Super Productivity](https://super-productivity.com)
+* The [Davis](https://github.com/tchapi/davis)
 
 ## Authors & contributors
 

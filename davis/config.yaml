@@ -39,4 +39,5 @@ schema:
   mail_port: int?
   mail_username: str?
   mail_password: password?
+  trusted_proxies: str?
   log_level: list(trace|debug|info|notice|warning|error|fatal)?

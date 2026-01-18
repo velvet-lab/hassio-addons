@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-profile productivity flags=(attach_disconnected,mediate_deleted) {
+profile davis flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
   capability,

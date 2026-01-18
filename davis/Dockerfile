@@ -30,10 +30,11 @@ RUN set -x \
         git \
         icu-devtools \
         libfreetype-dev \
-		libjpeg62-turbo-dev \
-		libpng-dev \
+        libjpeg62-turbo-dev \
+        libpng-dev \
         libzip-dev \
         nginx \
+        php \
         php-bcmath \
         php-curl \
         php-fpm \
@@ -48,7 +49,6 @@ RUN set -x \
         php-sqlite3 \
         php-xml \
         php-zip \
-        php \
         unzip \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && ln -s /etc/nginx/sites-available/davis /etc/nginx/sites-enabled/davis \
@@ -91,10 +91,10 @@ LABEL \
     org.opencontainers.image.authors="velvet-lab (https://github.com/velvet-lab)" \
     org.opencontainers.image.created=${BUILD_DATE} \
     org.opencontainers.image.description="${BUILD_DESCRIPTION}" \
-    org.opencontainers.image.documentation="https://github.com/velvet-lab/hassio-addons/blob/main/productivity/README.md" \
+    org.opencontainers.image.documentation="https://github.com/velvet-lab/hassio-addons/blob/main/davis/README.md" \
     org.opencontainers.image.licenses="MIT" \
     org.opencontainers.image.revision=${BUILD_REF} \
-    org.opencontainers.image.source="https://github.com/velvet-lab/hassio-addons/tree/main/productivity" \
+    org.opencontainers.image.source="https://github.com/velvet-lab/hassio-addons/tree/main/davis" \
     org.opencontainers.image.title="${BUILD_NAME}" \
     org.opencontainers.image.url="https://github.com/velvet-lab" \
     org.opencontainers.image.vendor="Home Assistant Add-ons" \
