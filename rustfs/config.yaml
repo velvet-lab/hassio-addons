@@ -25,6 +25,7 @@ ports:
 options:
   access_key: rustfsadmin
   secret_key: rustfsadmin
+  console_enable: true
 schema:
   access_key: str
   secret_key: password
