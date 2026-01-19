@@ -46,7 +46,7 @@ RUN git clone -b v16.9.4 --single-branch --depth 1 https://github.com/super-prod
     && cd super-productivity \
     && npm install --ignore-scripts
 
-EXPOSE 8080/tcp
+EXPOSE 10692/tcp
 
 ARG BUILD_ARCH
 ARG BUILD_DATE

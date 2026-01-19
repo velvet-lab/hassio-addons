@@ -1,6 +1,6 @@
 server {
-    listen 8080;
-    listen [::]:8080;
+    listen 10692;
+    listen [::]:10692;
 
     server_name _;
 

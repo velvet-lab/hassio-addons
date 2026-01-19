@@ -7,4 +7,4 @@ configuration:
     description: API key for accessing Unsplash images.
 
 network:
-  8080/tcp: Web Interface
+  10692/tcp: Web Interface

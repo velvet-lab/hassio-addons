@@ -17,9 +17,9 @@ apparmor: true
 backup: hot
 backup_exclude:
   - /data/app.err
-watchdog: tcp://[HOST]:[PORT:8080]
+watchdog: tcp://[HOST]:[PORT:10692]
 ports:
-  8080/tcp: 8080
+  10692/tcp: 10692
 schema:
   unsplash_key: str?
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
