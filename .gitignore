@@ -17,3 +17,4 @@
 **/.devcontainer/mounts/data/rustfs/
 **/.devcontainer/mounts/data/schildichat/
 **/.devcontainer/mounts/data/productivity/
+**/.devcontainer/mounts/data/portainer/

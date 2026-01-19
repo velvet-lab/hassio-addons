@@ -1,7 +1,6 @@
-
+ARG BUILD_FROM
 FROM ${BUILD_FROM:-ghcr.io/home-assistant/amd64-base-debian:trixie}
 
-ARG BUILD_FROM
 ARG BUILD_VERSION
 ARG BUILD_ARCH
 ARG BUILD_DATE

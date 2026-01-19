@@ -1,8 +1,14 @@
 ARG BUILD_FROM
+FROM ${BUILD_FROM:-ghcr.io/home-assistant/amd64-base-ubuntu:20.04}
+
 ARG BUILD_VERSION
 ARG BUILD_ARCH
-
-FROM ${BUILD_FROM}
+ARG BUILD_DATE
+ARG BUILD_DESCRIPTION
+ARG BUILD_FROM
+ARG BUILD_NAME
+ARG BUILD_REF
+ARG BUILD_REPOSITORY
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -50,12 +56,6 @@ ENV GLIBC_TUNABLES=glibc.pthread.rseq=0
 # ensure that if running as custom user that "mongosh" has a valid "HOME"
 # https://github.com/docker-library/mongo/issues/524
 # ENV HOME=/data
-
-ARG BUILD_DATE
-ARG BUILD_DESCRIPTION
-ARG BUILD_NAME
-ARG BUILD_REF
-ARG BUILD_REPOSITORY
 
 # Labels
 LABEL \

@@ -1,8 +1,14 @@
 ARG BUILD_FROM
+FROM ${BUILD_FROM:-ghcr.io/home-assistant/amd64-base-debian:bookworm}
+
 ARG BUILD_VERSION
 ARG BUILD_ARCH
-
-FROM ${BUILD_FROM}
+ARG BUILD_DATE
+ARG BUILD_DESCRIPTION
+ARG BUILD_FROM
+ARG BUILD_NAME
+ARG BUILD_REF
+ARG BUILD_REPOSITORY
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -72,13 +78,6 @@ RUN git clone -b v5.3.0 --single-branch --depth 1 https://github.com/tchapi/davi
 WORKDIR /opt/davis
 
 EXPOSE 43209/tcp
-
-ARG BUILD_DATE
-ARG BUILD_DESCRIPTION
-ARG BUILD_FROM
-ARG BUILD_NAME
-ARG BUILD_REF
-ARG BUILD_REPOSITORY
 
 # Labels
 LABEL \
