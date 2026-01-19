@@ -52,4 +52,4 @@ configuration:
     description: Comma-separated list of trusted proxy IP addresses.
 
 network:
-  8000/tcp: Port for client-server API
+  43209/tcp: Web Interface

@@ -72,7 +72,7 @@ RUN git clone -b v5.3.0 --single-branch --depth 1 https://github.com/tchapi/davi
 
 WORKDIR /opt/davis
 
-EXPOSE 8080/tcp
+EXPOSE 43209/tcp
 
 ARG BUILD_ARCH
 ARG BUILD_DATE

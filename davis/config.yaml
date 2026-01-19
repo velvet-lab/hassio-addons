@@ -20,9 +20,9 @@ services:
 backup: hot
 backup_exclude:
   - /data/app.err
-watchdog: tcp://[HOST]:[PORT:8080]
+watchdog: tcp://[HOST]:[PORT:43209]
 ports:
-  8080/tcp: 8080
+  43209/tcp: 43209
 options:
   admin_login: admin
   admin_password: null

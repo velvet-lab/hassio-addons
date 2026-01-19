@@ -3,8 +3,8 @@ upstream docker-davis {
 }
 
 server {
-    listen 8080;
-    listen [::]:8080;
+    listen 43209;
+    listen [::]:43209;
 
     server_name _;
 
