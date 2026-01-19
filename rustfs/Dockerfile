@@ -1,10 +1,11 @@
 ARG BUILD_FROM
 ARG BUILD_VERSION
+ARG BUILD_ARCH
 
 FROM ${BUILD_FROM}
 
 # Set some Environment Variables
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Copy root filesystem
 COPY rootfs /
@@ -25,13 +26,12 @@ RUN set -x \
         curl \
         icu-devtools \
         unzip \
-    && ARCH="$(uname -m)" \
-    && if [ "$ARCH" = "x86_64" ]; then \
+    && if [ "${BUILD_ARCH}" = "amd64" ]; then \
             ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/1.0.0-alpha.79/rustfs-linux-x86_64-musl-latest.zip"; \
-        elif [ "$ARCH" = "aarch64" ]; then \
+        elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
             ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/1.0.0-alpha.79/rustfs-linux-aarch64-musl-latest.zip"; \
         else \
-            echo "Unsupported architecture: $ARCH" && exit 1; \
+            echo "Unsupported architecture: ${BUILD_ARCH}" && exit 1; \
         fi \
     && curl --proto "=https" --tlsv1.2 -sSf -L "$ARTIFACT_URL" -o  /tmp/rustfs.zip  \
     && unzip rustfs.zip \
@@ -50,7 +50,6 @@ EXPOSE 9001/tcp
 
 WORKDIR /usr/local
 
-ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
 ARG BUILD_FROM
