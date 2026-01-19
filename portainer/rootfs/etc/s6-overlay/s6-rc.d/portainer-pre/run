@@ -17,9 +17,10 @@ if ! bashio::fs.directory_exists "$data_root"; then
     chmod 755 "$data_root"
 fi
 
-export SERVER_NAME=$server_name
 export DATA_ROOT=$data_root
-export LOG_LEVEL=$log_level
+
+bashio::log.debug "Setting DATA_ROOT environment variable"
+echo -n "$data_root" > "/var/run/s6/container_environment/DATA_ROOT"
 
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"

@@ -21,7 +21,8 @@
       "BUILD_ARCH": "amd64"
     }
   },
-  "forwardPorts": [27017],
+  "privileged": true,
+  "forwardPorts": [16464,43209],
   "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/post-create.sh",
   "postStartCommand": "${containerWorkspaceFolder}/.devcontainer/post-start.sh",
   "postAttachCommand": "${containerWorkspaceFolder}/.devcontainer/post-attach.sh"

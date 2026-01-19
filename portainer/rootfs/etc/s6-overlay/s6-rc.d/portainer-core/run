@@ -3,8 +3,16 @@
 # shellcheck shell=bash
 
 # Set Log Level
-bashio::log.level "$(bashio::config 'log_level' 'warning')"
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "$log_level"
+
+# Possible LogLevels: DEBUG,INFO,WARN,ERROR
+if [ "${log_level^^}" = "warning" ]; then
+    log_level="warn"
+fi
 
 bashio::log.info "Starting portainer server..."
-exec /usr/local/bin/portainer
+exec /opt/portainer/portainer --bind=":43209" --tunnel-port="16464" --data "$DATA_ROOT" --no-ssl --http-enabled --log-level "$(bashio::string.upper $log_level)"
 

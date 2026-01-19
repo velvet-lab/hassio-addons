@@ -21,6 +21,7 @@ backup_exclude:
 watchdog: tcp://[HOST]:[PORT:43209]
 ports:
   43209/tcp: 43209
+  16464/tcp: 16464
 options:
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?

@@ -1,5 +1,4 @@
 ARG BUILD_FROM
-
 FROM ${BUILD_FROM:-ghcr.io/home-assistant/amd64-base-debian:trixie}
 
 ARG BUILD_VERSION
@@ -40,10 +39,11 @@ RUN set -x \
         else \
             echo "Unsupported architecture: ${BUILD_ARCH}" && exit 1; \
         fi \
-    && curl --proto "=https" --tlsv1.2 -sSf -L "$ARTIFACT_URL" -o  /tmp/portainer  \
-    && tar -xzf /tmp/portainer -C /tmp/ \
+    && curl --proto "=https" --tlsv1.2 -sSf -L "$ARTIFACT_URL" -o  /tmp/portainer.tar.gz  \
+    && tar -xzf /tmp/portainer.tar.gz -C /tmp/ \
     && chmod +x /tmp/portainer \
-    && mv /tmp/portainer /usr/local/bin/portainer \
+    && mv /tmp/portainer /opt/ \
+    && rm -rf /tmp/portainer* \
     && apt-get purge -y --auto-remove \
     && apt-get clean \
     && rm -rf \
@@ -52,8 +52,9 @@ RUN set -x \
         /root/.cache
 
 EXPOSE 60520/tcp
+EXPOSE 43209/tcp
 
-WORKDIR /usr/local
+WORKDIR /opt/portainer
 
 # Labels
 LABEL \
