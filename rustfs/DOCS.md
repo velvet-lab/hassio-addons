@@ -7,7 +7,7 @@ The installation of this add-on is pretty straightforward and not different in c
 1.  Set a custom `secret_key` and `access_key`
 2.  Start the "RustFS Server" add-on.
 3.  Check the logs of "RustFS Server" to see if everything went well.
-4.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:9001`.
+4.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:50355`.
 
 **Note**: The add-on is **pre-configured** out of the box! There is no need to add/change/update the server connection settings!
 
