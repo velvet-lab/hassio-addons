@@ -6,7 +6,7 @@ The installation of this add-on is pretty straightforward and not different in c
 
 1.  Start the "SchildiChat" add-on.
 2.  Check the logs of "SchildiChant" to see if everything went well.
-3.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:8080`.
+3.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:57096`.
 
 **Note**: The add-on is **pre-configured** out of the box! There is no need to add/change/update the server connection settings!
 
