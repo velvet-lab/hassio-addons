@@ -22,28 +22,6 @@
     }
   },
   "forwardPorts": [8008],
-  "privileged": true,
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "IBM.output-colorizer",
-        "bat-snippets.bat-snippets",
-        "eriklynd.json-tools",
-        "foxundermoon.shell-format",
-        "jeff-hykin.better-dockerfile-syntax",
-        "jetmartin.bats",
-        "lizebang.bash-extension-pack",
-        "mads-hartmann.bash-ide-vscode",
-        "mikeburgh.xml-format",
-        "redhat.vscode-xml",
-        "redhat.vscode-yaml",
-        "rogalmic.bash-debug",
-        "rpinski.shebang-snippets",
-        "timonwong.shellcheck",
-        "vscode-icons-team.vscode-icons"
-      ]
-    }
-  },
   "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/post-create.sh",
   "postStartCommand": "${containerWorkspaceFolder}/.devcontainer/post-start.sh",
   "postAttachCommand": "${containerWorkspaceFolder}/.devcontainer/post-attach.sh"

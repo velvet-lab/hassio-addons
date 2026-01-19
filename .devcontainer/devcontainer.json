@@ -11,28 +11,6 @@
   },
   "customizations": {
     "vscode": {
-      "extensions": [
-        "IBM.output-colorizer",
-        "Remisa.shellman",
-        "bat-snippets.bat-snippets",
-        "eriklynd.json-tools",
-        "esbenp.prettier-vscode",
-        "foxundermoon.shell-format",
-        "jeff-hykin.better-dockerfile-syntax",
-        "jetmartin.bats",
-        "lizebang.bash-extension-pack",
-        "mads-hartmann.bash-ide-vscode",
-        "mikeburgh.xml-format",
-        "nullvariant.git-id-switcher",
-        "redhat.vscode-xml",
-        "redhat.vscode-yaml",
-        "rogalmic.bash-debug",
-        "rpinski.shebang-snippets",
-        "timonwong.shellcheck",
-        "vscode-icons-team.vscode-icons",
-        "wdhongtw.gpg-indicator",
-        "ms-azuretools.vscode-docker"
-      ],
       "settings": {
         "terminal.integrated.profiles.linux": {
           "zsh": {
