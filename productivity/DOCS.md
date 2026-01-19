@@ -7,7 +7,7 @@ The installation of this add-on is pretty straightforward and not different in c
 1.  Set a custom `unsplash_key`
 2.  Start the "Productivity Server" add-on.
 3.  Check the logs of "Productivity Server" to see if everything went well.
-4.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:8080`.
+4.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:10692`.
 
 **Note**: The add-on is **pre-configured** out of the box! There is no need to add/change/update the server connection settings!
 
