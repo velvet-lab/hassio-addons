@@ -1,10 +1,11 @@
 ARG BUILD_FROM
 ARG BUILD_VERSION
+ARG BUILD_ARCH
 
 FROM ${BUILD_FROM}
 
 # Set some Environment Variables
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Copy root filesystem
 COPY rootfs /
@@ -51,7 +52,6 @@ EXPOSE 80/tcp
 EXPOSE 8053/tcp
 EXPOSE 853/tcp
 
-ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
 ARG BUILD_FROM
