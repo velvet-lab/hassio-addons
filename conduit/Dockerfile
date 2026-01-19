@@ -1,10 +1,11 @@
 ARG BUILD_FROM
 ARG BUILD_VERSION
+ARG BUILD_ARCH
 
 FROM ${BUILD_FROM}
 
 # Set some Environment Variables
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Copy root filesystem
 COPY rootfs /
@@ -25,13 +26,12 @@ RUN set -x \
         curl \
         gettext-base \
         icu-devtools \
-    && ARCH="$(uname -m)" \
-    && if [ "$ARCH" = "x86_64" ]; then \
+    && if [ "${BUILD_ARCH}" = "amd64" ]; then \
             ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/master/raw/x86_64-unknown-linux-musl?job=artifacts"; \
-        elif [ "$ARCH" = "aarch64" ]; then \
+        elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
             ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/master/raw/aarch64-unknown-linux-musl?job=artifacts"; \
         else \
-            echo "Unsupported architecture: $ARCH" && exit 1; \
+            echo "Unsupported architecture: ${BUILD_ARCH}" && exit 1; \
         fi \
     && curl --proto "=https" --tlsv1.2 -sSf -L "$ARTIFACT_URL" -o  /tmp/conduit  \
     && chmod +x /tmp/conduit \
@@ -48,7 +48,6 @@ EXPOSE 60520/tcp
 
 WORKDIR /usr/local
 
-ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
 ARG BUILD_FROM
