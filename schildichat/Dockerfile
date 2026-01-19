@@ -40,7 +40,7 @@ RUN set -x \
 
 WORKDIR /opt/schildichat-web
 
-EXPOSE 8080/tcp
+EXPOSE 57096/tcp
 
 ARG BUILD_ARCH
 ARG BUILD_DATE
