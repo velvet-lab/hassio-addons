@@ -1,7 +1,7 @@
 {
   "name": "Home Assistant Add-ons",
   "image": "ghcr.io/home-assistant/devcontainer:2-addons",
-  "appPort": ["127.0.0.1:7123:8123", "127.0.0.1:7357:4357"],
+  "forwardPorts": [8123, 4357],
   "runArgs": ["-e", "GIT_EDITOR=code --wait", "--privileged"],
   "remoteUser": "root",
   "workspaceFolder": "/mnt/supervisor/addons/local/${localWorkspaceFolderBasename}",
@@ -17,7 +17,6 @@
         "bat-snippets.bat-snippets",
         "eriklynd.json-tools",
         "esbenp.prettier-vscode",
-        "exiasr.hadolint",
         "foxundermoon.shell-format",
         "jeff-hykin.better-dockerfile-syntax",
         "jetmartin.bats",
