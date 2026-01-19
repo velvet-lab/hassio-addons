@@ -23,8 +23,8 @@ ports:
   9000/tcp: 9000
   9001/tcp: 9001
 options:
-  access_key: rustfsadmin
-  secret_key: rustfsadmin
+  access_key: admin
+  secret_key: null
   console_enable: true
 schema:
   access_key: str
