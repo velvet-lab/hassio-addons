@@ -17,31 +17,30 @@
   "build": {
     "dockerfile": "../Dockerfile",
     "args": {
-      "BUILD_FROM": "ghcr.io/home-assistant/amd64-base-debian:bookworm"
+      "BUILD_FROM": "ghcr.io/home-assistant/amd64-base-debian:bookworm",
+      "BUILD_ARCH": "amd64"
     }
   },
-  "appPort": ["127.0.0.1:8080:8080/tcp"],
+  "forwardPorts": [8080],
   "privileged": true,
   "customizations": {
     "vscode": {
       "extensions": [
-         "rogalmic.bash-debug",
+        "IBM.output-colorizer",
+        "bat-snippets.bat-snippets",
+        "eriklynd.json-tools",
+        "foxundermoon.shell-format",
+        "jeff-hykin.better-dockerfile-syntax",
+        "jetmartin.bats",
         "lizebang.bash-extension-pack",
         "mads-hartmann.bash-ide-vscode",
-        "bat-snippets.bat-snippets",
-        "jetmartin.bats",
-        "jeff-hykin.better-dockerfile-syntax",
-        "rpinski.shebang-snippets",
-        "foxundermoon.shell-format",
-        "timonwong.shellcheck",
-        "Remisa.shellman",
-        "redhat.vscode-xml",
         "mikeburgh.xml-format",
+        "redhat.vscode-xml",
         "redhat.vscode-yaml",
-        "vscode-icons-team.vscode-icons",
-        "IBM.output-colorizer",
-        "eriklynd.json-tools",
-        "exiasr.hadolint"
+        "rogalmic.bash-debug",
+        "rpinski.shebang-snippets",
+        "timonwong.shellcheck",
+        "vscode-icons-team.vscode-icons"
       ]
     }
   },

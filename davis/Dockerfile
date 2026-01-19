@@ -1,10 +1,11 @@
 ARG BUILD_FROM
 ARG BUILD_VERSION
+ARG BUILD_ARCH
 
 FROM ${BUILD_FROM}
 
 # Set some Environment Variables
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Copy root filesystem
 COPY rootfs /
@@ -16,8 +17,6 @@ RUN if [ -d /etc/cont-init.d ]; then chmod -R 755 /etc/cont-init.d; fi && \
 
 # Set Workdir
 WORKDIR /tmp
-
-ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 RUN set -x \
     && apt-get update \
@@ -74,7 +73,6 @@ WORKDIR /opt/davis
 
 EXPOSE 43209/tcp
 
-ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
 ARG BUILD_FROM
