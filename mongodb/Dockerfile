@@ -1,5 +1,6 @@
 ARG BUILD_FROM
 ARG BUILD_VERSION
+ARG BUILD_ARCH
 
 FROM ${BUILD_FROM}
 
@@ -50,7 +51,6 @@ ENV GLIBC_TUNABLES=glibc.pthread.rseq=0
 # https://github.com/docker-library/mongo/issues/524
 # ENV HOME=/data
 
-ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
 ARG BUILD_NAME
