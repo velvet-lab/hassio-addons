@@ -45,7 +45,7 @@ RUN set -x \
         /var/lib/apt/lists/* \
         /root/.cache
 
-EXPOSE 9000/tcp
+EXPOSE 37790/tcp
 EXPOSE 9001/tcp
 
 WORKDIR /usr/local
