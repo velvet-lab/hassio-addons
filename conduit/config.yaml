@@ -23,10 +23,9 @@ map:
 backup: cold
 backup_exclude:
   - /data/app.err
-watchdog: tcp://[HOST]:[PORT:8000]
+watchdog: tcp://[HOST]:[PORT:60520]
 ports:
-  8000/tcp: 8000
-  8448/tcp: 8448
+  60520/tcp: 60520
 options:
   server_name: homeassistant.local
 schema:

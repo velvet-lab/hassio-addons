@@ -5,7 +5,6 @@ configuration:
   server_name:
     name: Server Name
     description: The public name of your Matrix server (e.g., matrix.example.com).
-  
+
 network:
-  8000/tcp: Port for client-server API
-  8448/tcp: Port for federation API
+  60520/tcp: Port for client-server API

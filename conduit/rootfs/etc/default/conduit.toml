@@ -10,7 +10,7 @@ database_path = "${DATA_ROOT}"
 # your web server (e.g. apache or nginx), so all requests to /_matrix on port
 # 443 and 8448 will be forwarded to the Conduit instance running on this port
 # Docker users: Don't change this, you'll need to map an external port to this.
-port = 8000
+port = 60520
 
 # Max size for uploads
 max_request_size = 20_000_000 # in bytes
