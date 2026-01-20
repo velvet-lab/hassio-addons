@@ -5,7 +5,7 @@ stage: stable
 slug: portainer
 description: >-
   Empower your team to build, operate, and scale containerized environments with precision
-url: https://github.com/velvet-lab/hassio-addons/tree/main/davis
+url: https://github.com/velvet-lab/hassio-addons/tree/main/portainer
 arch:
   - amd64
   - aarch64
