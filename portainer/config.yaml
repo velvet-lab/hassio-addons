@@ -14,6 +14,7 @@ startup: services
 homeassistant: 2026.1.0
 init: false
 apparmor: true
+docker_api: true
 tmpfs: true
 backup: hot
 backup_exclude:

@@ -2,9 +2,7 @@ configuration:
   log_level:
     name: Log Level
     description: Choose the log level for the service (e.g., info, debug, warning, error).
-  server_name:
-    name: Server Name
-    description: The public name of your Matrix server (e.g., matrix.example.com).
 
 network:
-  60520/tcp: Port for client-server API
+  43209/tcp: Web Interface
+  16464/tcp: Agent Communication

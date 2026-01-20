@@ -1,12 +1,12 @@
-# Home Assistant Add-on: Conduit
+# Home Assistant Add-on: Portainer
 
-Conduit is a simple, fast and reliable chat server powered by \[matrix\]
+Empower your team to build, operate, and scale containerized environments with precision. Faster, safer, and in full alignment with enterprise standards across data centre, cloud, and edge.
 
 ![GitHub Sponsor](https://img.shields.io/github/sponsors/danlorb?label=Sponsor&logo=githubsponsors) ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ## About
 
-[Matrix](https://matrix.org/) is an open network for secure and decentralized communication. Users from every Matrix homeserver can chat with users from all other Matrix servers. You can even use bridges to communicate with users outside of Matrix, like a community on Discord. For more information, please see [Conduit](https://conduit.rs/).
+You could build it all yourself, but why? DIY container platforms take time, specialized skills, and constant upkeep. Portainer is your fast-track alternative: a fully-featured, ready-to-run solution that gets your teams operational in hours, not months. No bloated stacks. No training marathons. Just real outcomes with the team you already have.
 
 ## Support
 
@@ -21,7 +21,7 @@ You have several options to get them answered:
 * Join the [Facebook community](https://www.facebook.com/homeassistantio)
 * You can also ask for help in the add-on's [GitHub Discussions](https://github.com/orgs/velvet-lab/discussions)
 * If you think you found a bug in the add-on, please report it on [GitHub](https://github.com/velvet-lab/hassio-addons/issues)
-* The [Conduit Server](https://conduit.rs)
+* The [Portainer](www.portainer.io)
 
 ## Authors & contributors
 
