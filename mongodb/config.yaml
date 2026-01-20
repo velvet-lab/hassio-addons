@@ -9,7 +9,6 @@ url: https://github.com/velvet-lab/hassio-addons/tree/main/mongodb
 arch:
   - amd64
   - aarch64
-codenotary: info@velvet-lab.org
 host_network: false
 startup: system
 hassio_role: default

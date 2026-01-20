@@ -9,7 +9,6 @@ url: https://github.com/velvet-lab/hassio-addons/tree/main/dns
 arch:
   - amd64
   - aarch64
-codenotary: info@velvet-lab.org
 host_network: true
 startup: system
 homeassistant: 2025.05.5

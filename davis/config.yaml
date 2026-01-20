@@ -9,7 +9,6 @@ url: https://github.com/velvet-lab/hassio-addons/tree/main/davis
 arch:
   - amd64
   - aarch64
-codenotary: info@velvet-lab.org
 startup: services
 homeassistant: 2026.1.0
 init: false
