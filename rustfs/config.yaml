@@ -17,10 +17,10 @@ backup: hot
 backup_exclude:
   - /data/app.err
   - /data/logs/*
-watchdog: tcp://[HOST]:[PORT:37790]
+watchdog: tcp://[HOST]:[PORT:9000]
 ports:
-  37790/tcp: 37790
-  50355/tcp: 50355
+  9000/tcp: 9000
+  9001/tcp: 9001
 options:
   access_key: admin
   secret_key: null
