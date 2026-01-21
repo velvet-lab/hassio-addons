@@ -11,7 +11,7 @@ arch:
   - aarch64
 host_network: true
 startup: system
-homeassistant: 2025.05.5
+homeassistant: 2026.1.0
 init: false
 advanced: true
 apparmor: true
