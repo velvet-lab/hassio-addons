@@ -77,7 +77,7 @@ RUN git clone -b v5.3.0 --single-branch --depth 1 https://github.com/tchapi/davi
 
 WORKDIR /opt/davis
 
-EXPOSE 43209/tcp
+EXPOSE 8080/tcp
 
 # Labels
 LABEL \

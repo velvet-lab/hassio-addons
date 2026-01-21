@@ -52,4 +52,4 @@ configuration:
     description: Comma-separated list of trusted proxy IP addresses.
 
 network:
-  43209/tcp: Web Interface
+  8080/tcp: Web Interface

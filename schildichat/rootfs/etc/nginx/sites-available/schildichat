@@ -2,8 +2,8 @@
 # to sites-enabled/ to enable it.
 #
 server {
-      listen 57096;
-      listen [::]:57096;
+      listen 8080;
+      listen [::]:8080;
 
       server_name _;
 

@@ -1,6 +1,6 @@
 ---
 name: SchildiChat
-version: 1.0.0
+version: 0.1.0
 stage: stable
 slug: schildichat
 description: >-
@@ -20,8 +20,8 @@ apparmor: true
 backup: cold
 backup_exclude:
   - /data/app.err
-watchdog: tcp://[HOST]:[PORT:57096]
+watchdog: tcp://[HOST]:[PORT:8080]
 ports:
-  57096/tcp: 57096
+  8080/tcp: 8080
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?

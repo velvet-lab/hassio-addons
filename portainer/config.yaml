@@ -1,6 +1,6 @@
 ---
 name: Portainer
-version: 1.0.0
+version: 0.1.0
 stage: stable
 slug: portainer
 description: >-
@@ -18,9 +18,9 @@ tmpfs: true
 backup: hot
 backup_exclude:
   - /data/app.err
-watchdog: tcp://[HOST]:[PORT:43209]
+watchdog: tcp://[HOST]:[PORT:9000]
 ports:
-  43209/tcp: 43209
-  16464/tcp: 16464
+  9000/tcp: 9000
+  8000/tcp: 8000
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?

@@ -1,6 +1,6 @@
 ---
 name: Super Productivity
-version: 1.0.0
+version: 0.1.0
 stage: stable
 slug: productivity
 description: >-
@@ -16,9 +16,9 @@ apparmor: true
 backup: hot
 backup_exclude:
   - /data/app.err
-watchdog: tcp://[HOST]:[PORT:10692]
+watchdog: tcp://[HOST]:[PORT:8080]
 ports:
-  10692/tcp: 10692
+  8080/tcp: 8080
 schema:
   unsplash_key: str?
   log_level: list(trace|debug|info|notice|warning|error|fatal)?

@@ -7,4 +7,4 @@ configuration:
     description: The public name of your Matrix server (e.g., matrix.example.com).
 
 network:
-  60520/tcp: Port for client-server API
+  8000/tcp: Port for client-server API

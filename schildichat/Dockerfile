@@ -47,7 +47,7 @@ RUN set -x \
 
 WORKDIR /opt/schildichat-web
 
-EXPOSE 57096/tcp
+EXPOSE 8080/tcp
 
 # Labels
 LABEL \

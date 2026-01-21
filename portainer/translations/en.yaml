@@ -4,5 +4,5 @@ configuration:
     description: Choose the log level for the service (e.g., info, debug, warning, error).
 
 network:
-  43209/tcp: Web Interface
-  16464/tcp: Agent Communication
+  9000/tcp: Web Interface
+  8000/tcp: Agent Communication

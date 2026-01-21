@@ -51,8 +51,8 @@ RUN set -x \
         /var/lib/apt/lists/* \
         /root/.cache
 
-EXPOSE 60520/tcp
-EXPOSE 43209/tcp
+EXPOSE 9000/tcp
+EXPOSE 8000/tcp
 
 WORKDIR /opt/portainer
 

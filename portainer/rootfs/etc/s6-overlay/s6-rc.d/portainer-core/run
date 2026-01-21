@@ -14,5 +14,5 @@ if [ "${log_level^^}" = "warning" ]; then
 fi
 
 bashio::log.info "Starting portainer server..."
-exec /opt/portainer/portainer --bind=":43209" --bind-https=":43210" --tunnel-port="16464" --data "$DATA_ROOT" --no-ssl --http-enabled --log-level "$(bashio::string.upper $log_level)"
+exec /opt/portainer/portainer --bind=":9000" --bind-https=":9443" --tunnel-port="8000" --data "$DATA_ROOT" --no-ssl --http-enabled --log-level "$(bashio::string.upper $log_level)"
 

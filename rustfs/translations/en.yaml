@@ -13,5 +13,5 @@ configuration:
     description: Enable or disable the RustFS web console.
 
 network:
-  37790/tcp: Service port
-  50355/tcp: Web console port
+  9000/tcp: Service port
+  9001/tcp: Web console port
