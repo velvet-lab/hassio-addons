@@ -25,7 +25,7 @@ profile productivity flags=(attach_disconnected,mediate_deleted) {
   # capability dac_override,
   # capability sys_rawio,
 
-# S6-Overlay
+  # S6-Overlay
   /init ix,
   /run/{s6,s6-rc*,service}/** ix,
   /package/** ix,
