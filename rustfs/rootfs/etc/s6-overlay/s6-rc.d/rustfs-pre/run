@@ -33,6 +33,10 @@ bashio::log.debug "Preparing and validating environment variables..."
 bashio::config.require 'access_key' "Access Key is not set in the configuration"
 bashio::config.require 'secret_key' "Secret Key is not set in the configuration"
 
+if [ "$log_level" == "warning" ]; then
+    log_level="warn"
+fi
+
 bashio::log.debug "Set environment variables for rustfs..."
 echo -n "${access_key}" > "/var/run/s6/container_environment/RUSTFS_ACCESS_KEY"
 echo -n "${console_enable}" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ENABLE"
@@ -46,6 +50,7 @@ echo -n "1" > "/var/run/s6/container_environment/RUSTFS_BACKTRACE"
 echo -n ":9000" > "/var/run/s6/container_environment/RUSTFS_ADDRESS"
 echo -n ":9000" > "/var/run/s6/container_environment/RUSTFS_EXTERNAL_ADDRESS"
 echo -n ":9001" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ADDRESS"
+echo -n "production" > "/var/run/s6/container_environment/RUSTFS_OBS_ENVIRONMENT"
 
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"

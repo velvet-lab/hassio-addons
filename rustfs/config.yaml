@@ -1,6 +1,6 @@
 ---
 name: RustFS
-version: 0.2.0
+version: 0.3.0
 stage: stable
 slug: rustfs
 description: >-
@@ -9,7 +9,7 @@ url: https://github.com/velvet-lab/hassio-addons/tree/main/rustfs
 arch:
   - amd64
   - aarch64
-startup: services
+startup: system
 homeassistant: 2026.1.0
 init: false
 apparmor: true
