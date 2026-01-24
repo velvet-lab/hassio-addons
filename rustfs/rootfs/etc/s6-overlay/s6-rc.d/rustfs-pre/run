@@ -51,15 +51,16 @@ echo -n "${console_enable}" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_
 echo -n "*" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS"
 echo -n "*" > "/var/run/s6/container_environment/RUSTFS_CORS_ALLOWED_ORIGINS"
 
-echo -n "0.0.0.0:9000" > "/var/run/s6/container_environment/RUSTFS_ADDRESS"
-echo -n "0.0.0.0:9001" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ADDRESS"
+echo -n "127.0.0.1:9000" > "/var/run/s6/container_environment/RUSTFS_ADDRESS"
+echo -n "127.0.0.1:9001" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ADDRESS"
 
 echo -n "${log_level}" > "/var/run/s6/container_environment/RUSTFS_OBS_LOGGER_LEVEL"
 echo -n "${log_root}" > "/var/run/s6/container_environment/RUSTFS_OBS_LOG_DIRECTORY"
 # echo -n "production" > "/var/run/s6/container_environment/RUSTFS_OBS_ENVIRONMENT"
 
-
-
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
 ln -s /proc/1/fd/1 "${root}/app.err"
+
+bashio::log.debug "Configure Nginx to log to stdout"
+sed -i 's|error_log /var/log/nginx/error\.log;|error_log /proc/1/fd/1 error;|' /etc/nginx/nginx.conf
