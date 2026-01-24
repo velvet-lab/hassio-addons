@@ -40,7 +40,7 @@ fi
 bashio::log.debug "Set environment variables for rustfs..."
 echo -n "${access_key}" > "/var/run/s6/container_environment/RUSTFS_ACCESS_KEY"
 echo -n "${console_enable}" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ENABLE"
-echo -n "${log_level}" > "/var/run/s6/container_environment/RUST_LOG"
+echo -n "rustfs=${log_level}" > "/var/run/s6/container_environment/RUST_LOG"
 echo -n "${log_root}" > "/var/run/s6/container_environment/RUSTFS_OBS_LOG_DIRECTORY"
 echo -n "${log_root}" > "/var/run/s6/container_environment/RUSTFS_SINKS_FILE_PATH"
 echo -n "${secret_key}" > "/var/run/s6/container_environment/RUSTFS_SECRET_KEY"
