@@ -40,18 +40,21 @@ fi
 bashio::log.debug "Set environment variables for rustfs..."
 echo -n "${access_key}" > "/var/run/s6/container_environment/RUSTFS_ACCESS_KEY"
 echo -n "${console_enable}" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ENABLE"
-echo -n "rustfs=${log_level}" > "/var/run/s6/container_environment/RUST_LOG"
-echo -n "${log_root}" > "/var/run/s6/container_environment/RUSTFS_OBS_LOG_DIRECTORY"
+# echo -n "rustfs=${log_level}" > "/var/run/s6/container_environment/RUSTFS_LOG_LEVEL"
 echo -n "${log_root}" > "/var/run/s6/container_environment/RUSTFS_SINKS_FILE_PATH"
 echo -n "${secret_key}" > "/var/run/s6/container_environment/RUSTFS_SECRET_KEY"
 echo -n "*" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS"
 echo -n "*" > "/var/run/s6/container_environment/RUSTFS_CORS_ALLOWED_ORIGINS"
-echo -n "1" > "/var/run/s6/container_environment/RUSTFS_BACKTRACE"
+# echo -n "1" > "/var/run/s6/container_environment/RUSTFS_BACKTRACE"
 echo -n ":9000" > "/var/run/s6/container_environment/RUSTFS_ADDRESS"
-echo -n ":9000" > "/var/run/s6/container_environment/RUSTFS_EXTERNAL_ADDRESS"
 echo -n ":9001" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ADDRESS"
-echo -n "production" > "/var/run/s6/container_environment/RUSTFS_OBS_ENVIRONMENT"
+
 echo -n "s3.x-homelab.de" > "/var/run/s6/container_environment/RUSTFS_SERVER_DOMAINS"
+
+echo -n "${log_level}" > "/var/run/s6/container_environment/RUSTFS_OBS_LOGGER_LEVEL"
+echo -n "${log_root}" > "/var/run/s6/container_environment/RUSTFS_OBS_LOG_DIRECTORY"
+echo -n "production" > "/var/run/s6/container_environment/RUSTFS_OBS_ENVIRONMENT"
+
 
 
 bashio::log.debug "Redirect log output"
