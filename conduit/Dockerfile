@@ -34,10 +34,10 @@ RUN set -x \
         icu-devtools \
     && if [ "${BUILD_ARCH}" = "amd64" ]; then \
             # ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/master/raw/x86_64-unknown-linux-musl?job=artifacts"; \
-            ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/next/raw/x86_64-unknown-linux-musl.deb?job=artifacts"; \
+            ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/next/raw/x86_64-unknown-linux-musl?job=artifacts"; \
         elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
             # ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/master/raw/aarch64-unknown-linux-musl?job=artifacts"; \
-            ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/next/raw/aarch64-unknown-linux-musl.deb?job=artifacts"; \
+            ARTIFACT_URL="https://gitlab.com/api/v4/projects/famedly%2Fconduit/jobs/artifacts/next/raw/aarch64-unknown-linux-musl?job=artifacts"; \
         else \
             echo "Unsupported architecture: ${BUILD_ARCH}" && exit 1; \
         fi \
