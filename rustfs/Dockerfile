@@ -31,7 +31,6 @@ RUN set -x \
         ca-certificates \
         curl \
         icu-devtools \
-        nginx \
         unzip \
     && if [ "${BUILD_ARCH}" = "amd64" ]; then \
             ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/1.0.0-alpha.81/rustfs-linux-x86_64-musl-latest.zip"; \
@@ -44,8 +43,6 @@ RUN set -x \
     && unzip rustfs.zip \
     && chmod +x /tmp/rustfs \
     && mv /tmp/rustfs /usr/local/bin/ \
-    && ln -s /etc/nginx/sites-available/rustfs /etc/nginx/sites-enabled/rustfs \
-    && rm -f /etc/nginx/sites-enabled/default \
     && apt-get remove -y unzip  \
     && apt-get purge -y --auto-remove \
     && apt-get clean \
@@ -54,8 +51,8 @@ RUN set -x \
         /var/lib/apt/lists/* \
         /root/.cache
 
-EXPOSE 8080/tcp
-EXPOSE 8081/tcp
+EXPOSE 9000/tcp
+EXPOSE 9001/tcp
 
 WORKDIR /usr/local
 

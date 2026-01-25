@@ -10,4 +10,3 @@ bashio::log.level "$(bashio::config 'log_level' 'warning')"
 
 bashio::log.info "Starting rustfs server..."
 exec /usr/local/bin/rustfs "$data_root"
-
