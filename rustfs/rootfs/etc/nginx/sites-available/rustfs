@@ -26,6 +26,7 @@ server {
     # Disable buffering
     proxy_buffering off;
     proxy_request_buffering off;
+    proxy_cache_convert_head off;
 
     location / {
         proxy_set_header Host $http_host;
@@ -67,6 +68,8 @@ server {
     # Disable buffering
     proxy_buffering off;
     proxy_request_buffering off;
+
+    proxy_cache_convert_head off;
 
     location / {
         proxy_set_header Host $http_host;
