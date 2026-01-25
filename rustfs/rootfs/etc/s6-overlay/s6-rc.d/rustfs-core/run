@@ -8,9 +8,6 @@ data_root="$root/rustfs"
 # Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'warning')"
 
-bashio::log.info "Environment variables for rustfs-core:"
-printenv
-
 bashio::log.info "Starting rustfs server..."
 exec /usr/local/bin/rustfs "$data_root"
 

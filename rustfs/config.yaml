@@ -1,6 +1,6 @@
 ---
 name: RustFS
-version: 0.5.1
+version: 0.5.2
 stage: stable
 slug: rustfs
 description: >-
