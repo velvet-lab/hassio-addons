@@ -1,6 +1,12 @@
 #!/command/with-contenv bashio
 # vim: ft=bash
 # shellcheck shell=bash
+
+# Static, unique build marker. Bump this value on every code change so we can
+# verify from the log whether the container image was actually rebuilt and is
+# not a stale cache. If the marker is NOT visible in the log, the image is old.
+readonly build_marker="openbao-build-v1-unseal-exit0-step-log"
+
 root=/data
 config_root="$root/openbao/config"
 storage_root="$root/openbao/file"
@@ -14,6 +20,7 @@ default_log_level="info"
 log_level=$(bashio::config 'log_level' "$default_log_level")
 bashio::log.level "${log_level}"
 
+bashio::log.info "OpenBao build marker: ${build_marker}"
 bashio::log.info "Prepare OpenBao configuration"
 
 bashio::log.debug "Create folders"
@@ -28,17 +35,6 @@ if ! bashio::fs.directory_exists "${storage_root}"; then
     mkdir -p "${storage_root}"
     chmod 755 "${storage_root}"
 fi
-
-bashio::log.debug "Map log level to OpenBao log level"
-case "${log_level}" in
-    trace|debug|info)
-        bao_log_level="${log_level}"
-        ;;
-    notice|warning|error|fatal)
-        bao_log_level="info"
-        ;;
-esac
-echo -n "${bao_log_level}" > /var/run/s6/container_environment/BAO_LOG_LEVEL
 
 bashio::log.debug "Write OpenBao configuration"
 if ! bashio::fs.file_exists "${config_root}/openbao.hcl"; then
