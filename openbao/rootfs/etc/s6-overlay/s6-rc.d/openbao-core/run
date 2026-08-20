@@ -66,5 +66,12 @@ else
     bashio::log.warning "No unseal keys found (${secrets_file}). OpenBao will start sealed."
 fi
 
-# Keep the server in the foreground
+# Keep the server in the foreground. Instead of relying on "wait" - which can
+# return early with a non-zero code and make s6 think the service exited - poll
+# until the OpenBao server process is actually gone, then exit with its status.
+while kill -0 "${server_pid}" 2>/dev/null; do
+    sleep 2
+done
+
 wait "${server_pid}"
+exit $?
