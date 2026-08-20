@@ -33,9 +33,9 @@ RUN set -x \
         icu-devtools \
         unzip \
     && if [ "${BUILD_ARCH}" = "amd64" ]; then \
-            ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/1.0.0-alpha.81/rustfs-linux-x86_64-musl-latest.zip"; \
+            ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/1.0.0-rc.2-preview.1/rustfs-linux-x86_64-musl-v1.0.0-rc.2-preview.1.zip"; \
         elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
-            ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/1.0.0-alpha.81/rustfs-linux-aarch64-musl-latest.zip"; \
+            ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/1.0.0-rc.2-preview.1/rustfs-linux-aarch64-musl-v1.0.0-rc.2-preview.1.zip"; \
         else \
             echo "Unsupported architecture: ${BUILD_ARCH}" && exit 1; \
         fi \

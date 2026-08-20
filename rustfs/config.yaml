@@ -1,7 +1,7 @@
 ---
 name: RustFS
-version: 0.5.5
-stage: stable
+version: 1.0.0-rc.2-preview.1
+stage: experimental
 slug: rustfs
 description: >-
   High-performance enterprise-grade distributed file system and S3 compatible object storage solution written in Rust.
