@@ -1,5 +1,5 @@
 ---
-name: RustFS
+name: RustFS (experimental)
 version: 1.0.0-rc.2-preview.1
 stage: experimental
 slug: rustfs
