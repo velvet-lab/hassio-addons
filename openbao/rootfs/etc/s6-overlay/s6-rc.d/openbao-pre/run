@@ -1,0 +1,47 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+root=/data
+config_root="$root/openbao/config"
+storage_root="$root/openbao/file"
+
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "${log_level}"
+
+bashio::log.info "Prepare OpenBao configuration"
+
+bashio::log.debug "Create folders"
+if ! bashio::fs.directory_exists "${config_root}"; then
+    bashio::log.debug "Creating config root directory at ${config_root}"
+    mkdir -p "${config_root}"
+    chmod 755 "${config_root}"
+fi
+
+if ! bashio::fs.directory_exists "${storage_root}"; then
+    bashio::log.debug "Creating storage root directory at ${storage_root}"
+    mkdir -p "${storage_root}"
+    chmod 755 "${storage_root}"
+fi
+
+bashio::log.debug "Map log level to OpenBao log level"
+case "${log_level}" in
+    trace|debug|info)
+        bao_log_level="${log_level}"
+        ;;
+    notice|warning|error|fatal)
+        bao_log_level="info"
+        ;;
+esac
+echo -n "${bao_log_level}" > /var/run/s6/container_environment/BAO_LOG_LEVEL
+
+bashio::log.debug "Write OpenBao configuration"
+if ! bashio::fs.file_exists "${config_root}/openbao.hcl"; then
+    cp /etc/default/openbao.hcl "${config_root}/openbao.hcl"
+    chmod 644 "${config_root}/openbao.hcl"
+fi
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"

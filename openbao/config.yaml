@@ -1,0 +1,27 @@
+---
+name: OpenBao
+version: 2.6.2
+stage: stable
+slug: openbao
+description: >-
+  OpenBao is an open source secret management tool for storing and distributing secrets, certificates and keys
+url: https://github.com/velvet-lab/hassio-addons/tree/main/openbao
+arch:
+  - amd64
+  - aarch64
+host_network: false
+startup: system
+hassio_role: default
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+backup: hot
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:8200]
+ports:
+  8200/tcp: 8200
+options:
+  log_level: info
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?

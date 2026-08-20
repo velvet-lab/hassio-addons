@@ -1,0 +1,9 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
+bashio::log.info "Start OpenBao ..."
+exec bao server -config=/data/openbao/config
