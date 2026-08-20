@@ -1,6 +1,6 @@
 ---
 name: Dns/Dhcp Server
-version: 3.0.0
+version: 15.4.0
 stage: deprecated
 slug: dns
 description: >-
