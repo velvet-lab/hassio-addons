@@ -4,6 +4,10 @@
 root=/data
 config_root="$root/openbao/config"
 storage_root="$root/openbao/file"
+secrets_file="$root/openbao/unseal.keys"
+init_endpoint="http://127.0.0.1:8200/v1/sys/init"
+
+export BAO_ADDR="http://127.0.0.1:8200"
 
 default_log_level="info"
 
@@ -40,6 +44,54 @@ bashio::log.debug "Write OpenBao configuration"
 if ! bashio::fs.file_exists "${config_root}/openbao.hcl"; then
     cp /etc/default/openbao.hcl "${config_root}/openbao.hcl"
     chmod 644 "${config_root}/openbao.hcl"
+fi
+
+# Initialize OpenBao on first start. The unseal keys file is the marker for a
+# finished initialization. Initialization requires a running server, so spin
+# up a temporary instance, initialize, persist the keys, then stop it again.
+if bashio::fs.file_exists "${secrets_file}"; then
+    bashio::log.info "OpenBao is already initialized"
+else
+    bashio::log.info "Initializing OpenBao ..."
+    bao server -config="${config_root}" &
+    server_pid=$!
+
+    bashio::log.debug "Waiting for the temporary server to become reachable ..."
+    for _ in $(seq 1 120); do
+        if curl -fsS "${init_endpoint}" >/dev/null 2>&1; then
+            break
+        fi
+        sleep 1
+    done
+
+    if curl -fsS "${init_endpoint}" | grep -qi '"initialized":true'; then
+        bashio::log.info "OpenBao is already initialized"
+    else
+        init_output=$(bao operator init -key-shares=1 -key-threshold=1 2>&1)
+        init_rc=$?
+        if [ "${init_rc}" -ne 0 ]; then
+            bashio::log.error "OpenBao initialization failed"
+            bashio::log.error "${init_output}"
+        else
+            # Persist unseal key(s) and root token
+            printf '%s\n' "${init_output}" > "${secrets_file}"
+            chmod 600 "${secrets_file}"
+
+            root_token=$(printf '%s\n' "${init_output}" | grep -i "Initial Root Token" | awk '{print $NF}')
+            if bashio::var.has_value "${root_token}"; then
+                bashio::log.info "======================================================"
+                bashio::log.info "OpenBao root token: ${root_token}"
+                bashio::log.info "Save this token, it is shown only once."
+                bashio::log.info "======================================================"
+            else
+                bashio::log.error "Could not determine the root token from the initialization output"
+            fi
+        fi
+    fi
+
+    # Stop the temporary server again; s6 is not managing this instance
+    kill "${server_pid}" 2>/dev/null || true
+    wait "${server_pid}" 2>/dev/null || true
 fi
 
 bashio::log.debug "Redirect log output"

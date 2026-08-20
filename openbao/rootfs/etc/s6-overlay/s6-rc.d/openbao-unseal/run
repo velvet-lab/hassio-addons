@@ -1,0 +1,35 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
+# OpenBao API address (local, plain HTTP)
+export BAO_ADDR="http://127.0.0.1:8200"
+
+# Persistent folder for secrets
+secrets_file="/data/openbao/unseal.keys"
+init_endpoint="${BAO_ADDR}/v1/sys/init"
+
+# Wait until the OpenBao API is reachable. This Oneshot runs after
+# openbao-core (the server) has started and s6 started it, so the server
+# should already be up; a short retry loop guards against a slow start.
+bashio::log.debug "Waiting for OpenBao to become reachable ..."
+for _ in $(seq 1 30); do
+    if curl -fsS "${init_endpoint}" >/dev/null 2>&1; then
+        break
+    fi
+    sleep 1
+done
+
+# Unseal OpenBao using the stored unseal key(s).
+if [ -f "${secrets_file}" ]; then
+    bashio::log.info "Unsealing OpenBao ..."
+    #nolint:SC2013
+    for key in $(grep -i "Unseal Key" "${secrets_file}" | awk '{print $NF}'); do
+        bao operator unseal "${key}" >/dev/null 2>&1
+    done
+else
+    bashio::log.warning "No unseal keys found (${secrets_file}). OpenBao will start sealed."
+fi
