@@ -29,7 +29,13 @@ if [ -f "${secrets_file}" ]; then
     #nolint:SC2013
     for key in $(grep -i "Unseal Key" "${secrets_file}" | awk '{print $NF}'); do
         bao operator unseal "${key}" >/dev/null 2>&1
+        bashio::log.debug "bao operator unseal exit code: $?"
     done
 else
     bashio::log.warning "No unseal keys found (${secrets_file}). OpenBao will start sealed."
 fi
+
+# An Oneshot must exit with 0 for s6 to consider it successfully started,
+# otherwise s6 aborts the whole service bring-up. The unseal is a one-off
+# action; a non-zero CLI return must not stop the add-on from coming up.
+exit 0
