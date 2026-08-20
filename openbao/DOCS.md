@@ -32,8 +32,11 @@ The add-on stores the OpenBao configuration and its file storage backend in the 
 
 ## First steps
 
-OpenBao is sealed by default and needs to be initialized and unsealed before it can be used. Use the built-in Web UI or the `bao` CLI inside the add-on container:
+OpenBao is automatically initialized and unsealed by the add-on on first start.
 
-1.  Open `http://<your-homeassistant-ip>:8200`.
-2.  Follow the initialization wizard to generate the root token and unseal keys.
-3.  Store the unseal keys and root token in a safe place.
+- On first start the add-on initializes OpenBao, stores the unseal key(s) and the root token in `/data/openbao/unseal.keys`, and prints the **root token to the log** so you can copy it.
+- On every start the add-on unseals OpenBao automatically using the stored unseal key(s), so the server comes up unsealed and ready to use.
+
+To authenticate, use the root token from the add-on log (the line labelled `OpenBao root token:`) in the built-in Web UI or with the `bao` CLI.
+
+**Note:** The file `/data/openbao/unseal.keys` contains your root token and unseal key(s) in plain text. Treat it as a secret and make sure the `/data` folder is included in and protected by your backups.

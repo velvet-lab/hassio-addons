@@ -38,7 +38,6 @@ RUN set -x \
     && apt-get update \
     && apt-get install -qy --no-install-recommends openbao \
     && apt-get purge -y --auto-remove \
-        curl \
         gnupg \
     && apt-get clean \
     && rm -rf \

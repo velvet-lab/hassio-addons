@@ -5,6 +5,9 @@
 - Initial release of the OpenBao add-on
 - Install OpenBao via the official Debian package repository
 - Add Web UI access on port 8200
+- Automatically initialize OpenBao on first start and unseal on every start
+- Persist unseal keys and root token in `/data/openbao/unseal.keys`
+- Print the root token to the add-on log on first start
 
 ### OpenBao
 
