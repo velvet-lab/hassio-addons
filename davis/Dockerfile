@@ -69,7 +69,7 @@ RUN set -x \
 
 WORKDIR /opt
 
-RUN git clone -b v5.3.0 --single-branch --depth 1 https://github.com/tchapi/davis.git \
+RUN git clone -b v5.4.3 --single-branch --depth 1 https://github.com/tchapi/davis.git \
     && cd /opt/davis || exit 1 \
     && rm -rf .git .github .dockerignore .env.test ./docker ./tests \
     && APP_ENV=prod COMPOSER_ALLOW_SUPERUSER=1 composer install --no-ansi --no-dev --no-interaction --no-progress --optimize-autoloader \
