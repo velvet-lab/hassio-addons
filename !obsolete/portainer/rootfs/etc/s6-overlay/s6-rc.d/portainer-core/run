@@ -1,0 +1,18 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Set Log Level
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "$log_level"
+
+# Possible LogLevels: DEBUG,INFO,WARN,ERROR
+if [ "${log_level^^}" = "warning" ]; then
+    log_level="warn"
+fi
+
+bashio::log.info "Starting portainer server..."
+exec /opt/portainer/portainer --bind=":9000" --bind-https=":9443" --tunnel-port="8000" --data "$DATA_ROOT" --no-ssl --http-enabled --log-level "$(bashio::string.upper $log_level)"
+
