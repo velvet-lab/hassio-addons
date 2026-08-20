@@ -1,7 +1,7 @@
 ---
-name: OpenBao
+name: OpenBao (experimental)
 version: 2.6.2
-stage: stable
+stage: experimental
 slug: openbao
 description: >-
   OpenBao is an open source secret management tool for storing and distributing secrets, certificates and keys
