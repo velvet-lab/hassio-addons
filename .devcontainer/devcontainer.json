@@ -1,0 +1,35 @@
+{
+  "name": "Home Assistant Add-ons",
+  "image": "ghcr.io/home-assistant/devcontainer:2-addons",
+  "forwardPorts": [8123, 4357],
+  "runArgs": ["-e", "GIT_EDITOR=code --wait", "--privileged"],
+  "remoteUser": "root",
+  "workspaceFolder": "/mnt/supervisor/addons/local/${localWorkspaceFolderBasename}",
+  "workspaceMount": "source=${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind,consistency=cached",
+  "containerEnv": {
+    "WORKSPACE_DIRECTORY": "${containerWorkspaceFolder}"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "/usr/bin/zsh"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "editor.formatOnPaste": false,
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "files.trimTrailingWhitespace": true
+      }
+    }
+  },
+  "mounts": [
+    "type=volume,target=/var/lib/docker",
+    "type=volume,target=/mnt/supervisor"
+  ],
+  "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/post-create.sh",
+  "postStartCommand": "${containerWorkspaceFolder}/.devcontainer/post-start.sh",
+  "postAttachCommand": "${containerWorkspaceFolder}/.devcontainer/post-attach.sh"
+}

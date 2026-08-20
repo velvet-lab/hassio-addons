@@ -1,0 +1,20 @@
+# VSCode Server ignores
+**/.devcontainer/mounts/data/.cache/
+**/.devcontainer/mounts/data/.devcontainer/
+**/.devcontainer/mounts/data/.dotnet/
+**/.devcontainer/mounts/data/.vscode-server/
+**/.devcontainer/mounts/data/.gnupg/
+**/.devcontainer/mounts/data/.mongodb/
+**/.devcontainer/mounts/data/.devcontainer/.updateContentCommandMarker
+**/.devcontainer/mounts/data/app.err
+**/.devcontainer/mounts/config/
+
+# Application data ignores
+**/.devcontainer/mounts/data/mongodb/
+**/.devcontainer/mounts/data/davis/
+**/.devcontainer/mounts/data/keyfile
+**/.devcontainer/mounts/data/conduit/
+**/.devcontainer/mounts/data/rustfs/
+**/.devcontainer/mounts/data/schildichat/
+**/.devcontainer/mounts/data/productivity/
+**/.devcontainer/mounts/data/portainer/

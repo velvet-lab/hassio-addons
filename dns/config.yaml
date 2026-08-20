@@ -1,0 +1,42 @@
+---
+name: Dns/Dhcp Server
+version: 15.4.0
+stage: deprecated
+slug: dns
+description: >-
+  Self host a Dns/Dhcp server for privacy & security
+url: https://github.com/velvet-lab/hassio-addons/tree/main/dns
+arch:
+  - amd64
+  - aarch64
+host_network: true
+startup: system
+homeassistant: 2026.1.0
+init: false
+advanced: true
+apparmor: true
+panel_admin: true
+backup: hot
+backup_exclude:
+  - "/data/config/logs/*.log"
+  - "/data/config/stats/*.stat"
+  - "/data/config/stats/*.dstat"
+watchdog: tcp://[HOST]:[PORT:53]
+ports:
+  53/tcp: 53
+  53/udp: 53
+  67/udp: 67
+  68/udp: 67
+  5380/tcp: 5380
+  53443/tcp: null
+  8053/tcp: null
+  853/tcp: null
+  80/tcp: null
+  443/tcp: null
+options:
+  domain: homeassistant.local
+  admin_password: null
+schema:
+  domain: str
+  admin_password: password
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?

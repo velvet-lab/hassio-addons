@@ -1,0 +1,32 @@
+---
+name: MongoDB
+version: 7.0.0
+stage: stable
+slug: mongodb
+description: >-
+  MongoDB is a source-available, cross-platform, document-oriented database program
+url: https://github.com/velvet-lab/hassio-addons/tree/main/mongodb
+arch:
+  - amd64
+  - aarch64
+host_network: false
+startup: system
+hassio_role: default
+hassio_api: true
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
+backup: cold
+backup_exclude:
+  - "/data/app.err"
+watchdog: tcp://[HOST]:[PORT:27017]
+ports:
+  27017/tcp: 27017
+options:
+  admin_password: null
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  admin_password: password

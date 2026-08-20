@@ -1,0 +1,10 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: Choose the Log Level
+  admin_password:
+    name: Admin Password
+    description: Set the password for the MongoDB admin user. Username is 'admin'
+
+network:
+  27017/tcp: Port for MongoDB server

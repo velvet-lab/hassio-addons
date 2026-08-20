@@ -1,0 +1,27 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+root=/data
+data_root="$root/portainer"
+
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "$log_level"
+
+bashio::log.info "Starting portainer pre-initialization script..."
+
+bashio::log.debug "Ensuring data directory exists..."
+if ! bashio::fs.directory_exists "$data_root"; then
+    mkdir -p "$data_root"
+    chmod 755 "$data_root"
+fi
+
+export DATA_ROOT=$data_root
+
+bashio::log.debug "Setting DATA_ROOT environment variable"
+echo -n "$data_root" > "/var/run/s6/container_environment/DATA_ROOT"
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"

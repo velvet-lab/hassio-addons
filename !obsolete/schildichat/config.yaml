@@ -1,0 +1,27 @@
+---
+name: SchildiChat
+version: 0.1.0
+stage: stable
+slug: schildichat
+description: >-
+  Feature-rich messenger for Matrix based on Element with some extras and tweaks.
+url: https://github.com/velvet-lab/hassio-addons/tree/main/conduit
+arch:
+  - amd64
+  - aarch64
+host_network: false
+startup: services
+homeassistant: 2026.1.0
+init: false
+map:
+  - type: homeassistant_config
+    read_only: false
+apparmor: true
+backup: cold
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:8080]
+ports:
+  8080/tcp: 8080
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?

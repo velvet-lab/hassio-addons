@@ -1,0 +1,70 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+root=/data
+data_root="$root/conduit"
+homeassistant_root="/homeassistant"
+config_root="$homeassistant_root/addons/conduit"
+
+default_log_level="info"
+server_name_file="${root}/server_name"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "$log_level"
+
+bashio::log.info "Starting Conduit pre-initialization script..."
+
+bashio::log.debug "Ensuring data directory exists..."
+if ! bashio::fs.directory_exists "$data_root"; then
+    mkdir -p "$data_root"
+    chmod 755 "$data_root"
+fi
+
+bashio::log.debug "Checking for existing server name..."
+if ! bashio::fs.file_exists "${server_name_file}"; then
+    touch "${server_name_file}"
+fi
+current_server_name=$(cat "${server_name_file}" 2>/dev/null || echo "")
+
+bashio::log.debug "Ensuring config directory exists..."
+if ! bashio::fs.directory_exists "$config_root"; then
+    mkdir -p "$config_root"
+    chmod 755 "$config_root"
+fi
+
+bashio::log.debug "Ensuring Home Assistant config root has correct rights..."
+chmod 755 "$homeassistant_root"
+
+bashio::log.debug "Reading configuration options..."
+server_name=$(bashio::config 'server_name')
+
+bashio::log.debug "Preparing and validating environment variables..."
+if [ "$log_level" == "warning" ]; then
+    log_level="warn"
+fi
+log_level=$(bashio::string.upper "$log_level")
+
+bashio::config.require 'server_name' "You need to set a server name for the Matrix Conduit server."
+
+bashio::log.debug "Checking for server name changes..."
+if bashio::var.has_value "$current_server_name" && ! bashio::var.equals "$current_server_name" "$server_name"; then
+    bashio::log.warning "Server name could not changed. Uninstall, delete data and reinstall the addon to change the server name."
+    server_name="$current_server_name"
+fi
+
+export SERVER_NAME=$server_name
+export DATA_ROOT=$data_root
+export LOG_LEVEL=$log_level
+
+if ! bashio::fs.file_exists "$config_root/config.toml"; then
+    bashio::log.info "No existing configuration found, creating default configuration..."
+    envsubst < /etc/default/conduit.toml > "$config_root"/config.toml
+    chmod 644 "$config_root/config.toml"
+fi
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"
+
+bashio::log.debug "Export final environment variables for MongoDB core"
+echo -n "/homeassistant/addons/conduit/config.toml" > "/var/run/s6/container_environment/CONDUIT_CONFIG"

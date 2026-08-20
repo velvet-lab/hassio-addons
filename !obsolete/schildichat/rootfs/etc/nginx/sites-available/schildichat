@@ -1,0 +1,18 @@
+# You can move that to a different file under sites-available/ and symlink that
+# to sites-enabled/ to enable it.
+#
+server {
+      listen 8080;
+      listen [::]:8080;
+
+      server_name _;
+
+      access_log off;
+
+      root   /opt/schildichat-web;
+      index  index.html;
+
+      location / {
+              try_files $uri $uri/ =404;
+      }
+}

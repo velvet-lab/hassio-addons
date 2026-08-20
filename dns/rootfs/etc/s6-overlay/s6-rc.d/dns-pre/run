@@ -1,0 +1,35 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+ROOT=/data
+data_root="$ROOT/config"
+data_root_new="$ROOT/dns"
+
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "$log_level"
+
+# Set some Environment Variables if available
+bashio::log.info "Load Dns/Dhcp Server Configuration..."
+
+bashio::log.debug "Ensuring data directory exists..."
+if ! bashio::fs.directory_exists "$data_root_new"; then
+    mkdir -p "$data_root_new"
+    chmod 755 "$data_root_new"
+fi
+
+bashio::log.debug "Preparing and validating environment variables..."
+echo -n "$(bashio::config "domain")" > "/var/run/s6/container_environment/DNS_SERVER_DOMAIN"
+echo -n "$(bashio::config "admin_password")" > "/var/run/s6/container_environment/DNS_SERVER_ADMIN_PASSWORD"
+
+bashio::log.debug "Migrating existing configuration if needed..."
+if bashio::fs.directory_exists "$data_root"; then
+    bashio::log.debug "Migrating existing configuration to new location..."
+    mv "$data_root"/* "$data_root_new"/
+    rm -rf "$data_root"
+fi
+
+bashio::log.debug Redirect log output
+rm -f "${ROOT}/app.err"
+ln -s /proc/1/fd/1 "${ROOT}/app.err"

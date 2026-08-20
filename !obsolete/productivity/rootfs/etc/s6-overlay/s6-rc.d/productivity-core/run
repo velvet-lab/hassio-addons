@@ -1,0 +1,10 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'warning')"
+
+bashio::log.info "Starting super-productivity server..."
+exec nginx -g 'daemon off;'
+

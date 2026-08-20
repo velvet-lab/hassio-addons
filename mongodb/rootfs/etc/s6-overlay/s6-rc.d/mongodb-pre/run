@@ -1,0 +1,89 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+root=/data
+data_root="$root/mongodb"
+homeassistant_root="/homeassistant"
+config_root="$homeassistant_root/addons/mongodb"
+mongodb_config="$config_root/config.conf"
+
+run_root="/run/mongodb"
+
+default_log_level="warning"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "${log_level}"
+
+bashio::log.info "Prepare MongoDB configuration"
+
+bashio::log.debug "Create folders"
+if ! bashio::fs.directory_exists "${run_root}"; then
+    bashio::log.debug "Creating run root directory at ${run_root}"
+    mkdir -p "${run_root}"
+    chmod 755 "${run_root}"
+fi
+
+if ! bashio::fs.directory_exists "${data_root}"; then
+    bashio::log.debug "Creating data root directory at ${data_root}"
+    mkdir -p "${data_root}"
+    chmod 755 "${data_root}"
+fi
+
+if ! bashio::fs.directory_exists "${config_root}"; then
+    bashio::log.debug "Creating config root directory at ${config_root}"
+    mkdir -p "${config_root}"
+    chmod 755 "${config_root}"
+fi
+
+if ! bashio::fs.file_exists /data/keyfile ]; then
+    bashio::log.info "Create keyfile for security"
+    content=$(openssl rand -base64 756 | tr -d '\n' | tr -d '\r')
+    echo -n "${content}" > /data/keyfile
+    chmod 400 /data/keyfile
+fi
+
+bashio::log.debug "Read configuration options"
+admin_user="admin"
+admin_password=$(bashio::config 'admin_password')
+
+bashio::log.debug "Validate variables"
+bashio::config.require.password 'admin_password'
+
+bashio::log.debug "Export environment variables"
+export DATA_ROOT="${data_root}"
+
+bashio::log.debug "Prestart MongoDB and execute initial scripts"
+envsubst < /etc/default/mongod.pre.conf > /tmp/config.conf
+chmod 644 /tmp/config.conf
+
+mongod --fork --quiet --config "/tmp/config.conf" --logpath /var/log/mongodb/init.log
+sleep 5
+
+if bashio::var.has_value "$admin_password"; then
+    bashio::log.info "Create admin user"
+    mongosh --eval "const args = ['${admin_user}', '${admin_password}'];" /etc/mongod.d/modify-user.js || true
+fi
+
+bashio::log.info "Ensure MongoDB is stopped"
+pid=$(pgrep mongod)
+if [ ! -z "${pid}" ]; then
+    bashio::log.debug "Found running MongoDB process with PID ${pid}, attempting to stop it gracefully."
+    mongosh --eval "printjson(db.shutdownServer())" || true
+    sleep 5
+    if pgrep -x "mongod" > /dev/null; then
+        bashio::log.debug "MongoDb did not stop gracefully, attempting to kill it."
+        kill "$pid" || true
+    fi
+fi
+
+if ! bashio::fs.file_exists "$mongodb_config"; then
+    bashio::log.info "No existing configuration found, creating default configuration..."
+    envsubst < /etc/default/mongod.conf > "$mongodb_config"
+fi
+
+bashio::log.debug Redirect log output
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"
+
+bashio::log.debug "Export final environment variables for MongoDB core"
+echo -n "${mongodb_config}" > /var/run/s6/container_environment/MONGODB_CONFIG

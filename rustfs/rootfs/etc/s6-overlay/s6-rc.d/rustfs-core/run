@@ -1,0 +1,12 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+root=/data
+data_root="$root/rustfs"
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'warning')"
+
+bashio::log.info "Starting rustfs server..."
+exec /usr/local/bin/rustfs "$data_root"

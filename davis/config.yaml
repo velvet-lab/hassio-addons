@@ -1,0 +1,47 @@
+---
+name: Davis
+version: 5.4.3
+stage: stable
+slug: davis
+description: >-
+  A modern, simple, feature-packed, fully translatable CalDAV, CardDav and WebDav server
+url: https://github.com/velvet-lab/hassio-addons/tree/main/davis
+arch:
+  - amd64
+  - aarch64
+startup: services
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+tmpfs: true
+services:
+  - mysql:want
+backup: hot
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:8080]
+ports:
+  8080/tcp: 8080
+options:
+  admin_login: admin
+  admin_password: null
+  caldav_enabled: true
+  carddav_enabled: true
+schema:
+  admin_login: str
+  admin_password: password
+  app_timezone: str?
+  birthday_reminder_offset: str?
+  caldav_enabled: bool?
+  carddav_enabled: bool?
+  webdav_enabled: bool?
+  home_enabled: bool?
+  public_calendars_enabled: bool?
+  use_mysql: bool?
+  invite_from_address: str?
+  mail_host: str?
+  mail_port: int?
+  mail_username: str?
+  mail_password: password?
+  trusted_proxies: str?
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
