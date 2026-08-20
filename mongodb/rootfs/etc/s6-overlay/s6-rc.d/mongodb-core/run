@@ -1,9 +1,0 @@
-#!/command/with-contenv bashio
-# vim: ft=bash
-# shellcheck shell=bash
-
-# Set Log Level
-bashio::log.level "$(bashio::config 'log_level' 'warning')"
-
-bashio::log.info "Start MongoDB ..."
-exec mongod --config /etc/mongod.conf --configExpand "exec"
