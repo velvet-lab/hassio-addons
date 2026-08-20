@@ -1,7 +1,7 @@
 ---
 name: Dns/Dhcp Server
 version: 3.0.0
-stage: stable
+stage: deprecated
 slug: dns
 description: >-
   Self host a Dns/Dhcp server for privacy & security
