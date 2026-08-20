@@ -1,0 +1,8 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: Choose the Log Level
+
+network:
+  6333/tcp: HTTP API port for Qdrant
+  6334/tcp: gRPC API port for Qdrant

@@ -1,0 +1,28 @@
+---
+name: Qdrant (experimental)
+version: 1.19.0
+stage: experimental
+slug: qdrant
+description: >-
+  Qdrant is a high-performance, open source vector search engine and database
+url: https://github.com/velvet-lab/hassio-addons/tree/main/qdrant
+arch:
+  - amd64
+  - aarch64
+host_network: false
+startup: system
+hassio_role: default
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+backup: hot
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:6333]
+ports:
+  6333/tcp: 6333
+  6334/tcp: 6334
+options:
+  log_level: info
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?

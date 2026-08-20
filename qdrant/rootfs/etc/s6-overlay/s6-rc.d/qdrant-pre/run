@@ -1,0 +1,48 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+root=/data
+config_root="$root/qdrant/config"
+storage_root="$root/qdrant/storage"
+snapshots_root="$root/qdrant/snapshots"
+config_file="${config_root}/production.yaml"
+
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "${log_level}"
+
+bashio::log.info "Prepare Qdrant configuration"
+
+bashio::log.debug "Create folders"
+if ! bashio::fs.directory_exists "${config_root}"; then
+    bashio::log.debug "Creating config root directory at ${config_root}"
+    mkdir -p "${config_root}"
+    chmod 755 "${config_root}"
+fi
+
+if ! bashio::fs.directory_exists "${storage_root}"; then
+    bashio::log.debug "Creating storage root directory at ${storage_root}"
+    mkdir -p "${storage_root}"
+    chmod 755 "${storage_root}"
+fi
+
+if ! bashio::fs.directory_exists "${snapshots_root}"; then
+    bashio::log.debug "Creating snapshots root directory at ${snapshots_root}"
+    mkdir -p "${snapshots_root}"
+    chmod 755 "${snapshots_root}"
+fi
+
+bashio::log.debug "Write Qdrant configuration"
+if ! bashio::fs.file_exists "${config_file}"; then
+    cp /etc/default/production.yaml "${config_file}"
+    chmod 644 "${config_file}"
+fi
+
+# The Qdrant binary resolves its configuration file relative to its working
+# directory, so we must run it from the folder that contains the config.
+echo -n "${config_root}" > /var/run/s6/container_environment/QDRANT_CONFIG_DIR
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"

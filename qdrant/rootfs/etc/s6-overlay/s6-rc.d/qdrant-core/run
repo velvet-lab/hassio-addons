@@ -1,0 +1,11 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
+bashio::log.info "Start Qdrant ..."
+# Qdrant loads its production.yaml from the current working directory.
+cd "${QDRANT_CONFIG_DIR:-/data/qdrant/config}"
+exec qdrant
