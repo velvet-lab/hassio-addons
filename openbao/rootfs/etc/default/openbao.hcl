@@ -4,9 +4,10 @@
 # Enable the built-in Web UI
 ui = true
 
-# Keep the OpenBao server log quiet; the add-on provides its own logging.
-# Valid values: trace, debug, info, warn, err
-log_level = "err"
+# Server log level. This is only a default — the add-on overrides it at start
+# via the BAO_LOG_LEVEL environment variable, which is mapped from the
+# add-on's `log_level` option. Valid values: trace, debug, info, warn, err
+log_level = "info"
 
 # File storage backend for persistent data
 storage "file" {
