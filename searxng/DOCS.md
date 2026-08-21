@@ -46,7 +46,11 @@ The SearXNG server configuration is managed as a file on your Home Assistant con
 
 On first start the add-on copies a default configuration there, which you can edit directly (for example with Visual Studio Code). The default uses `use_default_settings: true`, so you only need to override the options you care about (instance name, engines, UI theme, the limiter, and so on). For a reference of all available options, see the [SearXNG settings documentation](https://docs.searxng.org/admin/settings/index.html).
 
+**Important:** With `use_default_settings: true`, only add the keys/sections you actually want to override. Do **not** add a section with no real keys in it (for example a bare `search:` followed only by comments) — an empty YAML mapping is parsed as `null` and will clobber the defaults, making SearXNG fail to start. Delete the empty section or give it at least one real key.
+
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
+
+If you upgraded from an earlier version that shipped an empty-section `settings.yml` (which made SearXNG fail with `Invalid settings.yml`), delete `/homeassistant/addons/searxng/settings.yml` once and restart the add-on — it is re-created from the corrected template.
 
 The add-on generates a random `secret_key` on first start and stores it under `/data/searxng` so sessions and cookies stay valid across restarts. You normally don't need to touch it.
 

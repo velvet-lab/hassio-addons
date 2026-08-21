@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="searxng-build-v2-redis"
+readonly build_marker="searxng-build-v7-host"
 
 root=/data
 data_root="$root/searxng"
@@ -45,6 +45,16 @@ if ! bashio::fs.file_exists "${user_config}"; then
     chmod 644 "${user_config}"
 fi
 
+# Provide a default limiter.toml (the limiter configuration) in the runtime
+# config folder. SearXNG logs a "missing config file: limiter.toml" warning on
+# every start if this file is absent (it is read even when the limiter itself
+# is disabled). When missing, copy the bundled default so the warning is gone.
+if ! bashio::fs.file_exists "${config_root}/limiter.toml"; then
+    bashio::log.info "Creating default SearXNG limiter configuration"
+    cp /etc/default/limiter.toml "${config_root}/limiter.toml"
+    chmod 644 "${config_root}/limiter.toml"
+fi
+
 # Resolve the Redis connection to use for the limiter / bot protection.
 # Redis is OPTIONAL: it is only used if a Redis service is provided by another
 # add-on, or when redis_host is configured. Otherwise the limiter stays off.
@@ -74,9 +84,36 @@ else
 fi
 export SEARXNG_REDIS_URL="${redis_url}"
 
+# Determine the host/base URL. Home Assistant exposes the supervisor's network
+# info; use the first non-loopback IPv4 as the instance base URL host, falling
+# back to the hostname if the API is not reachable.
+searxng_host="homeassistant"
+if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
+    network_info=$(curl -sSL -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" "http://supervisor/network/info" 2>/dev/null)
+    # Best-effort: extract the first IPv4 address (skip loopback and link-local).
+    # shellcheck disable=SC2001
+    raw_ipv4="$(echo "${network_info}" | sed -E 's/.*"ipv4"[[:space:]]*:?[[:space:]]*\[([^]]*)\].*/\1/' | tr ',' '\n')"
+    for candidate in $raw_ipv4; do
+        candidate="${candidate//[\" ]/}"
+        if [[ -n "${candidate}" ]] && ! [[ "${candidate}" =~ ^(127\.|::1|fe80) ]]; then
+            searxng_host="${candidate}"
+            break
+        fi
+    done
+fi
+if ! [[ -n "${searxng_host}" ]]; then
+    searxng_host="homeassistant"
+fi
+export SEARXNG_HOST="${searxng_host}"
+
+# Determine the configured port (from the add-on UI) and export it so it can be
+# substituted into `server.base_url` in the template via envsubst.
+http_port="$(bashio::addon.port '8080/tcp')"
+export SEARXNG_PORT="${http_port}"
+
 # Render the final configuration for the server from the user-edited file into
-# the internal config folder. ${SEARXNG_REDIS_URL} is substituted into the
-# rendered `valkey.url`.
+# the internal config folder. ${SEARXNG_REDIS_URL}, ${SEARXNG_HOST} and
+# ${SEARXNG_PORT} are substituted into the rendered configuration.
 bashio::log.debug "Write SearXNG configuration"
 envsubst < "${user_config}" > "${settings_file}"
 chmod 644 "${settings_file}"
@@ -94,10 +131,7 @@ fi
 
 # Export runtime values for the SearXNG core service via the s6 container
 # environment, so every service (incl. the granian longrun) inherits them.
-# The internal port is read from the add-on configuration so it matches the
-# port shown in the Home Assistant UI.
-http_port="$(bashio::addon.port '8080/tcp')"
-
+# The internal port matches the port shown in the Home Assistant UI.
 bashio::log.debug "SearXNG will listen on port ${http_port}"
 
 # Export runtime values for the SearXNG core service via the s6 container

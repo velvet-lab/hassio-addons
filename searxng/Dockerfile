@@ -65,6 +65,7 @@ RUN set -x \
     && cd /opt/searxng/searxng-src \
     && /opt/searxng/venv/bin/pip install --use-pep517 --no-build-isolation -e . \
     && /opt/searxng/venv/bin/pip install -r requirements-server.txt \
+    && /opt/searxng/venv/bin/python -m searx.version freeze \
     && cd / \
     && rm -rf \
         /etc/logrotate.d \
