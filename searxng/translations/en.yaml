@@ -1,0 +1,7 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: Choose the Log Level
+
+network:
+  8080/tcp: SearXNG web interface

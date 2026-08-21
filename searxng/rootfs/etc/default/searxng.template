@@ -1,0 +1,39 @@
+# SearXNG configuration
+# Learn more: https://docs.searxng.org/admin/settings/index.html
+#
+# This template is copied to /homeassistant/addons/searxng/settings.yml on
+# first start, where you can edit it (e.g. with VS Code). The add-on renders
+# it into the runtime configuration on every start, so a restart is required
+# after you change this file.
+#
+# With `use_default_settings: true` SearXNG loads the sane, full default
+# configuration (including all engines) and only the options below override it.
+# Remove a key you don't want to override.
+
+use_default_settings: true
+
+general:
+  # instance_name: "SearXNG"
+  # privacypolicy_url: https://example.com/privacy
+  # contact_url: mailto:contact@example.com
+
+search:
+  # safe_search: 0  # 0: None, 1: Moderate, 2: Strict
+  # autocomplete: "duckduckgo"
+  # default_lang: "auto"
+
+server:
+  # public base URL of this instance, e.g. "http://192.168.1.10:8080"
+  base_url: false
+  # rate limit requests and block some bots (uses the bundled Valkey server)
+  limiter: false
+  # image_proxy: false
+
+valkey:
+  # The bundled Valkey server, used for the limiter / bot protection.
+  url: valkey://127.0.0.1:6379/0
+
+ui:
+  # default_locale: "en"  # leave blank to detect from the browser
+  # default_theme: simple  # simple (auto | light | dark | black)
+  # results_on_new_tab: false
