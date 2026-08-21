@@ -11,7 +11,7 @@ After starting the add-on, SearXNG is available on port `8080` of your Home Assi
 
 ## Configuration
 
-The add-on is **pre-configured** out of the box: it uses the sensible defaults shipped with SearXNG (including all available search engines). For the limiter / bot protection it connects to a Redis server, which you provide (for example the [Home Assistant Redis add-on](https://github.com/fabio-garavini/hassio-addons/tree/main/redis)).
+The add-on is **pre-configured** out of the box: it uses the sensible defaults shipped with SearXNG (including all available search engines). SearXNG runs fine without a Redis server; Redis is only needed for the optional limiter / bot protection.
 
 ### Option: `log_level`
 
@@ -28,7 +28,7 @@ Please note that each level automatically includes log messages from a more seve
 
 ### Option: `redis_host`
 
-The hostname or IP address of the Redis server SearXNG uses for the limiter / bot protection. If a Redis service is provided by another add-on, that service is preferred and this option is ignored. The default is `127.0.0.1`.
+The hostname or IP address of the Redis server SearXNG uses for the optional limiter / bot protection. If a Redis service is provided by another add-on, that service is preferred and this option is ignored. Leave it empty to run without Redis (the limiter stays off).
 
 ### Option: `redis_port`
 
@@ -50,14 +50,14 @@ On first start the add-on copies a default configuration there, which you can ed
 
 The add-on generates a random `secret_key` on first start and stores it under `/data/searxng` so sessions and cookies stay valid across restarts. You normally don't need to touch it.
 
-## Redis (limiter / bot protection)
+## Redis (limiter / bot protection)  [optional]
 
-SearXNG uses a Redis server for its limiter and bot protection. The connection is set up in one of two ways:
+Redis is **not required** for SearXNG to run. It is only used for the limiter and bot protection when you enable `server.limiter: true` in your `settings.yml`. Without Redis the instance works normally, just without rate limiting. If you want the limiter, the connection is set up in one of two ways:
 
 * **Home Assistant Redis service**: If an installed add-on provides a `redis` service (for example a Redis add-on that registers one), the add-on picks it up automatically via `bashio::services redis`.
 * **Add-on options**: Otherwise, set `redis_host`, `redis_port` and (if needed) `redis_password` to point at your Redis server.
 
-The resolved connection is written into the rendered `valkey.url` of the runtime `settings.yml`. To enable the limiter, set `server.limiter: true` in your `settings.yml`.
+The resolved connection is written into the rendered `valkey.url` of the runtime `settings.yml` (it becomes `false` when no Redis is configured).
 
 **Note on the Redis add-on:** the [Redis add-on by fabio-garavini](https://github.com/fabio-garavini/hassio-addons/tree/main/redis) does not register a Home Assistant Redis service, so when using it you configure the connection via the `redis_host` / `redis_port` / `redis_password` options above. Make sure Redis is reachable from this add-on.
 
