@@ -66,8 +66,20 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
 - s6 **longrun** services are started by the service manager and must use `exec` as the final command (like `exec /usr/sbin/...`), so s6 owns and terminates the process. Do not start the daemon in the background and `wait` on it in the run script.
 - s6 **oneshot** services that do work-then-exit (e.g. init or unseal) MUST end with `exit 0`, otherwise s6 treats them as "unable to start service ... command exited N" and aborts the whole container bring-up (`rc.init: fatal: stopping the container`).
 - Dependencies between units are declared with empty files in `<service>/dependencies.d/`; bundles reference their members in `<bundle>/contents.d/`; the top-level bundle is referenced by `user/contents.d/<bundle>`.
+- Runtime values shared with longrun services are exported via the s6 container environment as **one file per variable** at `/var/run/s6/container_environment/<VARNAME>`. The `with-contenv` mechanism turns each filename into an environment variable available to all services. Do **not** write a single `.env`-style file there.
 - The rootfs is baked into the image via `Dockerfile COPY rootfs /`, so script changes only take effect after a **fresh image rebuild**, not on a plain container restart. Add a unique build marker logged at startup to verify which build is running.
 - Prefer the HTTP API (`curl http://127.0.0.1:<port>/...`) over parsing CLI text output for readiness checks; CLI text parsing can hang when a service is uninitialized.
+
+### Consuming another add-on's service
+
+- When using a service provided by another add-on (MySQL, Redis, MQTT, ...), check availability with `bashio::services.available '<name>'` (the function is `.available`, **not** `.exists`), then read the connection with `bashio::services '<name>' '<key>'` (e.g. `host`, `port`, `password`).
+- The consuming add-on must declare `services: [ <name>: want ]` (or `need`) in `config.yaml`. Both sides must match: the **provider** add-on must register that service with `services: [ <name>: provide ]`. A third-party add-on that does not register the service will **not** be discovered automatically via `bashio::services`; in that case read the connection from user-configurable options (`<name>_host`, `<name>_port`, `<name>_password`) instead, and treat the dependency as optional.
+- Verify from the upstream docs whether a backing store is actually required. For example, SearXNG's limiter/bot protection needs a Valkey/Redis connection, but with `valkey.url: false` (and `limiter: false`) it runs fine entirely without one — keep such dependencies optional.
+
+### Upstream install scripts in Dockerfiles
+
+- Upstream installation scripts (e.g. SearXNG's `utils/searxng.sh install all`) usually target a full OS host: they need `systemd`/`uWSGI`/`nginx`, `sudo`, and create a dedicated service user. They do **not** run as-is inside an s6 container.
+- Instead, replicate only the relevant granular steps in the `Dockerfile` — typically the OS `apt` package list (`install packages`) and the Python/virtualenv setup (`install pyenv`) — and adapt the app-server/init to the container (e.g. Granian or uWSGI directly under s6).
 
 ### Line endings
 
