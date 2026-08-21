@@ -27,9 +27,6 @@ ports:
   8080/tcp: 8080
 options:
   log_level: info
-  redis_host: null
-  redis_port: 6379
-  redis_password: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   redis_host: "str?"
