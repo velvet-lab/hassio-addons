@@ -2,6 +2,15 @@ configuration:
   log_level:
     name: Log Level
     description: Choose the Log Level
+  redis_host:
+    name: Redis Host
+    description: Hostname or IP of the Redis server (used for the limiter / bot protection)
+  redis_port:
+    name: Redis Port
+    description: Port of the Redis server
+  redis_password:
+    name: Redis Password
+    description: Password of the Redis server (if set)
 
 network:
   8080/tcp: SearXNG web interface

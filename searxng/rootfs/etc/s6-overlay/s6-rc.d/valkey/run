@@ -1,9 +1,0 @@
-#!/command/with-contenv bashio
-# vim: ft=bash
-# shellcheck shell=bash
-
-# Set Log Level
-bashio::log.level "$(bashio::config 'log_level' 'info')"
-
-bashio::log.info "Start Valkey (for SearXNG limiter) ..."
-exec valkey-server /etc/default/valkey.conf

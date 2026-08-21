@@ -32,7 +32,9 @@ WORKDIR /tmp
 # distribution is a plain Python package: the web client (simple theme) is
 # shipped pre-compiled in the repository, so no Node/build step is needed.
 # Granian (from requirements-server.txt) is the WSGI server that serves the
-# SearXNG application. Valkey provides the limiter / bot protection database.
+# SearXNG application. Redis (provided by the user, e.g. a Redis add-on) is
+# used for the limiter / bot protection. Search engines are queried directly
+# from this container.
 RUN set -x \
     && apt-get update \
     && apt-get upgrade -qy \
@@ -45,7 +47,6 @@ RUN set -x \
         python3 \
         python3-dev \
         python3-venv \
-        valkey-server \
     && git clone --depth 1 --branch "${SEARXNG_VERSION}" \
         https://github.com/searxng/searxng.git /tmp/searxng \
     && python3 -m venv /opt/searxng/venv \

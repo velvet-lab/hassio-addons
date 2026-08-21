@@ -5,14 +5,16 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="searxng-build-v1"
+readonly build_marker="searxng-build-v2-redis"
 
 root=/data
 data_root="$root/searxng"
 config_root="$data_root/settings"
-valkey_root="$data_root/valkey"
 settings_file="${config_root}/settings.yml"
 secret_file="${data_root}/secret"
+
+default_redis_host="127.0.0.1"
+default_redis_port="6379"
 
 homeassistant_root="/homeassistant"
 user_config_root="$homeassistant_root/addons/searxng"
@@ -27,7 +29,7 @@ bashio::log.info "SearXNG build marker: ${build_marker}"
 bashio::log.info "Prepare SearXNG configuration"
 
 bashio::log.debug "Create folders"
-for d in "${config_root}" "${valkey_root}" "${user_config_root}"; do
+for d in "${config_root}" "${user_config_root}"; do
     if ! bashio::fs.directory_exists "${d}"; then
         bashio::log.debug "Creating directory ${d}"
         mkdir -p "${d}"
@@ -44,8 +46,33 @@ if ! bashio::fs.file_exists "${user_config}"; then
     chmod 644 "${user_config}"
 fi
 
+# Resolve the Redis connection to use for the limiter / bot protection.
+# Prefer a Redis service provided by another add-on (e.g. a Redis add-on that
+# registers a `redis` service). If none is available, fall back to the
+# add-on `redis_host` / `redis_port` / `redis_password` options.
+if bashio::services.available "redis"; then
+    bashio::log.info "Using the Redis service provided by Home Assistant"
+    redis_host=$(bashio::services redis "host")
+    redis_port=$(bashio::services redis "port")
+    redis_password=$(bashio::services redis "password")
+else
+    redis_host=$(bashio::config 'redis_host' "${default_redis_host}")
+    redis_port=$(bashio::config 'redis_port' "${default_redis_port}")
+    redis_password=$(bashio::config 'redis_password')
+    bashio::log.debug "Using Redis from the add-on options (${redis_host}:${redis_port})"
+fi
+
+redis_url="valkey://"
+if bashio::var.has_value "${redis_password}"; then
+    redis_url="${redis_url}${redis_password}@"
+fi
+redis_url="${redis_url}${redis_host}:${redis_port}/0"
+export SEARXNG_REDIS_URL="${redis_url}"
+bashio::log.debug "SearXNG will use Redis at ${redis_host}:${redis_port}"
+
 # Render the final configuration for the server from the user-edited file into
-# the internal config folder.
+# the internal config folder. ${SEARXNG_REDIS_URL} is substituted into the
+# rendered `valkey.url`.
 bashio::log.debug "Write SearXNG configuration"
 envsubst < "${user_config}" > "${settings_file}"
 chmod 644 "${settings_file}"

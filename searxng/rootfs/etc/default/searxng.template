@@ -25,13 +25,15 @@ search:
 server:
   # public base URL of this instance, e.g. "http://192.168.1.10:8080"
   base_url: false
-  # rate limit requests and block some bots (uses the bundled Valkey server)
+  # rate limit requests and block some bots (uses your Redis server)
   limiter: false
   # image_proxy: false
 
 valkey:
-  # The bundled Valkey server, used for the limiter / bot protection.
-  url: valkey://127.0.0.1:6379/0
+  # Connection to the Redis server used for the limiter / bot protection.
+  # The placeholder is filled at every start from the add-on configuration
+  # (or the Home Assistant Redis service). Do NOT edit this value here.
+  url: ${SEARXNG_REDIS_URL}
 
 ui:
   # default_locale: "en"  # leave blank to detect from the browser
