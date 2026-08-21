@@ -10,7 +10,7 @@ Search without being tracked.
 
 SearXNG is a free internet metasearch engine which aggregates results from many search services. Users are neither tracked nor profiled. Additionally, SearXNG can be used over Tor for online anonymity.
 
-This add-on bundles the SearXNG metasearch engine, built from the current `master` branch and served with Granian. Redis is **optional** and only used for the limiter / bot protection (e.g. via the [Home Assistant Redis add-on](https://github.com/fabio-garavini/hassio-addons/tree/main/redis)); SearXNG runs fine without it.
+This add-on bundles the SearXNG metasearch engine, built from the current `master` branch and served with Granian. A few resource/network-intensive default engines (`ahmia`, `torch`, `wikidata`) are disabled out of the box so the instance starts reliably in a container. Redis is **optional** and only used for the limiter / bot protection (e.g. via the [Home Assistant Redis add-on](https://github.com/fabio-garavini/hassio-addons/tree/main/redis)); SearXNG runs fine without it.
 
 ## Features
 
