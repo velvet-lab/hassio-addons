@@ -9,10 +9,8 @@ ARG BUILD_REF
 ARG BUILD_REPOSITORY
 ARG BUILD_VERSION
 
-# SearXNG git tag (or commit) to check out. Update this together with the
-# add-on version in config.yaml. The tag is derived from the upstream commit
-# date, e.g. "2026.8.20-487d7a96e".
-ARG SEARXNG_VERSION=2026.8.20-487d7a96e
+# SearXNG is built from the current master branch. The add-on version in
+# config.yaml tracks the upstream master version (see the docs footer).
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -28,13 +26,15 @@ RUN if [ -d /etc/cont-init.d ]; then chmod -R 755 /etc/cont-init.d; fi && \
 # Set Workdir
 WORKDIR /tmp
 
-# Installs SearXNG from source into a dedicated virtualenv. The official
-# distribution is a plain Python package: the web client (simple theme) is
-# shipped pre-compiled in the repository, so no Node/build step is needed.
-# Granian (from requirements-server.txt) is the WSGI server that serves the
-# SearXNG application. Redis (provided by the user, e.g. a Redis add-on) is
-# used for the limiter / bot protection. Search engines are queried directly
-# from this container.
+# Installs SearXNG from source into a dedicated virtualenv, following the
+# official installation script (https://docs.searxng.org/admin/installation-scripts.html,
+# utils/searxng.sh install packages + install pyenv) adapted to the container:
+#   - the OS packages from the script's Debian list,
+#   - the exact Python environment it creates (pip upgrade list + editable
+#     `pip install --use-pep517 --no-build-isolation -e .`).
+# The simple theme web client ships pre-compiled, so no Node/build step is
+# needed. Redis is OPTIONAL (only for the limiter / bot protection) and is
+# provided by the user, e.g. via a Redis add-on.
 RUN set -x \
     && apt-get update \
     && apt-get upgrade -qy \
@@ -45,17 +45,27 @@ RUN set -x \
         gettext-base \
         git \
         python3 \
+        python3-babel \
         python3-dev \
         python3-venv \
-    && git clone --depth 1 --branch "${SEARXNG_VERSION}" \
-        https://github.com/searxng/searxng.git /tmp/searxng \
+        libxml2-dev \
+        libxslt1-dev \
+        zlib1g-dev \
+        libffi-dev \
+        libssl-dev \
+    && git clone --depth 1 https://github.com/searxng/searxng.git /opt/searxng/searxng-src \
     && python3 -m venv /opt/searxng/venv \
-    && /opt/searxng/venv/bin/pip install --no-cache-dir --upgrade pip setuptools wheel \
-    && cd /tmp/searxng \
-    && /opt/searxng/venv/bin/pip install --no-cache-dir . \
-    && /opt/searxng/venv/bin/pip install --no-cache-dir -r requirements-server.txt \
+    && /opt/searxng/venv/bin/pip install -U pip \
+    && /opt/searxng/venv/bin/pip install -U setuptools \
+    && /opt/searxng/venv/bin/pip install -U wheel \
+    && /opt/searxng/venv/bin/pip install -U pyyaml \
+    && /opt/searxng/venv/bin/pip install -U msgspec \
+    && /opt/searxng/venv/bin/pip install -U typing-extensions \
+    && /opt/searxng/venv/bin/pip install -U pybind11 \
+    && cd /opt/searxng/searxng-src \
+    && /opt/searxng/venv/bin/pip install --use-pep517 --no-build-isolation -e . \
+    && /opt/searxng/venv/bin/pip install -r requirements-server.txt \
     && cd / \
-    && rm -rf /tmp/searxng \
     && rm -rf \
         /etc/logrotate.d \
         /var/lib/apt/lists/* \

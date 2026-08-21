@@ -13,7 +13,6 @@ config_root="$data_root/settings"
 settings_file="${config_root}/settings.yml"
 secret_file="${data_root}/secret"
 
-default_redis_host="127.0.0.1"
 default_redis_port="6379"
 
 homeassistant_root="/homeassistant"
@@ -47,28 +46,33 @@ if ! bashio::fs.file_exists "${user_config}"; then
 fi
 
 # Resolve the Redis connection to use for the limiter / bot protection.
-# Prefer a Redis service provided by another add-on (e.g. a Redis add-on that
-# registers a `redis` service). If none is available, fall back to the
-# add-on `redis_host` / `redis_port` / `redis_password` options.
+# Redis is OPTIONAL: it is only used if a Redis service is provided by another
+# add-on, or when redis_host is configured. Otherwise the limiter stays off.
+redis_host=""
+redis_password=""
 if bashio::services.available "redis"; then
     bashio::log.info "Using the Redis service provided by Home Assistant"
     redis_host=$(bashio::services redis "host")
     redis_port=$(bashio::services redis "port")
     redis_password=$(bashio::services redis "password")
 else
-    redis_host=$(bashio::config 'redis_host' "${default_redis_host}")
     redis_port=$(bashio::config 'redis_port' "${default_redis_port}")
+    redis_host=$(bashio::config 'redis_host')
     redis_password=$(bashio::config 'redis_password')
-    bashio::log.debug "Using Redis from the add-on options (${redis_host}:${redis_port})"
 fi
 
-redis_url="valkey://"
-if bashio::var.has_value "${redis_password}"; then
-    redis_url="${redis_url}${redis_password}@"
+if bashio::var.has_value "${redis_host}"; then
+    redis_url="valkey://"
+    if bashio::var.has_value "${redis_password}"; then
+        redis_url="${redis_url}${redis_password}@"
+    fi
+    redis_url="${redis_url}${redis_host}:${redis_port}/0"
+    bashio::log.info "SearXNG will use Redis at ${redis_host}:${redis_port}"
+else
+    redis_url="false"
+    bashio::log.info "No Redis configured; the SearXNG limiter / bot protection is disabled"
 fi
-redis_url="${redis_url}${redis_host}:${redis_port}/0"
 export SEARXNG_REDIS_URL="${redis_url}"
-bashio::log.debug "SearXNG will use Redis at ${redis_host}:${redis_port}"
 
 # Render the final configuration for the server from the user-edited file into
 # the internal config folder. ${SEARXNG_REDIS_URL} is substituted into the
