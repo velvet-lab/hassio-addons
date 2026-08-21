@@ -66,12 +66,11 @@ if ! bashio::fs.directory_exists "${user_config_root}"; then
 fi
 
 # On first start copy the default configuration to the user-accessible folder
-# under /homeassistant, where the user can edit it (e.g. with VS Code). A
-# missing user config is created from the bundled template unless the user
-# already has a file there.
+# under /homeassistant, where the user can edit it (e.g. with VS Code). If the
+# user deletes the file it is recreated from the bundled template.
 if ! bashio::fs.file_exists "${user_config}"; then
     bashio::log.info "Creating default OpenBao configuration for the user"
-    envsubst < /etc/default/openbao.hcl > "${user_config}"
+    cp /etc/default/openbao.template "${user_config}"
     chmod 644 "${user_config}"
 fi
 
