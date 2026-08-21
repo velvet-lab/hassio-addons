@@ -75,8 +75,12 @@ if ! bashio::fs.file_exists "${user_config}"; then
 fi
 
 # Render the final configuration for the server by substituting any remaining
-# placeholders from the user-edited file into the internal config folder.
+# placeholders from the user-edited file into the internal config folder. The
+# API port is read from the add-on configuration so it matches the port shown
+# in the Home Assistant UI.
 bashio::log.debug "Write OpenBao configuration"
+export BAO_PORT
+BAO_PORT="$(bashio::addon.port '8200/tcp')"
 envsubst < "${user_config}" > "${config_root}/openbao.hcl"
 chmod 644 "${config_root}/openbao.hcl"
 
