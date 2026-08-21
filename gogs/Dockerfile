@@ -57,8 +57,7 @@ RUN set -x \
             -o /tmp/gogs.tar.gz; \
     fi \
     && tar -zxf /tmp/gogs.tar.gz -C /tmp/gogs-pkg \
-    && mkdir -p /tmp/gogs-root && \
-    gogs_dir="$(dirname "$(find /tmp/gogs-pkg -type f -name gogs -maxdepth 2 | head -1)")" && \
+    && gogs_dir="$(dirname "$(find /tmp/gogs-pkg -type f -name gogs -maxdepth 2 | head -1)")" && \
     cp -r "${gogs_dir}/." /app/gogs/ && \
     rm -rf /tmp/gogs.tar.gz /tmp/gogs-pkg && \
     chmod 755 /app/gogs/gogs && \
