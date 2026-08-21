@@ -7,8 +7,8 @@ log_level: INFO
 
 service:
   host: 0.0.0.0
-  http_port: 6333
-  grpc_port: 6334
+  http_port: ${QDRANT_HTTP_PORT}
+  grpc_port: ${QDRANT_GRPC_PORT}
 
 storage:
   storage_path: /data/qdrant/storage
