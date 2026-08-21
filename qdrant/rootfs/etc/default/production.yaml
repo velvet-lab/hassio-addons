@@ -1,5 +1,7 @@
 # Qdrant server configuration
 # Learn more: https://qdrant.tech/documentation/ops-configuration/configuration/
+# This template is copied to /homeassistant/addons/qdrant/production.yaml on
+# first start, where you can edit it.
 
 log_level: INFO
 

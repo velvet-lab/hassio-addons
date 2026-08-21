@@ -39,6 +39,7 @@ RUN set -x \
     && apt-get install -qy --no-install-recommends \
         ca-certificates \
         curl \
+        gettext-base \
         tar \
     && if [ "${BUILD_ARCH}" = "aarch64" ]; then \
         curl --proto "=https" --tlsv1.2 -sSfL \

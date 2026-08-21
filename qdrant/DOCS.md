@@ -39,11 +39,15 @@ client = Qdrant(url="http://<your-homeassistant-ip>:6333", api_key="<admin_passw
 
 **Note:** If you leave `admin_password` empty, Qdrant runs without authentication. We recommend setting a password when the add-on is reachable from untrusted networks.
 
-### Option: `config`
+### Configuration
 
-The `config` option contains the Qdrant server configuration (`production.yaml`) and is **pre-filled with the default** for you. You can edit it directly to adjust Qdrant; for a reference of all available options, see the [Qdrant configuration documentation](https://qdrant.tech/documentation/ops-configuration/configuration/).
+The Qdrant server configuration is managed as a file on your Home Assistant configuration folder:
 
-When you change this option, the add-on writes it to the `production.yaml` that Qdrant reads. The add-on still enforces the `admin_password` (via the `QDRANT__SERVICE__API_KEY` environment variable) unless you set `service.api_key` explicitly in your configuration.
+`/homeassistant/addons/qdrant/production.yaml`
+
+On first start the add-on copies a default configuration there, which you can edit directly (for example with Visual Studio Code). For a reference of all available options, see the [Qdrant configuration documentation](https://qdrant.tech/documentation/ops-configuration/configuration/). The add-on still enforces the `admin_password` (via the `QDRANT__SERVICE__API_KEY` environment variable) unless you set `service.api_key` explicitly in your configuration.
+
+**Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
 
 ## Data folder
 

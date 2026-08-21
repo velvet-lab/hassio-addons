@@ -6,6 +6,9 @@ config_root="$root/qdrant/config"
 storage_root="$root/qdrant/storage"
 snapshots_root="$root/qdrant/snapshots"
 config_file="${config_root}/production.yaml"
+homeassistant_root="/homeassistant"
+user_config_root="$homeassistant_root/addons/qdrant"
+user_config="$user_config_root/production.yaml"
 
 default_log_level="info"
 
@@ -33,18 +36,24 @@ if ! bashio::fs.directory_exists "${snapshots_root}"; then
     chmod 755 "${snapshots_root}"
 fi
 
-bashio::log.debug "Write Qdrant configuration"
-# The `config` option is pre-filled with the default configuration and always
-# set, so we simply write it as the Qdrant configuration file.
-config=$(bashio::config 'config')
-if bashio::var.has_value "${config}"; then
-    printf '%s\n' "${config}" > "${config_file}"
-    chmod 644 "${config_file}"
-else
-    bashio::log.warning "No Qdrant configuration provided, using default"
-    cp /etc/default/production.yaml "${config_file}"
-    chmod 644 "${config_file}"
+if ! bashio::fs.directory_exists "${user_config_root}"; then
+    bashio::log.debug "Creating user config root directory at ${user_config_root}"
+    mkdir -p "${user_config_root}"
+    chmod 755 "${user_config_root}"
 fi
+
+# On first start copy the default configuration to the user-accessible folder
+# under /homeassistant, where the user can edit it (e.g. with VS Code).
+if ! bashio::fs.file_exists "${user_config}"; then
+    bashio::log.info "Creating default Qdrant configuration for the user"
+    envsubst < /etc/default/production.yaml > "${user_config}"
+    chmod 644 "${user_config}"
+fi
+
+# Render the final configuration for the server from the user-edited file.
+bashio::log.debug "Write Qdrant configuration"
+envsubst < "${user_config}" > "${config_file}"
+chmod 644 "${config_file}"
 
 # The Qdrant binary resolves its configuration file relative to its working
 # directory, so we must run it from the folder that contains the config.
