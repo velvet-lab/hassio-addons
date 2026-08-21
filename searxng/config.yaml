@@ -19,8 +19,6 @@ apparmor: true
 map:
   - type: homeassistant_config
     read_only: false
-services:
-  - redis:want
 backup: hot
 backup_exclude:
   - /data/app.err
