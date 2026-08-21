@@ -1,0 +1,10 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: Choose the Log Level
+  secret_key:
+    name: Secret Key
+    description: Set the secret key used to encrypt cookies and 2FA codes
+
+network:
+  3000/tcp: Port for the Gogs web interface and Git HTTP endpoints
