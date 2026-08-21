@@ -43,10 +43,11 @@ if ! bashio::fs.directory_exists "${user_config_root}"; then
 fi
 
 # On first start copy the default configuration to the user-accessible folder
-# under /homeassistant, where the user can edit it (e.g. with VS Code).
+# under /homeassistant, where the user can edit it (e.g. with VS Code). If the
+# user deletes the file it is recreated from the bundled template.
 if ! bashio::fs.file_exists "${user_config}"; then
     bashio::log.info "Creating default Qdrant configuration for the user"
-    envsubst < /etc/default/production.yaml > "${user_config}"
+    cp /etc/default/production.template "${user_config}"
     chmod 644 "${user_config}"
 fi
 
