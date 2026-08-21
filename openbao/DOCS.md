@@ -26,6 +26,12 @@ The `log_level` option controls the level of log output by the add-on and can be
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
 
+### Option: `config`
+
+The `config` option contains the OpenBao server configuration in HCL format and is **pre-filled with the default** for you. You can edit it directly to adjust OpenBao; OpenBao uses the HCL format, see the [OpenBao configuration documentation](https://openbao.org/docs/configuration/) for all available options.
+
+When you change this option, the add-on writes it to the `openbao.hcl` that OpenBao reads. The add-on still applies the `log_level` (via `BAO_LOG_LEVEL`), automatic initialization and unsealing.
+
 ## Data folder
 
 The add-on stores the OpenBao configuration and its file storage backend in the `/data/openbao` folder. Please ensure this is included in your backup.

@@ -8,6 +8,7 @@
 - Automatically initialize OpenBao on first start and unseal on every start
 - Persist unseal keys and root token in `/data/openbao/unseal.keys`
 - Print the root token to the add-on log on first start
+- Add a `config` option with a pre-filled default OpenBao configuration
 
 ### OpenBao
 
