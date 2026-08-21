@@ -1,13 +1,13 @@
 # OpenBao server configuration
 # Learn more: https://openbao.org/docs/configuration
+# This template is copied to /homeassistant/addons/openbao/openbao.hcl on
+# first start. The ${BAO_LOG_LEVEL} placeholder is replaced at start time.
 
 # Enable the built-in Web UI
 ui = true
 
-# Server log level. This is only a default — the add-on overrides it at start
-# via the BAO_LOG_LEVEL environment variable, which is mapped from the
-# add-on's `log_level` option. Valid values: trace, debug, info, warn, err
-log_level = "info"
+# Server log level, controlled by the add-on's log_level option.
+log_level = "${BAO_LOG_LEVEL}"
 
 # File storage backend for persistent data
 storage "file" {

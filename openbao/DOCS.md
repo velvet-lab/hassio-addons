@@ -26,11 +26,15 @@ The `log_level` option controls the level of log output by the add-on and can be
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
 
-### Option: `config`
+### Configuration
 
-The `config` option contains the OpenBao server configuration in HCL format and is **pre-filled with the default** for you. You can edit it directly to adjust OpenBao; OpenBao uses the HCL format, see the [OpenBao configuration documentation](https://openbao.org/docs/configuration/) for all available options.
+The OpenBao server configuration is managed as a file on your Home Assistant configuration folder:
 
-When you change this option, the add-on writes it to the `openbao.hcl` that OpenBao reads. The add-on still applies the `log_level` (via `BAO_LOG_LEVEL`), automatic initialization and unsealing.
+`/homeassistant/addons/openbao/openbao.hcl`
+
+On first start the add-on copies a default configuration there, which you can edit directly (for example with Visual Studio Code). OpenBao uses the HCL format; see the [OpenBao configuration documentation](https://openbao.org/docs/configuration/) for all available options. The add-on still applies the `log_level` (via `BAO_LOG_LEVEL`), automatic initialization and unsealing.
+
+**Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
 
 ## Data folder
 

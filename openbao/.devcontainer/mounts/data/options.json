@@ -1,3 +1,3 @@
 {
-    "log_level": "debug",
-    "config": "# OpenBao server configuration\n# Learn more: https://openbao.org/docs/configuration\n\n# Enable the built-in Web UI\nui = true\n\nlog_level = \"info\"\n\nstorage \"file\" {\n  path = \"/data/openbao/file\"\n}\n\nlistener \"tcp\" {\n  address     = \"0.0.0.0:8200\"\n  tls_disable = true\n}\n"}
+    "log_level": "debug"
+}

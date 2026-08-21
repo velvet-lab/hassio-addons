@@ -2,9 +2,6 @@ configuration:
   log_level:
     name: Log Level
     description: Choose the Log Level
-  config:
-    name: Configuration
-    description: Edit the OpenBao server configuration (HCL)
 
 network:
   8200/tcp: Port for the OpenBao server and Web UI

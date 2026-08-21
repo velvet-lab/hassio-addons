@@ -30,6 +30,7 @@ RUN set -x \
     && apt-get install -qy --no-install-recommends \
         ca-certificates \
         curl \
+        gettext-base \
         gnupg \
     && curl --proto "=https" --tlsv1.2 -sSfL https://openbao.org/assets/openbao-gpg-pub-20240618.asc \
         | gpg -o /usr/share/keyrings/openbao.gpg --dearmor \

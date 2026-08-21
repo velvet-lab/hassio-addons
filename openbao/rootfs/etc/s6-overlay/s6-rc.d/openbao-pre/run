@@ -11,6 +11,9 @@ root=/data
 config_root="$root/openbao/config"
 storage_root="$root/openbao/file"
 secrets_file="$root/openbao/unseal.keys"
+homeassistant_root="/homeassistant"
+user_config_root="$homeassistant_root/addons/openbao"
+user_config="$user_config_root/openbao.hcl"
 init_endpoint="http://127.0.0.1:8200/v1/sys/init"
 
 export BAO_ADDR="http://127.0.0.1:8200"
@@ -56,18 +59,27 @@ if ! bashio::fs.directory_exists "${storage_root}"; then
     chmod 755 "${storage_root}"
 fi
 
-# The `config` option is pre-filled with the default configuration and always
-# set, so we simply write it as the OpenBao configuration file.
-bashio::log.debug "Write OpenBao configuration"
-config=$(bashio::config 'config')
-if bashio::var.has_value "${config}"; then
-    printf '%s\n' "${config}" > "${config_root}/openbao.hcl"
-    chmod 644 "${config_root}/openbao.hcl"
-else
-    bashio::log.warning "No OpenBao configuration provided, using default"
-    cp /etc/default/openbao.hcl "${config_root}/openbao.hcl"
-    chmod 644 "${config_root}/openbao.hcl"
+if ! bashio::fs.directory_exists "${user_config_root}"; then
+    bashio::log.debug "Creating user config root directory at ${user_config_root}"
+    mkdir -p "${user_config_root}"
+    chmod 755 "${user_config_root}"
 fi
+
+# On first start copy the default configuration to the user-accessible folder
+# under /homeassistant, where the user can edit it (e.g. with VS Code). A
+# missing user config is created from the bundled template unless the user
+# already has a file there.
+if ! bashio::fs.file_exists "${user_config}"; then
+    bashio::log.info "Creating default OpenBao configuration for the user"
+    envsubst < /etc/default/openbao.hcl > "${user_config}"
+    chmod 644 "${user_config}"
+fi
+
+# Render the final configuration for the server by substituting any remaining
+# placeholders from the user-edited file into the internal config folder.
+bashio::log.debug "Write OpenBao configuration"
+envsubst < "${user_config}" > "${config_root}/openbao.hcl"
+chmod 644 "${config_root}/openbao.hcl"
 
 # Initialize OpenBao on first start. The unseal keys file is the marker for a
 # finished initialization. Initialization requires a running server, so spin
