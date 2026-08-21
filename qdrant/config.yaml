@@ -24,5 +24,24 @@ ports:
   6334/tcp: 6334
 options:
   log_level: info
+  admin_password: null
+  config: |
+    # Qdrant server configuration
+    # Learn more: https://qdrant.tech/documentation/ops-configuration/configuration/
+
+    log_level: INFO
+
+    service:
+      host: 0.0.0.0
+      http_port: 6333
+      grpc_port: 6334
+
+    storage:
+      storage_path: /data/qdrant/storage
+      snapshots_path: /data/qdrant/snapshots
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  admin_password: password
+  config:
+    type: str
+    multi_line: true

@@ -7,6 +7,8 @@
   - amd64: via the official package
   - arm64: via the official binary distribution
 - Add HTTP (6333) and gRPC (6334) API ports
+- Add `admin_password` option to protect the Qdrant API and Web UI
+- Add a `config` option with a pre-filled default Qdrant configuration
 
 ### Qdrant
 

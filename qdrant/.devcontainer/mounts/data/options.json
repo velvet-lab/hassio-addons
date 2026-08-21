@@ -1,3 +1,4 @@
 {
-    "log_level": "debug"
-}
+    "log_level": "debug",
+    "admin_password": "admin",
+    "config": "# Qdrant server configuration\n# Learn more: https://qdrant.tech/documentation/ops-configuration/configuration/\n\nlog_level: INFO\n\nservice:\n  host: 0.0.0.0\n  http_port: 6333\n  grpc_port: 6334\n\nstorage:\n  storage_path: /data/qdrant/storage\n  snapshots_path: /data/qdrant/snapshots\n"}

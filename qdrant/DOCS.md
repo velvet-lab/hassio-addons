@@ -26,6 +26,25 @@ The `log_level` option controls the level of log output by the add-on and can be
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
 
+### Option: `admin_password`
+
+The `admin_password` option sets a password that protects the Qdrant APIs (REST, gRPC and the Web UI). Once set, clients must authenticate with this password as an API key.
+
+To use the Qdrant Python client with a password set:
+
+``` python
+from qdrant_client import Qdrant
+client = Qdrant(url="http://<your-homeassistant-ip>:6333", api_key="<admin_password>")
+```
+
+**Note:** If you leave `admin_password` empty, Qdrant runs without authentication. We recommend setting a password when the add-on is reachable from untrusted networks.
+
+### Option: `config`
+
+The `config` option contains the Qdrant server configuration (`production.yaml`) and is **pre-filled with the default** for you. You can edit it directly to adjust Qdrant; for a reference of all available options, see the [Qdrant configuration documentation](https://qdrant.tech/documentation/ops-configuration/configuration/).
+
+When you change this option, the add-on writes it to the `production.yaml` that Qdrant reads. The add-on still enforces the `admin_password` (via the `QDRANT__SERVICE__API_KEY` environment variable) unless you set `service.api_key` explicitly in your configuration.
+
 ## Data folder
 
 The add-on stores all Qdrant data (storage) and its snapshots in the `/data/qdrant` folder. The storage lives in `/data/qdrant/storage` and snapshots in `/data/qdrant/snapshots`. Please ensure this is included in your backup.

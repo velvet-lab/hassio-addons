@@ -34,7 +34,14 @@ if ! bashio::fs.directory_exists "${snapshots_root}"; then
 fi
 
 bashio::log.debug "Write Qdrant configuration"
-if ! bashio::fs.file_exists "${config_file}"; then
+# The `config` option is pre-filled with the default configuration and always
+# set, so we simply write it as the Qdrant configuration file.
+config=$(bashio::config 'config')
+if bashio::var.has_value "${config}"; then
+    printf '%s\n' "${config}" > "${config_file}"
+    chmod 644 "${config_file}"
+else
+    bashio::log.warning "No Qdrant configuration provided, using default"
     cp /etc/default/production.yaml "${config_file}"
     chmod 644 "${config_file}"
 fi
@@ -42,6 +49,15 @@ fi
 # The Qdrant binary resolves its configuration file relative to its working
 # directory, so we must run it from the folder that contains the config.
 echo -n "${config_root}" > /var/run/s6/container_environment/QDRANT_CONFIG_DIR
+
+# Protect the Qdrant HTTP/gRPC APIs (and thus the Web UI) with an admin
+# password. Qdrant picks up the value from the QDRANT__SERVICE__API_KEY
+# environment variable (double-underscore based env config mapping).
+admin_password=$(bashio::config 'admin_password')
+if bashio::var.has_value "${admin_password}"; then
+    bashio::log.debug "Enabling Qdrant admin password"
+    echo -n "${admin_password}" > /var/run/s6/container_environment/QDRANT__SERVICE__API_KEY
+fi
 
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"

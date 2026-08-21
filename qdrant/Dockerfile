@@ -10,6 +10,11 @@ ARG BUILD_NAME
 ARG BUILD_REF
 ARG BUILD_REPOSITORY
 
+# Version of the Qdrant release artifacts to download. This is used for the
+# release URLs and defaults to the bundled Qdrant version, so the build works
+# even when BUILD_VERSION (the add-on version) is not passed explicitly.
+ARG QDRANT_VERSION=1.19.0
+
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -37,7 +42,7 @@ RUN set -x \
         tar \
     && if [ "${BUILD_ARCH}" = "aarch64" ]; then \
         curl --proto "=https" --tlsv1.2 -sSfL \
-            "https://github.com/qdrant/qdrant/releases/download/v${BUILD_VERSION}/qdrant-aarch64-unknown-linux-musl.tar.gz" \
+            "https://github.com/qdrant/qdrant/releases/download/v${QDRANT_VERSION}/qdrant-aarch64-unknown-linux-musl.tar.gz" \
             -o /tmp/qdrant.tar.gz \
         && mkdir -p /opt/qdrant \
         && tar -zxf /tmp/qdrant.tar.gz -C /opt/qdrant --strip-components=1 \
@@ -45,14 +50,11 @@ RUN set -x \
         && ln -s /opt/qdrant/qdrant /usr/bin/qdrant; \
     else \
         curl --proto "=https" --tlsv1.2 -sSfL \
-            "https://github.com/qdrant/qdrant/releases/download/v${BUILD_VERSION}/qdrant_${BUILD_VERSION}-1_amd64.deb" \
+            "https://github.com/qdrant/qdrant/releases/download/v${QDRANT_VERSION}/qdrant_${QDRANT_VERSION}-1_amd64.deb" \
             -o /tmp/qdrant.deb \
         && apt-get install -qy --no-install-recommends /tmp/qdrant.deb \
         && rm /tmp/qdrant.deb; \
     fi \
-    && apt-get purge -y --auto-remove \
-        curl \
-        tar \
     && apt-get clean \
     && rm -rf \
         /etc/logrotate.d \
