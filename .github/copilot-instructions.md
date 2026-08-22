@@ -59,7 +59,7 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
 - On first start the `*-pre/run` script does a plain `cp /etc/default/<name>.template /homeassistant/addons/<slug>/<name>` (NOT envsubst), giving the user an editable file (e.g. via VS Code). If deleted, it is re-created on the next start.
 - On every start the `*-pre/run` script renders the final config: `envsubst < /homeassistant/addons/<slug>/<name> > /data/<slug>/config/<name>`.
 - This requires `gettext-base` installed in the image (for `envsubst`).
-- Ports the user can change in the UI are read at start with `bashio::addon.port '<port>/tcp'` and exported so `envsubst` substitutes the placeholder (e.g. `BAO_PORT`, `QDRANT_HTTP_PORT`).
+- **Internal listen ports are fixed.** The application always listens on `0.0.0.0:<its own default port>` (e.g. Gogs `3000`, OpenBao `8200`, Qdrant `6333`/`6334`, SearXNG `8080`). Do **NOT** read the port with `bashio::addon.port` and write it into the app config — that port is only the *exposed* port in the Home Assistant UI and has nothing to do with where the app should listen. If the app template needs a port, hardcode the application's own default.
 - Document the editable file location in `DOCS.md` and note that a restart is required after changes.
 
 ### s6 overlay & technical pitfalls
