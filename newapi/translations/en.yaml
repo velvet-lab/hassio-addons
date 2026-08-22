@@ -1,0 +1,10 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: Choose the Log Level
+  session_secret:
+    name: Session Secret
+    description: Set the secret used to sign authentication sessions
+
+network:
+  3000/tcp: Port for the New API web interface and API endpoints

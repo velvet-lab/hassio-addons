@@ -1,0 +1,91 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Static, unique build marker. Bump this value on every code change so we can
+# verify from the log whether the container image was actually rebuilt and is
+# not a stale cache. If the marker is NOT visible in the log, the image is old.
+readonly build_marker="newapi-build-v1-config"
+
+root=/data
+data_root="$root/newapi"
+homeassistant_root="/homeassistant"
+user_config_root="$homeassistant_root/addons/newapi"
+user_config="$user_config_root/newapi.env"
+secret_file="$data_root/secret"
+
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "${log_level}"
+
+bashio::log.info "New API build marker: ${build_marker}"
+bashio::log.info "Prepare New API configuration"
+
+# New API loads its .env file from the current working directory. The Dockerfile
+# sets WORKDIR to /data/newapi, so the rendered file must live there.
+bashio::log.debug "Create folders"
+for folder in "${data_root}" "${user_config_root}"; do
+    if ! bashio::fs.directory_exists "${folder}"; then
+        bashio::log.debug "Creating folder ${folder}"
+        mkdir -p "${folder}"
+        chmod 755 "${folder}"
+    fi
+done
+
+# New API refuses to start when SESSION_SECRET is the literal string
+# "random_string" and generates a fresh random value on every start when it is
+# unset. Persist a generated secret on the first start so sessions survive a
+# restart. The user can override it with the `session_secret` add-on option, or
+# by editing the rendered .env file directly.
+if ! bashio::fs.file_exists "${secret_file}"; then
+    bashio::log.info "Generating a new New API SESSION_SECRET"
+    if command -v openssl >/dev/null 2>&1; then
+        session_secret=$(openssl rand -hex 32)
+    else
+        # Fallback without openssl: timestamp-based hash, no endless stream.
+        session_secret=$(date +%s%N | sha256sum)
+        session_secret="${session_secret%% *}"
+    fi
+    printf '%s' "${session_secret}" > "${secret_file}"
+    chmod 600 "${secret_file}"
+    unset session_secret
+fi
+
+# The `session_secret` add-on option overrides the generated/persisted key.
+if bashio::var.has_value "$(bashio::config 'session_secret')"; then
+    bashio::log.debug "Using the session_secret from the add-on configuration"
+    session_secret="$(bashio::config 'session_secret')"
+else
+    bashio::log.debug "Using the generated, persisted SESSION_SECRET"
+    session_secret="$(cat "${secret_file}")"
+fi
+
+# Export the secret via the s6 container environment so the longrun service
+# can inherit it regardless of the .env file.
+echo -n "${session_secret}" > /var/run/s6/container_environment/SESSION_SECRET
+unset session_secret
+
+# On first start copy the default configuration template to the user-accessible
+# folder under /homeassistant, where the user can edit it (e.g. with VS Code).
+# If the user deletes the file it is recreated from the bundled template.
+if ! bashio::fs.file_exists "${user_config}"; then
+    bashio::log.info "Creating default New API configuration for the user"
+    cp /etc/default/newapi.template "${user_config}"
+    chmod 644 "${user_config}"
+fi
+
+# Render the final .env file from the user-edited configuration. Any remaining
+# ${VAR} placeholders are expanded from the add-on environment.
+bashio::log.debug "Write New API configuration"
+envsubst < "${user_config}" > "${data_root}/.env"
+chmod 644 "${data_root}/.env"
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"
+
+# s6 oneshot services MUST end with exit 0, otherwise s6 treats them as
+# "unable to start service ... command exited N" and aborts the whole container
+# bring-up (rc.init: fatal: stopping the container).
+exit 0

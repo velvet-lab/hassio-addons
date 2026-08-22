@@ -1,0 +1,32 @@
+---
+name: New API (experimental)
+version: 1.0.0-rc.25
+stage: experimental
+slug: newapi
+description: >-
+  New API is a next-generation LLM gateway and AI asset management system
+  that aggregates and distributes OpenAI, Claude, Gemini and many other models
+url: https://github.com/velvet-lab/hassio-addons/tree/main/newapi
+arch:
+  - amd64
+  - aarch64
+host_network: false
+startup: system
+hassio_role: default
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
+backup: hot
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:3000]
+ports:
+  3000/tcp: 3000
+options:
+  log_level: info
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  session_secret: "password?"

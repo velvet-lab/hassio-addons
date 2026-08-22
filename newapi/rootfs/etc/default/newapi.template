@@ -1,0 +1,37 @@
+# New API server configuration
+# This template is copied to /homeassistant/addons/newapi/newapi.env on first
+# start, where you can edit it. On every start it is rendered to
+# /data/newapi/.env (with envsubst) and loaded by New API. Restart the add-on
+# after editing.
+#
+# This is a standard dotenv (KEY=VALUE) file. See the official documentation
+# for the full list of variables:
+# https://www.newapi.ai/en/docs/installation/config-maintenance/environment-variables
+#
+# The SESSION_SECRET is generated automatically and persisted on the first
+# start; it is injected as an environment variable, so you normally do not
+# need to set it here.
+
+# Port New API listens on. This is the *internal* port; the port shown in the
+# Home Assistant UI is only the exposed port and stays 3000.
+PORT=3000
+
+# Timezone used for log timestamps.
+TZ=Etc/UTC
+
+# SQLite database file. The default installation stores everything in a single
+# SQLite database file under /data/newapi. To use an external database instead,
+# comment out SQLITE_PATH and set SQL_DSN below.
+SQLITE_PATH=/data/newapi/one-api.db
+
+# Optional: external database connection string (PostgreSQL recommended).
+# Example PostgreSQL: postgresql://user:pass@host:5432/new-api
+# Example MySQL:      user:pass@tcp(host:3306)/new-api
+# SQL_DSN=postgresql://user:pass@host:5432/new-api
+
+# Optional: Redis-compatible cache for rate limiting and sessions (improves
+# performance for multi-user deployments and shared rate limits).
+# REDIS_CONN_STRING=redis://default:pass@host:6379
+
+# Optional: enable in-memory cache (auto-enabled when Redis is configured).
+# MEMORY_CACHE_ENABLED=true
