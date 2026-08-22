@@ -9,4 +9,7 @@ bashio::log.info "Starting rustfs server..."
 
 # The volume argument comes from the user-editable RUSTFS_VOLUMES variable,
 # exported by rustfs-pre (one file per var via the s6 container environment).
-exec /usr/local/bin/rustfs "${RUSTFS_VOLUMES:-/data/rustfs}"
+# It is REQUIRED: abort if missing instead of falling back to a default.
+# shellcheck disable=SC2153  # RUSTFS_VOLUMES is a container-env var set by with-contenv
+volume="${RUSTFS_VOLUMES:?RUSTFS_VOLUMES is not set (rustfs-pre did not run)}"
+exec /usr/local/bin/rustfs "${volume}"
