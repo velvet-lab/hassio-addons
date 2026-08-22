@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v1-config"
+readonly build_marker="gogs-build-v2-config"
 
 root=/data
 gogs_root="$root/gogs"
@@ -41,7 +41,13 @@ done
 # editing the rendered app.ini directly.
 if ! bashio::fs.file_exists "${secret_file}"; then
     bashio::log.info "Generating a new Gogs SECRET_KEY"
-    secret_key=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 64)
+    if command -v openssl >/dev/null 2>&1; then
+        secret_key=$(openssl rand -hex 32)
+    else
+        # Fallback without openssl: timestamp-based hash, no endless stream.
+        secret_key=$(date +%s%N | sha256sum)
+        secret_key="${secret_key%% *}"
+    fi
     printf '%s' "${secret_key}" > "${secret_file}"
     chmod 600 "${secret_file}"
     unset secret_key
@@ -65,11 +71,6 @@ if ! bashio::fs.file_exists "${user_config}"; then
     chmod 644 "${user_config}"
 fi
 
-# The web server port is read from the add-on configuration so it matches the
-# port shown in the Home Assistant UI. Gogs expands this placeholder itself
-# from the process environment at start.
-echo -n "$(bashio::addon.port '3000/tcp')" > /var/run/s6/container_environment/GOGS_PORT
-
 # Copy the user-edited configuration to the Gogs custom conf folder. Any
 # remaining ${PLACEHOLDER} values are left intact for Gogs to expand from the
 # environment at startup.
@@ -80,3 +81,8 @@ chmod 644 "${config_root}/app.ini"
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
 ln -s /proc/1/fd/1 "${root}/app.err"
+
+# s6 oneshot services MUST end with exit 0, otherwise s6 treats them as
+# "unable to start service ... command exited N" and aborts the whole container
+# bring-up (rc.init: fatal: stopping the container).
+exit 0

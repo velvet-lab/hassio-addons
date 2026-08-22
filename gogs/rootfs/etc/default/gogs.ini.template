@@ -17,10 +17,10 @@ RUN_MODE = prod
 RUN_USER = root
 
 [server]
-; Gogs listens on this address and port. HTTP_PORT is filled in from the
-; add-on option so it matches the port shown in the Home Assistant UI.
+; Gogs listens on this internal address and port regardless of the port
+; shown in the Home Assistant UI (the UI port is only the exposed port).
 HTTP_ADDR = 0.0.0.0
-HTTP_PORT = ${GOGS_PORT}
+HTTP_PORT = 3000
 
 ; The public URL used by the web UI for redirects and clone URLs.
 DOMAIN      = localhost
