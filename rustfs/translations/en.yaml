@@ -1,13 +1,13 @@
 configuration:
   log_level:
     name: Log Level
-    description: Choose the log level for the service (e.g., info, debug, warning, error).
+    description: Choose the log level for the add-on (e.g., info, debug, warning, error).
   access_key:
     name: Access Key
     description: The access key for authenticating with the RustFS service.
   secret_key:
     name: Secret Key
-    description: The secret key for authenticating with the RustFS service.
+    description: The secret key for authenticating with the RustFS service. Leave empty to generate (and persist) a random value.
   console_enable:
     name: Console Enable
     description: Enable or disable the RustFS web console.

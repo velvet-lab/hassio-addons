@@ -1,8 +1,22 @@
+## 1.0.0-rc.3
+
+### Add-on
+
+- Update the RustFS add-on to version 1.0.0-rc.3
+- Reintroduce `access_key` / `secret_key` as add-on options (set in the Home Assistant UI). An empty `secret_key` falls back to a generated, persisted random value so the server never boots with the rejected default (RustFS since beta.10)
+- Expose `console_enable` as an add-on option to toggle the web console
+
+### RustFS
+
+- Update RustFS to the latest release candidate
+- For detailed release notes, see the [official RustFS changelog](https://github.com/rustfs/rustfs/blob/main/CHANGELOG.md)
+
 ## 1.0.0-rc.2-preview.1
 
 ### Add-on
 
 - Update the RustFS add-on to version 1.0.0-rc.2-preview.1
+- Configuration is now an editable `rustfs.env` file at `/homeassistant/addons/rustfs/rustfs.env` (mapped via `homeassistant_config`)
 
 ### RustFS
 

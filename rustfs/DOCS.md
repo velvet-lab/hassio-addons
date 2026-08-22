@@ -4,28 +4,39 @@
 
 The installation of this add-on is pretty straightforward and not different in comparison to installing any other Home Assistant add-on.
 
-1.  Set a custom `secret_key` and `access_key`
-2.  Start the "RustFS Server" add-on.
-3.  Check the logs of "RustFS Server" to see if everything went well.
-4.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:50355`.
+1.  Start the "RustFS Server" add-on.
+2.  Check the logs of "RustFS Server" to see if everything went well.
+3.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:9001`.
 
 **Note**: The add-on is **pre-configured** out of the box! There is no need to add/change/update the server connection settings!
 
 ## Configuration
 
+The most important settings are configured directly in the add-on options (see below): the access/secret key and the log level. For fine-tuning there is an editable environment file, `rustfs.env`, which is created on first start at:
+
+`/homeassistant/addons/rustfs/rustfs.env`
+
 **Note**: _Remember to restart the add-on when the configuration is changed._
 
-Example add-on configuration:
+This file is a copy of the bundled template. If you delete it, a fresh copy is re-created on the next start. It carries the advanced server settings (volume path, console, CORS, logging) that are not exposed as UI options:
 
-```
-access_key: rustfsadmin
-secret_key: rustfsadmin
-log_level: warning
-```
+- `RUSTFS_VOLUMES` — the storage volume path (defaults to `/data/rustfs`).
+- `RUSTFS_ADDRESS` / `RUSTFS_CONSOLE_ADDRESS` — the internal listen ports. These are fixed (`:9000` / `:9001`) and unrelated to the exposed ports in the Home Assistant UI.
+- `RUSTFS_OBS_LOGGER_LEVEL` — the RustFS log level (`trace`, `debug`, `info`, `warning`, `error`).
 
-**Note**: _This is just an example, don't copy and paste it! Create your own!_
+## Option: `access_key`
 
-### Option: `log_level`
+The access key for authenticating with the RustFS service.
+
+## Option: `secret_key`
+
+The secret key for authenticating with the RustFS service (optional). If you leave it empty, the add-on generates and persists a random value on first start (RustFS rejects the well-known default `rustfsadmin` since 1.0.0-beta.10). Set your own value here to override it.
+
+## Option: `console_enable`
+
+Enable or disable the RustFS web console. Defaults to `true`.
+
+## Option: `log_level`
 
 The `log_level` option controls the level of log output by the addon and can be changed to be more or less verbose, which might be useful when you are dealing with an unknown issue. Possible values are:
 
@@ -37,18 +48,6 @@ The `log_level` option controls the level of log output by the addon and can be 
 *   `fatal`: Something went terribly wrong. Add-on becomes unusable.
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
-
-### Option: `access_key`
-
-The access key for authenticating with the RustFS service.
-
-### Option: `secret_key`
-
-The secret key for authenticating with the RustFS service.
-
-### Option: `console_enable`
-
-Enable or disable the RustFS web console.
 
 ## Data folder
 

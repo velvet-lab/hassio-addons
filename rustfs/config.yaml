@@ -1,6 +1,6 @@
 ---
 name: RustFS (experimental)
-version: 1.0.0-rc.2-preview.1
+version: 1.0.0-rc.3
 stage: experimental
 slug: rustfs
 description: >-
@@ -13,6 +13,9 @@ startup: system
 homeassistant: 2026.1.0
 init: false
 apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
 backup: hot
 backup_exclude:
   - /data/app.err
@@ -22,11 +25,11 @@ ports:
   9000/tcp: 9000
   9001/tcp: 9001
 options:
+  log_level: info
   access_key: admin
-  secret_key: null
   console_enable: true
 schema:
-  access_key: str
-  secret_key: password
-  console_enable: bool?
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  access_key: str
+  secret_key: "password?"
+  console_enable: bool?

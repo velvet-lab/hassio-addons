@@ -2,11 +2,11 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
-root=/data
-data_root="$root/rustfs"
-
 # Set Log Level
-bashio::log.level "$(bashio::config 'log_level' 'warning')"
+bashio::log.level "$(bashio::config 'log_level' 'info')"
 
 bashio::log.info "Starting rustfs server..."
-exec /usr/local/bin/rustfs "$data_root"
+
+# The volume argument comes from the user-editable RUSTFS_VOLUMES variable,
+# exported by rustfs-pre (one file per var via the s6 container environment).
+exec /usr/local/bin/rustfs "${RUSTFS_VOLUMES:-/data/rustfs}"

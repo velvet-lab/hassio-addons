@@ -1,0 +1,29 @@
+# RustFS server configuration
+#
+# This template is copied to /homeassistant/addons/rustfs/rustfs.env on first
+# start, where you can edit it (e.g. with VS Code). The add-on exports these
+# RUSTFS_* values to the server on every start, so a restart is required after
+# you change this file.
+#
+# Credentials (access key / secret key) are configured in the Home Assistant
+# add-on configuration (access_key / secret_key), NOT in this file.
+# See https://docs.rustfs.com/de/installation/linux/single-node-single-disk
+
+# Storage volume path. For a single-node / single-disk deployment one path is
+# enough. See https://docs.rustfs.com/de/installation/linux for other modes.
+RUSTFS_VOLUMES="/data/rustfs"
+
+# Listen addresses. RustFS always listens on these internal ports regardless of
+# the ports shown in the Home Assistant UI (the UI ports are only the exposed
+# ports).
+RUSTFS_ADDRESS=":9000"
+RUSTFS_CONSOLE_ADDRESS=":9001"
+
+# CORS
+RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS="*"
+RUSTFS_CORS_ALLOWED_ORIGINS="*"
+
+# Logging
+RUSTFS_OBS_LOGGER_LEVEL=info
+RUSTFS_OBS_LOG_DIRECTORY="/data/logs"
+RUSTFS_OBS_ENVIRONMENT=production
