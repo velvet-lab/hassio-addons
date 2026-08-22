@@ -62,6 +62,9 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
 - **Internal listen ports are fixed.** The application always listens on `0.0.0.0:<its own default port>` (e.g. Gogs `3000`, OpenBao `8200`, Qdrant `6333`/`6334`, SearXNG `8080`). Do **NOT** read the port with `bashio::addon.port` and write it into the app config — that port is only the *exposed* port in the Home Assistant UI and has nothing to do with where the app should listen. If the app template needs a port, hardcode the application's own default.
 - Document the editable file location in `DOCS.md` and note that a restart is required after changes.
 
+  - When documenting network configuration, put the *exposed* port mapping in `README.md`/`DOCS.md` only; never inject `bashio::addon.port` into runtime config files. The Supervisor's exposed port is a mapping only.
+  - Add a short, unique build marker string that is logged at container startup (for example `gogs-build-v2-config`). Since `rootfs/` is baked into images via `COPY rootfs /`, script/template changes only take effect after a fresh image rebuild — the build marker helps confirm which image is actually running.
+
 ### s6 overlay & technical pitfalls
 
 - s6 **longrun** services are started by the service manager and must use `exec` as the final command (like `exec /usr/sbin/...`), so s6 owns and terminates the process. Do not start the daemon in the background and `wait` on it in the run script.
@@ -70,6 +73,8 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
 - Runtime values shared with longrun services are exported via the s6 container environment as **one file per variable** at `/var/run/s6/container_environment/<VARNAME>`. The `with-contenv` mechanism turns each filename into an environment variable available to all services. Do **not** write a single `.env`-style file there.
 - The rootfs is baked into the image via `Dockerfile COPY rootfs /`, so script changes only take effect after a **fresh image rebuild**, not on a plain container restart. Add a unique build marker logged at startup to verify which build is running.
 - Prefer the HTTP API (`curl http://127.0.0.1:<port>/...`) over parsing CLI text output for readiness checks; CLI text parsing can hang when a service is uninitialized.
+
+ - On oneshot secrets/config rendering helpers: avoid pipelines that consume endless streams inside command substitution (for example `cat /dev/urandom | tr -dc '...' | head -c N` inside `$(...)`) — these can fail with `SIGPIPE` and cause the oneshot to exit non‑zero. Prefer `openssl rand -hex 32` as the primary generator and a short, deterministic fallback such as `date +%s%N | sha256sum` when `openssl` is unavailable. Persist generated secrets under `/data/<slug>/` with strict permissions (e.g. `chmod 600`) and export them via `/var/run/s6/container_environment/` for runtime consumption.
 
 ### Consuming another add-on's service
 
@@ -86,6 +91,18 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
 ### Line endings
 
 - `rootfs/` shell scripts and config templates must use **LF** line endings (not CRLF), because Linux/s6 fails to run CRLF scripts. CRLF is easy to reintroduce when editing; verify and normalize before committing.
+
+ - We provide a helper to normalize line endings on Windows: `.github/write-lf.ps1`. Run it from PowerShell to convert files or folders to LF immediately after creating or modifying `rootfs/` or `.devcontainer/` files. Example:
+
+ ```powershell
+ # convert a single file
+ .github\write-lf.ps1 .\gogs\rootfs\etc\s6-overlay\gogs-pre\run
+
+ # convert a whole folder recursively
+ .github\write-lf.ps1 .\gogs\rootfs
+ ```
+
+ - Verify `CRLF=0` for shell scripts before committing; CI or manual checks should fail commits that introduce CRLF in `rootfs/`.
 
 ### Devcontainer
 
