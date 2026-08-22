@@ -52,6 +52,7 @@ This repository provides Home Assistant add-ons under `velvet-lab/hassio-addons`
 
 For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `production.yaml`, MongoDB `config.conf`, ...), follow the established pattern:
 
+- **UI options vs editable file — the most important / REQUIRED settings MUST be exposed as add-on UI options** (in `config.yaml` `options`/`schema`), e.g. credentials (`access_key`/`secret_key`), `log_level`, or a console/web UI toggle. The editable file under `/homeassistant/addons/<slug>/` exists so users can fine-tune advanced settings; do NOT push every setting into the UI, and do NOT bury required/core settings only in the file. When you are unsure whether a given setting belongs in the UI options or in the editable file, ask the user instead of guessing.
 - Declare `map: [ { type: homeassistant_config, read_only: false } ]` in `config.yaml` so the add-on can read/write `/homeassistant`.
 - **Do NOT use multiline (multi_line / `|` literal block) strings in `options`** – Home Assistant refuses to load the add-on when an option is a multiline string.
 - **Optional options go in `schema` ONLY with a trailing `?`, never in `options`.** An optional option (e.g. `secret_key`, `admin_password`) must NOT appear in the `options` list; it belongs only in `schema` as `secret_key: "password?"` / `admin_password: password?`. Home Assistant reads the empty/default value from the `?` marker. Required options with defaults go under `options:`.
