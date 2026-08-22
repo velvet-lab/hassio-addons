@@ -1,0 +1,17 @@
+# Qdrant server configuration
+# Learn more: https://qdrant.tech/documentation/ops-configuration/configuration/
+# This template is copied to /homeassistant/addons/qdrant/production.yaml on
+# first start, where you can edit it.
+
+log_level: INFO
+
+service:
+  # Qdrant listens on these internal ports regardless of the ports shown in
+  # the Home Assistant UI (the UI ports are only the exposed ports).
+  host: 0.0.0.0
+  http_port: 6333
+  grpc_port: 6334
+
+storage:
+  storage_path: /data/qdrant/storage
+  snapshots_path: /data/qdrant/snapshots

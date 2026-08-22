@@ -1,0 +1,14 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
+bashio::log.info "Start SearXNG (Granian) ..."
+
+# Granian serves the WSGI application. SEARXNG_SETTINGS_PATH and the other
+# runtime values are provided by the s6-rc "searxng-pre" oneshot via the
+# container environment.
+cd /opt/searxng || exit 1
+exec /opt/searxng/venv/bin/granian searx.webapp:app

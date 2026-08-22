@@ -1,0 +1,13 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
+bashio::log.info "Start New API ..."
+
+# New API reads its .env file (and creates the SQLite database) relative to the
+# current working directory, so we run it from the folder that holds the config.
+cd /data/newapi
+exec /usr/bin/new-api

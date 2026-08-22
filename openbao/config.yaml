@@ -15,6 +15,9 @@ hassio_role: default
 homeassistant: 2026.1.0
 init: false
 apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
 backup: hot
 backup_exclude:
   - /data/app.err

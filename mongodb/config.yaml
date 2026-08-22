@@ -1,7 +1,7 @@
 ---
-name: MongoDB
+name: MongoDB (deprecated)
 version: 7.0.0
-stage: stable
+stage: deprecated
 slug: mongodb
 description: >-
   MongoDB is a source-available, cross-platform, document-oriented database program

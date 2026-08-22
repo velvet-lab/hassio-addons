@@ -1,0 +1,34 @@
+---
+name: SearXNG (experimental)
+version: 2026.8.21
+stage: experimental
+slug: searxng
+description: >-
+  SearXNG is a free, self-hosted metasearch engine that aggregates results
+  from many search services without tracking or profiling its users
+url: https://github.com/velvet-lab/hassio-addons/tree/main/searxng
+arch:
+  - amd64
+  - aarch64
+host_network: false
+startup: system
+hassio_role: default
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
+backup: hot
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:8080]
+ports:
+  8080/tcp: 8080
+options:
+  log_level: info
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  redis_host: "str?"
+  redis_port: "port?"
+  redis_password: "password?"

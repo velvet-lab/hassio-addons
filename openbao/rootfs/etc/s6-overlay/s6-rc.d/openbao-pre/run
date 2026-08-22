@@ -5,12 +5,15 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="openbao-build-v2-logmap"
+readonly build_marker="openbao-build-v5-config"
 
 root=/data
 config_root="$root/openbao/config"
 storage_root="$root/openbao/file"
 secrets_file="$root/openbao/unseal.keys"
+homeassistant_root="/homeassistant"
+user_config_root="$homeassistant_root/addons/openbao"
+user_config="$user_config_root/openbao.hcl"
 init_endpoint="http://127.0.0.1:8200/v1/sys/init"
 
 export BAO_ADDR="http://127.0.0.1:8200"
@@ -56,11 +59,26 @@ if ! bashio::fs.directory_exists "${storage_root}"; then
     chmod 755 "${storage_root}"
 fi
 
-bashio::log.debug "Write OpenBao configuration"
-if ! bashio::fs.file_exists "${config_root}/openbao.hcl"; then
-    cp /etc/default/openbao.hcl "${config_root}/openbao.hcl"
-    chmod 644 "${config_root}/openbao.hcl"
+if ! bashio::fs.directory_exists "${user_config_root}"; then
+    bashio::log.debug "Creating user config root directory at ${user_config_root}"
+    mkdir -p "${user_config_root}"
+    chmod 755 "${user_config_root}"
 fi
+
+# On first start copy the default configuration to the user-accessible folder
+# under /homeassistant, where the user can edit it (e.g. with VS Code). If the
+# user deletes the file it is recreated from the bundled template.
+if ! bashio::fs.file_exists "${user_config}"; then
+    bashio::log.info "Creating default OpenBao configuration for the user"
+    cp /etc/default/openbao.template "${user_config}"
+    chmod 644 "${user_config}"
+fi
+
+# Render the final configuration for the server by substituting any remaining
+# placeholders from the user-edited file into the internal config folder.
+bashio::log.debug "Write OpenBao configuration"
+envsubst < "${user_config}" > "${config_root}/openbao.hcl"
+chmod 644 "${config_root}/openbao.hcl"
 
 # Initialize OpenBao on first start. The unseal keys file is the marker for a
 # finished initialization. Initialization requires a running server, so spin
