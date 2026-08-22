@@ -146,3 +146,8 @@ fi
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
 ln -s /proc/1/fd/1 "${root}/app.err"
+ 
+# s6 oneshot services MUST end with exit 0, otherwise s6 treats them as
+# "unable to start service ... command exited N" and aborts the whole container
+# bring-up (rc.init: fatal: stopping the container).
+exit 0

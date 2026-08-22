@@ -54,6 +54,12 @@ To use an external database (PostgreSQL recommended), comment out `SQLITE_PATH` 
 
 The add-on stores the New API data in the `/data/newapi` folder: the SQLite database and log files. Please ensure this is included in your backup.
 
+## Backups & Permissions
+
+- **Data backup:** Include `/data/newapi` in your regular backups to preserve the database and logs.
+- **Secret files:** Protect any secret material (for example `SESSION_SECRET` if persisted) with `chmod 600` and restrict access.
+- **Editable config vs UI options:** Do not store required secrets only in `/homeassistant/addons/newapi`; prefer add-on `options` for secrets so Home Assistant stores them encrypted.
+
 ## First steps
 
 - Set the required `session_secret` option and restart the add-on.

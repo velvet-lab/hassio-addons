@@ -80,3 +80,9 @@ SearXNG also exposes a [search API](https://docs.searxng.org/dev/search_api.html
 ## Data folder
 
 The add-on stores its runtime configuration in the `/data/searxng` folder. Please ensure this is included in your backup.
+
+## Backups & Permissions
+
+- **Data backup:** Include `/data/searxng` in your regular backups so runtime configuration and persisted secrets are preserved.
+- **Secret files:** Protect secret files (for example the generated `secret_key`) with strict permissions, e.g. `chmod 600 /data/searxng/<file>`.
+- **Editable config vs UI options:** Do not place secrets only in the editable files under `/homeassistant/addons/searxng` — Home Assistant does not encrypt those. Use add-on `options` for secrets so Home Assistant stores them encrypted.

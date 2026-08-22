@@ -52,6 +52,12 @@ The web server listens on `0.0.0.0` on its default port `3000`. The port shown i
 
 The add-on stores the Gogs data in the `/data/gogs` folder: the SQLite database, repositories and sessions. Please ensure this is included in your backup.
 
+## Backups & Permissions
+
+- **Data backup:** Include `/data/gogs` in your regular backups to preserve repositories and the database.
+- **Secret files:** Protect files containing secrets (sessions, keys) with `chmod 600` and restrict access to the container runtime only.
+- **Editable config vs UI options:** Do not store sensitive secrets only in the editable file under `/homeassistant/addons/gogs` — Home Assistant does not encrypt those. Use the `secret_key` add-on option so the value is stored encrypted by Home Assistant.
+
 ## First steps
 
 - Set the required `secret_key` option and restart the add-on.

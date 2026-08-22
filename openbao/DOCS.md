@@ -44,6 +44,12 @@ On first start the add-on copies a default configuration there, which you can ed
 
 The add-on stores the OpenBao configuration and its file storage backend in the `/data/openbao` folder. Please ensure this is included in your backup.
 
+## Backups & Permissions
+
+- **Data backup:** Include `/data/openbao` in your backups. The file `/data/openbao/unseal.keys` contains sensitive unseal keys and root token data and must be backed up securely.
+- **Secret files:** Secure the unseal keys file with strict permissions (`chmod 600 /data/openbao/unseal.keys`) and restrict access to trusted operators only.
+- **Editable config vs UI options:** Do not store secrets only in `/homeassistant/addons/openbao`; Home Assistant does not encrypt those files. When possible, prefer add-on `options` for secrets so Home Assistant stores them encrypted. Given OpenBao's initialization semantics, treat `/data/openbao/unseal.keys` as highly sensitive and protect it accordingly.
+
 ## First steps
 
 OpenBao is automatically initialized and unsealed by the add-on on first start.

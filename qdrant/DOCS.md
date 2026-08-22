@@ -53,6 +53,12 @@ On first start the add-on copies a default configuration there, which you can ed
 
 The add-on stores all Qdrant data (storage) and its snapshots in the `/data/qdrant` folder. The storage lives in `/data/qdrant/storage` and snapshots in `/data/qdrant/snapshots`. Please ensure this is included in your backup.
 
+## Backups & Permissions
+
+- **Data backup:** Include `/data/qdrant` (storage and snapshots) in your regular backups so data and snapshots are preserved.
+- **Secret files:** If you enable `admin_password`, avoid writing it to unprotected files under `/homeassistant/addons/qdrant`; protect any secret files under `/data/qdrant` with `chmod 600`.
+- **Editable config vs UI options:** The recommended way to protect secrets is to place them in the add-on `options` so Home Assistant keeps them encrypted rather than only in the editable `production.yaml` under `/homeassistant/addons/qdrant`.
+
 ## Using Qdrant
 
 Qdrant provides a REST API (port `6333`) and a gRPC API (port `6334`). You can create collections, upload vectors, and run semantic search. The Python client, for example, connects like this:

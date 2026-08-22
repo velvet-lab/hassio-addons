@@ -6,7 +6,7 @@ The installation of this add-on is pretty straightforward and not different in c
 
 1.  Start the "RustFS Server" add-on.
 2.  Check the logs of "RustFS Server" to see if everything went well.
-3.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:9001`.
+3.  Open the Web Admin UI at `http://your-homeassistant-ip:9001`.
 
 **Note**: The add-on is **pre-configured** out of the box! There is no need to add/change/update the server connection settings!
 
@@ -44,7 +44,7 @@ Enable or disable the RustFS web console. Defaults to `true`.
 
 ## Option: `log_level`
 
-The `log_level` option controls the level of log output by the addon and can be changed to be more or less verbose, which might be useful when you are dealing with an unknown issue. Possible values are:
+The `log_level` option controls the level of log output by the add-on and can be changed to be more or less verbose, which might be useful when you are troubleshooting. Possible values are:
 
 *   `trace`: Show every detail, like all called internal functions.
 *   `debug`: Shows detailed debug information.
@@ -57,7 +57,13 @@ Please note that each level automatically includes log messages from a more seve
 
 ## Data folder
 
-The addon will store most of its data in the `/data/rustfs` folder. Please ensure this is included in your backup.
+The add-on will store most of its data in the `/data/rustfs` folder. Please ensure this is included in your backup.
+
+## Backups & Permissions
+
+- **Data backup:** Include `/data/rustfs` in your regular backups to preserve volumes and object storage data.
+- **Secret files:** Protect secret files (e.g. `unseal`/`secret_key`) with strict permissions (`chmod 600`) and restrict access to the runtime user.
+- **Editable config vs UI options:** Avoid storing required secrets only in editable files under `/homeassistant/addons/rustfs` — Home Assistant does not encrypt those. Use the `secret_key` add-on option so Home Assistant stores it encrypted.
 
 ## Reverse Proxy
 
