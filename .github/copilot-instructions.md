@@ -68,13 +68,29 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
   fi
   ```
 
-- **The runtime config folder is always named `config` — never `conf`.** In `*-pre/run`, `*-core/run`, the `Dockerfile` and the docs, refer to the application's internal config directory as `<...>/config` (e.g. `config_root="$gogs_root/config"`, `--config=/data/gogs/config/app.ini`). Do not use the `conf` short form.
+- **Config folder is dissolved; config lives volatile under `/etc/<app>`, user file under `/homeassistant/addons/<app>`.** Do NOT create a separate `/data/<slug>/config` folder and don't use a `conf` short form. The application loads its configuration from the volatile destination `/etc/<app>` (linux-like), which is rendered fresh every container start.
 - Keep a bundled default template under `rootfs/etc/default/<name>.template` (use the `.template` suffix so it never collides with the actual runtime file, e.g. `openbao.template`, `production.template`). It can be re-created by the add-on if the user deletes their editable copy.
-- On first start the `*-pre/run` script does a plain `cp /etc/default/<name>.template /homeassistant/addons/<slug>/<name>` (NOT envsubst), giving the user an editable file (e.g. via VS Code). If deleted, it is re-created on the next start.
-- On every start the runtime config is rendered with `envsubst` from the user-editable file into the app's internal `config/` folder: `envsubst < /homeassistant/addons/<slug>/<name> > /data/<slug>/config/<name>`.
-  - **General rule: render with `envsubst` in the longrun `*-core/run`, not in `*-pre/run`.** `*-pre/run` writes every runtime value (secrets, ports, resolved service URLs, ...) into the s6 container environment as one file per variable. The longrun `*-core/run` re-loads that container environment at its start (via with-contenv), so an `envsubst` there has the **full variable source** — including values that `*-pre/run` itself wrote mid-script (which are NOT visible to a later `envsubst` in the same `pre` script). This is the pattern used by Gogs, New API, and Qdrant.
-  - **Exception — render in `*-pre/run` only when a pre-side step consumes the rendered output** (e.g. an init server in `pre` reads the config, migrations run in `pre`), or when the pre service itself parses the rendered file (RustFS reads its env file to export variables). In that case, also `export` any variable needed by `envsubst` in the same `pre` script (writing to the container env alone is not enough — it is only loaded at script start). OpenBao, Davis, SearXNG, MongoDB and RustFS render in `pre` for this reason.
-- This requires `gettext-base` installed in the image (for `envsubst`).
+- **Canonical per-add-on config flow:**
+  - `*-pre/run` prepares everything and writes ALL runtime values (secrets, ports, resolved service URLs, booleans, ...) into the s6 container environment as **one file per variable** at `/var/run/s6/container_environment/<VARNAME>`. It MUST always also write the three identity/location variables:
+    - `APP_NAME` = the app name, e.g. `echo -n "gogs" > /var/run/s6/container_environment/APP_NAME`
+    - `APP_CONFIG_SOURCE` = `/homeassistant/addons/<app>` (the user-editable folder)
+    - `APP_CONFIG_DEST` = `/etc/<app>` (the volatile runtime destination)
+  - `*-pre/run` creates both `APP_CONFIG_SOURCE` and `APP_CONFIG_DEST` dirs, and on first start copies the bundled template into `APP_CONFIG_SOURCE` with a plain `cp` (NOT envsubst) so the user can edit it (e.g. via VS Code). If deleted, it is re-created on the next start.
+  - `*-core/run` (longrun) renders **every file** in `APP_CONFIG_SOURCE` into `APP_CONFIG_DEST` with `envsubst`, then starts the app from `APP_CONFIG_DEST`. Render ALL the time — even when the bundled template has no `${VAR}` placeholders, because the user may have added their own references that must be expanded with the full s6 container environment. Example:
+
+    ```bash
+    config_source="${APP_CONFIG_SOURCE:-/homeassistant/addons/<app>}"
+    config_dest="${APP_CONFIG_DEST:-/etc/<app>}"
+    mkdir -p "${config_dest}"
+    for file in "${config_source}"/*; do
+        name=$(basename "${file}")
+        envsubst < "${file}" > "${config_dest}/${name}"
+        chmod 644 "${config_dest}/${name}"
+    done
+    ```
+
+  - **Exception — render in `*-pre/run` only when a pre-side step consumes the rendered output** (e.g. OpenBao's init/temporary server reads the config in `pre`, Davis migrations run in `pre`, RustFS parses its rendered env file in `pre`). In that case render into `APP_CONFIG_DEST` in `pre` and also `export` any variable needed by `envsubst` in the same `pre` script (writing to the container env alone is not enough — it is only loaded at script start).
+- `gettext-base` (for `envsubst`) must be installed in the image.
 - **Internal listen ports are fixed.** The application always listens on `0.0.0.0:<its own default port>` (e.g. Gogs `3000`, OpenBao `8200`, Qdrant `6333`/`6334`, SearXNG `8080`). Do **NOT** read the port with `bashio::addon.port` and write it into the app config — that port is only the *exposed* port in the Home Assistant UI and has nothing to do with where the app should listen. If the app template needs a port, hardcode the application's own default.
 - Document the editable file location in `DOCS.md` and note that a restart is required after changes.
 
@@ -87,6 +103,7 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
 - s6 **oneshot** services that do work-then-exit (e.g. init or unseal) MUST end with `exit 0`, otherwise s6 treats them as "unable to start service ... command exited N" and aborts the whole container bring-up (`rc.init: fatal: stopping the container`).
 - Dependencies between units are declared with empty files in `<service>/dependencies.d/`; bundles reference their members in `<bundle>/contents.d/`; the top-level bundle is referenced by `user/contents.d/<bundle>`.
 - Runtime values shared with longrun services are exported via the s6 container environment as **one file per variable** at `/var/run/s6/container_environment/<VARNAME>`. The `with-contenv` mechanism turns each filename into an environment variable available to all services. Do **not** write a single `.env`-style file there.
+- **Required env vars are read with the `:?` idiom — never a silent `:-` fallback.** When a consumer (e.g. `*-core/run` or a migration oneshot) reads a variable that `*-pre/run` must have written (like `APP_CONFIG_SOURCE`, `APP_CONFIG_DEST`, `RUSTFS_VOLUMES`), read it as `${VAR:?VAR is not set (<pre> did not run)}` so a missing/unset variable aborts with a clear message instead of silently substituting an empty value or a hardcoded default. Do NOT use `${VAR:-default}` for values that are required (a fallback would mask a broken pre step). Add `# shellcheck disable=SC2153` above such lines since the vars are injected by `with-contenv`.
 - The rootfs is baked into the image via `Dockerfile COPY rootfs /`, so script changes only take effect after a **fresh image rebuild**, not on a plain container restart. Add a unique build marker logged at startup to verify which build is running.
 - Prefer the HTTP API (`curl http://127.0.0.1:<port>/...`) over parsing CLI text output for readiness checks; CLI text parsing can hang when a service is uninitialized.
 
