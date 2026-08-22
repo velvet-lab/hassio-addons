@@ -5,13 +5,15 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="newapi-build-v3-config"
+readonly build_marker="newapi-build-v4-config"
 
 root=/data
-data_root="$root/newapi"
+app_name="newapi"
+data_root="$root/${app_name}"
 homeassistant_root="/homeassistant"
-user_config_root="$homeassistant_root/addons/newapi"
-user_config="$user_config_root/newapi.env"
+config_source="$homeassistant_root/addons/${app_name}"
+config_dest="/etc/${app_name}"
+user_config="$config_source/newapi.env"
 
 default_log_level="info"
 
@@ -21,10 +23,15 @@ bashio::log.level "${log_level}"
 bashio::log.info "New API build marker: ${build_marker}"
 bashio::log.info "Prepare New API configuration"
 
-# New API loads its .env file from the current working directory. The Dockerfile
-# sets WORKDIR to /data/newapi, so the rendered file must live there.
+# Expose the app identity and config locations via the s6 container
+# environment (one file per variable). The core service reads them via
+# with-contenv to render and load the configuration.
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+
 bashio::log.debug "Create folders"
-for folder in "${data_root}" "${user_config_root}"; do
+for folder in "${data_root}" "${config_source}" "${config_dest}"; do
     if ! bashio::fs.directory_exists "${folder}"; then
         bashio::log.debug "Creating folder ${folder}"
         mkdir -p "${folder}"
