@@ -14,8 +14,10 @@ storage "file" {
   path = "/data/openbao/file"
 }
 
-# HTTP listener (TLS is terminated by the add-on ingress)
+# HTTP listener (TLS is terminated by the add-on ingress). OpenBao listens
+# on this internal port regardless of the port shown in the Home Assistant UI
+# (the UI port is only the exposed port).
 listener "tcp" {
-  address     = "0.0.0.0:${BAO_PORT}"
+  address     = "0.0.0.0:8200"
   tls_disable = true
 }
