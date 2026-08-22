@@ -50,7 +50,7 @@ On first start the add-on copies a default configuration there, which you can ed
 
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
 
-The `server.base_url` in the default `settings.yml` is `http://${SEARXNG_HOST}:${SEARXNG_PORT}/`. At startup the add-on replaces `${SEARXNG_HOST}` with the Home Assistant host address and `${SEARXNG_PORT}` with the port shown in the add-on UI, so the instance is reachable out of the box. If you need a different base URL (e.g. behind a proxy/reverse proxy or with a custom external hostname), put the full URL there and remove the placeholders.
+The `server.base_url` in the default `settings.yml` is `http://${SEARXNG_HOST}:${SEARXNG_PORT}/`. At startup the add-on replaces `${SEARXNG_HOST}` with the Home Assistant host address and `${SEARXNG_PORT}` with SearXNG's internal default port `8080`, so the instance is reachable out of the box. If you need a different base URL (e.g. behind a proxy/reverse proxy or with a custom external hostname), put the full URL there and remove the placeholders.
 
 The bot-detection / limiter configuration lives in:
 
