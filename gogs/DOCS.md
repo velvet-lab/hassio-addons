@@ -50,10 +50,10 @@ The web server listens on `0.0.0.0` on its default port `3000`. The port shown i
 
 ## Data folder
 
-The add-on stores the Gogs data in the `/data/gogs` folder: the SQLite database, repositories, sessions and the generated secret key. Please ensure this is included in your backup.
+The add-on stores the Gogs data in the `/data/gogs` folder: the SQLite database, repositories and sessions. Please ensure this is included in your backup.
 
 ## First steps
 
-- On first start the add-on generates a `SECRET_KEY` and logs it to the add-on log.
+- Set the required `secret_key` option and restart the add-on.
 - Open the Gogs web interface on port `3000` and complete the install wizard to create the administrator account.
 - Use the web interface to create repositories; clone/push works over HTTP and HTTPS using the `EXTERNAL_URL`.

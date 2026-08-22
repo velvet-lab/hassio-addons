@@ -5,13 +5,12 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="qdrant-build-v1-port"
+readonly build_marker="qdrant-build-v2-config"
 
 root=/data
 config_root="$root/qdrant/config"
 storage_root="$root/qdrant/storage"
 snapshots_root="$root/qdrant/snapshots"
-config_file="${config_root}/production.yaml"
 homeassistant_root="/homeassistant"
 user_config_root="$homeassistant_root/addons/qdrant"
 user_config="$user_config_root/production.yaml"
@@ -59,13 +58,10 @@ if ! bashio::fs.file_exists "${user_config}"; then
     chmod 644 "${user_config}"
 fi
 
-# Render the final configuration for the server from the user-edited file.
-bashio::log.debug "Write Qdrant configuration"
-envsubst < "${user_config}" > "${config_file}"
-chmod 644 "${config_file}"
-
 # The Qdrant binary resolves its configuration file relative to its working
-# directory, so we must run it from the folder that contains the config.
+# directory, so we must run it from the folder that contains the config. The
+# config itself is rendered by the qdrant-core long-run service (which re-loads
+# the s6 container environment), so all variables are available there.
 echo -n "${config_root}" > /var/run/s6/container_environment/QDRANT_CONFIG_DIR
 
 # Protect the Qdrant HTTP/gRPC APIs (and thus the Web UI) with an admin

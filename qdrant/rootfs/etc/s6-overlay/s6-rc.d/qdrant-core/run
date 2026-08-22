@@ -2,10 +2,24 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
+config_root="${QDRANT_CONFIG_DIR:-/data/qdrant/config}"
+config_file="${config_root}/production.yaml"
+homeassistant_root="/homeassistant"
+user_config_root="$homeassistant_root/addons/qdrant"
+user_config="$user_config_root/production.yaml"
+
 # Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'info')"
 
 bashio::log.info "Start Qdrant ..."
+
+# Render the final configuration for the server from the user-edited file here,
+# in the long-run service, where with-contenv has loaded the s6 container
+# environment so envsubst sees every variable.
+bashio::log.debug "Write Qdrant configuration"
+envsubst < "${user_config}" > "${config_file}"
+chmod 644 "${config_file}"
+
 # Qdrant loads its production.yaml from the current working directory.
-cd "${QDRANT_CONFIG_DIR:-/data/qdrant/config}"
+cd "${config_root}" || exit 1
 exec qdrant

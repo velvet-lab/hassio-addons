@@ -52,10 +52,10 @@ To use an external database (PostgreSQL recommended), comment out `SQLITE_PATH` 
 
 ## Data folder
 
-The add-on stores the New API data in the `/data/newapi` folder: the SQLite database, log files and the generated session secret. Please ensure this is included in your backup.
+The add-on stores the New API data in the `/data/newapi` folder: the SQLite database and log files. Please ensure this is included in your backup.
 
 ## First steps
 
-- On first start the add-on generates a `SESSION_SECRET` and persists it.
+- Set the required `session_secret` option and restart the add-on.
 - Open the New API web interface on port `3000` and complete the initialization wizard to create the administrator account.
 - Use the web interface to configure channels, models, tokens and quota.

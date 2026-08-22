@@ -2,12 +2,26 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
+root=/data
+data_root="$root/newapi"
+homeassistant_root="/homeassistant"
+user_config_root="$homeassistant_root/addons/newapi"
+user_config="$user_config_root/newapi.env"
+
 # Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'info')"
 
 bashio::log.info "Start New API ..."
 
+# Render the final .env file from the user-edited configuration here in the
+# longrun service, where with-contenv has loaded the s6 container environment
+# (including SESSION_SECRET written by newapi-pre) so envsubst can expand any
+# ${VAR} placeholders with the full variable set.
+bashio::log.debug "Write New API configuration"
+envsubst < "${user_config}" > "${data_root}/.env"
+chmod 644 "${data_root}/.env"
+
 # New API reads its .env file (and creates the SQLite database) relative to the
 # current working directory, so we run it from the folder that holds the config.
-cd /data/newapi
+cd /data/newapi || exit 1
 exec /usr/bin/new-api

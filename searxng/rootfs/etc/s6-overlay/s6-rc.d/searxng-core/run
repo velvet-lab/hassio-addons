@@ -2,10 +2,25 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
+data_root=/data/searxng
+config_root="$data_root/settings"
+settings_file="${config_root}/settings.yml"
+homeassistant_root="/homeassistant"
+user_config_root="$homeassistant_root/addons/searxng"
+user_config="$user_config_root/settings.yml"
+
 # Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'info')"
 
 bashio::log.info "Start SearXNG (Granian) ..."
+
+# Render the final configuration from the user-edited file here in the longrun
+# service, where with-contenv has loaded the s6 container environment (incl.
+# SEARXNG_REDIS_URL / SEARXNG_HOST / SEARXNG_PORT written by searxng-pre), so
+# envsubst expands the ${VAR} placeholders with the full variable set.
+bashio::log.debug "Write SearXNG configuration"
+envsubst < "${user_config}" > "${settings_file}"
+chmod 644 "${settings_file}"
 
 # Granian serves the WSGI application. SEARXNG_SETTINGS_PATH and the other
 # runtime values are provided by the s6-rc "searxng-pre" oneshot via the

@@ -15,7 +15,7 @@ ARG BUILD_REPOSITORY
 # even when BUILD_VERSION (the add-on version) is not passed explicitly.
 ARG GOGS_VERSION=0.14.3
 
-# Gogs reads its "custom" directory (containing conf/app.ini, data/, log/,
+# Gogs reads its "custom" directory (containing config/app.ini, data/, log/,
 # etc.) from this environment variable unless an explicit config path is given.
 ENV GOGS_CUSTOM=/data/gogs
 
