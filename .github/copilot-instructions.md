@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository provides Home Assistant add-ons under `velvet-lab/hassio-addons`. Each add-on lives in its own top-level folder (`davis/`, `dns/`, `mongodb/`, `rustfs/`, ...) and follows the standard Home Assistant add-on layout: `config.yaml`, `Dockerfile`, `build.yaml`, `DOCS.md`, `README.md`, `CHANGELOG.md`, `translations/`, and an optional `rootfs/` with the s6-overlay scripts.
+This repository provides Home Assistant add-ons under `velvet-lab/hassio-addons`. Each add-on lives in its own top-level folder (`davis/`, `dns/`, `mongodb/`, `rustfs/`, ...) and follows the standard Home Assistant add-on layout: `config.yaml`, `Dockerfile`, `build.yaml`, `DOCS.md`, `README.md`, `CHANGELOG.md`, `translations/`, an optional `rootfs/` with the s6-overlay scripts, and a `.devcontainer/` folder for local development.
 
 ## Code Style
 
@@ -87,10 +87,29 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
 
 - `rootfs/` shell scripts and config templates must use **LF** line endings (not CRLF), because Linux/s6 fails to run CRLF scripts. CRLF is easy to reintroduce when editing; verify and normalize before committing.
 
+### Devcontainer
+
+Every add-on ships a `.devcontainer/` folder for local development against the actual add-on image:
+
+- `devcontainer.json` mounts the local `.devcontainer/mounts/data` onto `/data` and `.devcontainer/mounts/config` onto `/homeassistant` (both `bind`), builds the add-on `Dockerfile` directly (args `BUILD_FROM`, `BUILD_ARCH`, typically `amd64`), sets `privileged: true`, exposes `forwardPorts` (the add-on's internal ports), and wires the `postCreate`/`postStart`/`postAttach` scripts.
+- `mounts/data/options.json` holds the add-on options so `bashio::config '...'` works in the devcontainer (mirror the keys from the add-on `options`/`schema`, e.g. `log_level`). It is linked into place by `post-create.sh`.
+- `mounts/data/` may also pre-create the add-on's `/data/<slug>` storage subfolders as empty dirs.
+- `mounts/config/` only needs a `.gitkeep`; the first start of the add-on writes `/homeassistant/addons/<slug>/...` to it.
+- `post-create.sh`: installs `procps`, then symlinks `/data/options.json` to `/tmp/.bashio/addons.self.options.config.cache` so bashio reads the dev options.
+- `post-start.sh`: runs the container via `unshare --pid --fork --kill-child=SIGTERM --mount-proc ... -- /init` so s6 becomes PID 1 and the add-on boots normally.
+- `post-attach.sh`: usually an empty script (just the header).
+- When adding a new add-on, copy this `devcontainer` folder from an existing add-on (e.g. openbao or qdrant) and adapt: `name`, `forwardPorts`, and `options.json` keys.
+
+### Secrets / keys generated at runtime
+
+- For services that need a random secret on first start (Gogs `SECRET_KEY`, OpenBao, SearXNG), **generate it once and persist it** (e.g. `/data/<slug>/secret` or similar, `chmod 600`) so sessions/cookies survive restarts; do NOT regenerate on every start.
+- **Do NOT use the `cat /dev/urandom | tr -dc '...' | head -c N` pipeline** inside a `$(...)` command substitution — when `head` closes the pipe early, `cat` (or upstream) gets `SIGPIPE` and the pipeline can exit non-zero (observed: exit code 128), which makes an s6 oneshot fail and abort the whole container bring-up. Use `openssl rand -hex 32` instead (available in the base images), with a simple fallback that does not rely on an endless stream (e.g. `date +%s%N | sha256sum`).
+
 ## Build and Test
 
 - Validation happens on the Home Assistant Supervisor; there is no unit-test harness in this repository.
 - Before proposing changes, verify that `config.yaml` and its `schema` stay consistent, and that referenced files (`Dockerfile`, `build.yaml`, `rootfs/`) exist.
+- New add-ons should include a `.devcontainer/` folder (copy from an existing add-on and adapt name/ports/options).
 - When editing YAML, preserve the existing option ordering and keep options/schema aligned.
 
 ## Doing Work
