@@ -26,6 +26,7 @@ ports:
   3000/tcp: 3000
 options:
   log_level: info
+  secret_key: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
-  secret_key: "password?"
+  secret_key: password

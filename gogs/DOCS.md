@@ -28,7 +28,13 @@ Please note that each level automatically includes log messages from a more seve
 
 ### Option: `secret_key`
 
-Gogs uses a secret key to encrypt cookie values, two-factor authentication codes and similar sensitive data. On the first start the add-on generates a random, per-install key and persists it. You can override it by setting the `secret_key` option, or by editing the `[security] SECRET_KEY` value in the Gogs configuration file described below.
+The `secret_key` option is **required**: Gogs uses it to encrypt cookie values, two-factor authentication codes and similar sensitive data. Provide a strong, random value — for example generated with:
+
+```
+openssl rand -hex 32
+```
+
+This produces a 64-character hexadecimal key (256 bits). Home Assistant stores it encrypted. It must match the `[security] SECRET_KEY` value in the editable Gogs configuration file described below.
 
 ## Configuration
 
