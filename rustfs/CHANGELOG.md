@@ -4,6 +4,7 @@
 
 - Update the RustFS add-on to version 1.0.0-rc.3
 - Reintroduce `access_key` / `secret_key` as add-on options (set in the Home Assistant UI). An empty `secret_key` falls back to a generated, persisted random value so the server never boots with the rejected default (RustFS since beta.10)
+- Make `secret_key` a required option (generate a strong value with `openssl rand -hex 64` / 128 hex chars)
 - Expose `console_enable` as an add-on option to toggle the web console
 
 ### RustFS

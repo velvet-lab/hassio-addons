@@ -30,7 +30,13 @@ The access key for authenticating with the RustFS service.
 
 ## Option: `secret_key`
 
-The secret key for authenticating with the RustFS service (optional). If you leave it empty, the add-on generates and persists a random value on first start (RustFS rejects the well-known default `rustfsadmin` since 1.0.0-beta.10). Set your own value here to override it.
+The secret key for authenticating with the RustFS service. This option is **required** — RustFS rejects the well-known default `rustfsadmin` since 1.0.0-beta.10. Generate a strong, random value, for example with:
+
+```
+openssl rand -hex 64
+```
+
+This produces a 128-character hexadecimal key (512 bits). Home Assistant stores it encrypted. It must match the `RUSTFS_SECRET_KEY` value in the `rustfs.env` file described above.
 
 ## Option: `console_enable`
 

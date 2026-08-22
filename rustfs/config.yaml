@@ -27,9 +27,10 @@ ports:
 options:
   log_level: info
   access_key: admin
+  secret_key: null
   console_enable: true
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   access_key: str
-  secret_key: "password?"
+  secret_key: password
   console_enable: bool?
