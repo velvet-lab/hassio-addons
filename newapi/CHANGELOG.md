@@ -9,6 +9,7 @@
 - Persist the database, log files and a generated `SESSION_SECRET` in `/data/newapi`
 - Expose the New API server configuration as an editable `.env` file under `/homeassistant/addons/newapi/newapi.env`
 - Add a `session_secret` option to override the generated per-install key
+- Make the `session_secret` a required option (set a strong random value, e.g. `openssl rand -hex 32` / 64 hex chars)
 
 ### New API
 

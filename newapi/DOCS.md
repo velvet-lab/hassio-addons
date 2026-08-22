@@ -28,7 +28,13 @@ Please note that each level automatically includes log messages from a more seve
 
 ### Option: `session_secret`
 
-New API uses a session secret to sign authentication sessions. On the first start the add-on generates a random, per-install key and persists it. You can override it by setting the `session_secret` option, or by setting `SESSION_SECRET` in the New API configuration file described below.
+The `session_secret` option is **required**: New API uses it to sign authentication sessions and cookies. Provide a strong, random value, for example with:
+
+```
+openssl rand -hex 32
+```
+
+This produces a 64-character hexadecimal key (256 bits). Home Assistant stores it encrypted. It must match the `SESSION_SECRET` value in the New API configuration file described below.
 
 ## Configuration
 
