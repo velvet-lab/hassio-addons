@@ -13,7 +13,7 @@
 # Collect the target paths from all arguments (the env var may split them).
 $targets = New-Object System.Collections.ArrayList
 foreach ($arg in @() + [System.Collections.ArrayList][array]$args) {
-    $targets.Add([string]$arg)
+    $targets.Add([string]$arg) | Out-Null
 }
 
 if ($targets.Count -eq 0) {
@@ -25,20 +25,20 @@ $files = New-Object System.Collections.ArrayList
 
 foreach ($t in $targets) {
     if ([System.IO.File]::Exists($t)) {
-        $files.Add($t)
+        $files.Add($t) | Out-Null
     } elseif ([System.IO.Directory]::Exists($t)) {
         # Recurse over the directory tree.
         $stack = New-Object System.Collections.ArrayList
-        $stack.Add($t)
+        $stack.Add($t) | Out-Null
         while ($stack.Count -gt 0) {
             $dir = $stack[$stack.Count - 1]
             $stack.RemoveAt($stack.Count - 1)
-            foreach ($entry in [System.IO.Directory]::List($dir)) {
-                $full = [System.IO.Path]::Combine($dir, $entry)
+            foreach ($entry in [System.IO.Directory]::EnumerateFileSystemEntries($dir)) {
+                $full = $entry
                 if ([System.IO.Directory]::Exists($full)) {
-                    $stack.Add($full)
+                    $stack.Add($full) | Out-Null
                 } else {
-                    $files.Add($full)
+                    $files.Add($full) | Out-Null
                 }
             }
         }
@@ -54,10 +54,10 @@ foreach ($f in $files) {
     for ($i = 0; $i -lt $b.Count; $i++) {
         if ($b[$i] -eq 13 -and ($i + 1) -lt $b.Count -and $b[$i + 1] -eq 10) {
             $crlf++
-            $out.Add(10)
+            $out.Add(10) | Out-Null
             $i++
         } else {
-            $out.Add($b[$i])
+            $out.Add($b[$i]) | Out-Null
         }
     }
     if ($crlf -gt 0) {
