@@ -28,7 +28,13 @@ Please note that each level automatically includes log messages from a more seve
 
 ### Option: `session_secret`
 
-New API uses a session secret to sign authentication sessions. On the first start the add-on generates a random, per-install key and persists it. You can override it by setting the `session_secret` option, or by setting `SESSION_SECRET` in the New API configuration file described below.
+The `session_secret` option is **required**: New API uses it to sign authentication sessions and cookies. Provide a strong, random value, for example with:
+
+```
+openssl rand -hex 32
+```
+
+This produces a 64-character hexadecimal key (256 bits). Home Assistant stores it encrypted. It must match the `SESSION_SECRET` value in the New API configuration file described below.
 
 ## Configuration
 
@@ -46,10 +52,16 @@ To use an external database (PostgreSQL recommended), comment out `SQLITE_PATH` 
 
 ## Data folder
 
-The add-on stores the New API data in the `/data/newapi` folder: the SQLite database, log files and the generated session secret. Please ensure this is included in your backup.
+The add-on stores the New API data in the `/data/newapi` folder: the SQLite database and log files. Please ensure this is included in your backup.
+
+## Backups & Permissions
+
+- **Data backup:** Include `/data/newapi` in your regular backups to preserve the database and logs.
+- **Secret files:** Protect any secret material (for example `SESSION_SECRET` if persisted) with `chmod 600` and restrict access.
+- **Editable config vs UI options:** Do not store required secrets only in `/homeassistant/addons/newapi`; prefer add-on `options` for secrets so Home Assistant stores them encrypted.
 
 ## First steps
 
-- On first start the add-on generates a `SESSION_SECRET` and persists it.
+- Set the required `session_secret` option and restart the add-on.
 - Open the New API web interface on port `3000` and complete the initialization wizard to create the administrator account.
 - Use the web interface to configure channels, models, tokens and quota.

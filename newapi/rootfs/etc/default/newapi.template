@@ -22,7 +22,7 @@ TZ=Etc/UTC
 # SQLite database file. The default installation stores everything in a single
 # SQLite database file under /data/newapi. To use an external database instead,
 # comment out SQLITE_PATH and set SQL_DSN below.
-SQLITE_PATH=/data/newapi/one-api.db
+SQLITE_PATH=${NEWAPI_SQLITE_PATH}
 
 # Optional: external database connection string (PostgreSQL recommended).
 # Example PostgreSQL: postgresql://user:pass@host:5432/new-api

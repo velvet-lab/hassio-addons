@@ -28,7 +28,13 @@ Please note that each level automatically includes log messages from a more seve
 
 ### Option: `secret_key`
 
-Gogs uses a secret key to encrypt cookie values, two-factor authentication codes and similar sensitive data. On the first start the add-on generates a random, per-install key and persists it. You can override it by setting the `secret_key` option, or by editing the `[security] SECRET_KEY` value in the Gogs configuration file described below.
+The `secret_key` option is **required**: Gogs uses it to encrypt cookie values, two-factor authentication codes and similar sensitive data. Provide a strong, random value — for example generated with:
+
+```
+openssl rand -hex 32
+```
+
+This produces a 64-character hexadecimal key (256 bits). Home Assistant stores it encrypted. It must match the `[security] SECRET_KEY` value in the editable Gogs configuration file described below.
 
 ## Configuration
 
@@ -44,10 +50,16 @@ The web server listens on `0.0.0.0` on its default port `3000`. The port shown i
 
 ## Data folder
 
-The add-on stores the Gogs data in the `/data/gogs` folder: the SQLite database, repositories, sessions and the generated secret key. Please ensure this is included in your backup.
+The add-on stores the Gogs data in the `/data/gogs` folder: the SQLite database, repositories and sessions. Please ensure this is included in your backup.
+
+## Backups & Permissions
+
+- **Data backup:** Include `/data/gogs` in your regular backups to preserve repositories and the database.
+- **Secret files:** Protect files containing secrets (sessions, keys) with `chmod 600` and restrict access to the container runtime only.
+- **Editable config vs UI options:** Do not store sensitive secrets only in the editable file under `/homeassistant/addons/gogs` — Home Assistant does not encrypt those. Use the `secret_key` add-on option so the value is stored encrypted by Home Assistant.
 
 ## First steps
 
-- On first start the add-on generates a `SECRET_KEY` and logs it to the add-on log.
+- Set the required `secret_key` option and restart the add-on.
 - Open the Gogs web interface on port `3000` and complete the install wizard to create the administrator account.
 - Use the web interface to create repositories; clone/push works over HTTP and HTTPS using the `EXTERNAL_URL`.

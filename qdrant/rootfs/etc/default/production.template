@@ -13,5 +13,5 @@ service:
   grpc_port: 6334
 
 storage:
-  storage_path: /data/qdrant/storage
-  snapshots_path: /data/qdrant/snapshots
+  storage_path: ${QDRANT_STORAGE_PATH}
+  snapshots_path: ${QDRANT_SNAPSHOTS_PATH}

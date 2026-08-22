@@ -11,7 +11,7 @@ After starting the add-on, OpenBao is available on port `8200` of your Home Assi
 
 ## Configuration
 
-The add-on is **pre-configured** out of the box. There is no server configuration file exposed to the user by default; the add-on manages a minimal OpenBao configuration under the `/data/openbao` folder automatically.
+The add-on is **pre-configured** out of the box. The most important settings are configured in the add-on options (log level, web console); advanced server settings can be fine-tuned in an editable `openbao.hcl` file (see below).
 
 ### Option: `log_level`
 
@@ -26,6 +26,10 @@ The `log_level` option controls the level of log output by the add-on and can be
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
 
+### Option: `ui_enable`
+
+Enable or disable the built-in OpenBao web console. Defaults to `true`.
+
 ### Configuration
 
 The OpenBao server configuration is managed as a file on your Home Assistant configuration folder:
@@ -39,6 +43,12 @@ On first start the add-on copies a default configuration there, which you can ed
 ## Data folder
 
 The add-on stores the OpenBao configuration and its file storage backend in the `/data/openbao` folder. Please ensure this is included in your backup.
+
+## Backups & Permissions
+
+- **Data backup:** Include `/data/openbao` in your backups. The file `/data/openbao/unseal.keys` contains sensitive unseal keys and root token data and must be backed up securely.
+- **Secret files:** Secure the unseal keys file with strict permissions (`chmod 600 /data/openbao/unseal.keys`) and restrict access to trusted operators only.
+- **Editable config vs UI options:** Do not store secrets only in `/homeassistant/addons/openbao`; Home Assistant does not encrypt those files. When possible, prefer add-on `options` for secrets so Home Assistant stores them encrypted. Given OpenBao's initialization semantics, treat `/data/openbao/unseal.keys` as highly sensitive and protect it accordingly.
 
 ## First steps
 

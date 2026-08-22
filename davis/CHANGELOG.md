@@ -3,6 +3,7 @@
 ### Add-on
 
 - Updated the Davis add-on to version 5.4.3
+- Expose an editable `davis.env` configuration file at `/homeassistant/addons/davis/davis.env` for fine-tuning (created from a bundled template on first start)
 
 ### Davis
 

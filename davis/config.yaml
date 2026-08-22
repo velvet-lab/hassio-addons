@@ -16,6 +16,9 @@ apparmor: true
 tmpfs: true
 services:
   - mysql:want
+map:
+  - type: homeassistant_config
+    read_only: false
 backup: hot
 backup_exclude:
   - /data/app.err

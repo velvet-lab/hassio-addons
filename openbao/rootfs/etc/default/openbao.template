@@ -3,15 +3,15 @@
 # This template is copied to /homeassistant/addons/openbao/openbao.hcl on
 # first start. The ${BAO_LOG_LEVEL} placeholder is replaced at start time.
 
-# Enable the built-in Web UI
-ui = true
+# Enable the built-in Web UI (controlled by the add-on's ui_enable option)
+ui = ${BAO_UI_ENABLED}
 
 # Server log level, controlled by the add-on's log_level option.
 log_level = "${BAO_LOG_LEVEL}"
 
 # File storage backend for persistent data
 storage "file" {
-  path = "/data/openbao/file"
+  path = "${BAO_STORAGE_ROOT}"
 }
 
 # HTTP listener (TLS is terminated by the add-on ingress). OpenBao listens

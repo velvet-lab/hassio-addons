@@ -2,8 +2,23 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
+# Config locations come from the container environment (set by gogs-pre). They
+# are REQUIRED: abort if they are missing instead of falling back to a default.
+# shellcheck disable=SC2153  # APP_CONFIG_* are container-env vars set by with-contenv
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (gogs-pre did not run)}"
+config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (gogs-pre did not run)}"
+
 # Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'info')"
 
+# Render the final Gogs configuration here in the long-run service, where
+# with-contenv has loaded the s6 container environment (including GOGS_SECRET_KEY
+# written by gogs-pre), so envsubst can expand the placeholders. Gogs expects its
+# configuration file to be named app.ini.
+bashio::log.debug "Render Gogs configuration"
+mkdir -p "${config_dest}"
+envsubst < "${config_source}/gogs.ini" > "${config_dest}/app.ini"
+chmod 644 "${config_dest}/app.ini"
+
 bashio::log.info "Start Gogs ..."
-exec gogs web --config=/data/gogs/conf/app.ini
+exec gogs web --config=${config_dest}/app.ini

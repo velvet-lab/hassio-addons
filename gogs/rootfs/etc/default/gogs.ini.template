@@ -28,12 +28,12 @@ EXTERNAL_URL = %(PROTOCOL)s://%(DOMAIN)s:%(HTTP_PORT)s/
 PROTOCOL    = http
 
 [repository]
-ROOT = /data/gogs/repositories
+ROOT = ${GOGS_REPO_ROOT}
 
 [database]
 # SQLite requires an absolute path.
 TYPE = sqlite3
-PATH = /data/gogs/data/gogs.db
+PATH = ${GOGS_DATA_PATH}/gogs.db
 
 [security]
 # A random per-install key is generated on first start. Change this if you
@@ -43,7 +43,7 @@ SECRET_KEY = ${GOGS_SECRET_KEY}
 [session]
 # Sessions are kept on disk so a container restart preserves them.
 PROVIDER = file
-PROVIDER_CONFIG = /data/gogs/data/sessions
+PROVIDER_CONFIG = ${GOGS_DATA_PATH}/sessions
 
 [cron]
 ENABLED = true

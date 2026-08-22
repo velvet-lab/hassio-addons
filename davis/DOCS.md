@@ -7,7 +7,7 @@ The installation of this add-on is pretty straightforward and not different in c
 1.  Set a custom `admin_login` and `admin_password`
 2.  Start the "Davis Server" add-on.
 3.  Check the logs of "Davis Server" to see if everything went well.
-4.  Open the Web Admin UI by open Url `http://your-homeassistant-ip:43209`.
+4.  Open the Web Admin UI at `http://your-homeassistant-ip:43209`.
 
 **Note**: The add-on is **pre-configured** out of the box! There is no need to add/change/update the server connection settings!
 
@@ -25,9 +25,19 @@ log_level: warning
 
 **Note**: _This is just an example, don't copy and paste it! Create your own!_
 
+## Configuration file
+
+The most important settings (admin credentials, protocol toggles, mail, database) are configured in the add-on options below. For fine-tuning there is an editable environment file, `davis.env`, created on first start at:
+
+`/homeassistant/addons/davis/davis.env`
+
+**Note**: _Remember to restart the add-on when the configuration is changed._
+
+This file is a copy of the bundled template. If you delete it, a fresh copy is re-created on the next start. The add-on renders it on every start, so your edits take effect on restart.
+
 ### Option: `log_level`
 
-The `log_level` option controls the level of log output by the addon and can be changed to be more or less verbose, which might be useful when you are dealing with an unknown issue. Possible values are:
+The `log_level` option controls the level of log output by the add-on and can be changed to be more or less verbose, which might be useful when you are troubleshooting. Possible values are:
 
 *   `trace`: Show every detail, like all called internal functions.
 *   `debug`: Shows detailed debug information.
@@ -44,7 +54,7 @@ This must comply with the [official list](https://www.php.net/manual/en/timezone
 
 ### Option: `birthday_reminder_offset`
 
-For Birthday calendars, what should be the reminder offset ? The default is PT9H, 9am on the day of the event. You must specify a relative duration, as specified in the [RFC 5545 specification](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.6). By default, if the var is not set or empty, we use PT9H (9am on the date of the birthday).
+For birthday calendars, what should be the reminder offset? The default is PT9H (9:00 on the day of the event). You must specify a relative duration as defined in the [RFC 5545 specification](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.6). By default, if the variable is not set or empty, PT9H is used.
 
 ### Option: `caldav_enabled`
 
@@ -60,7 +70,7 @@ Enable or disable WebDAV support. Set to `true` to enable file synchronization v
 
 ### Option: `home_enabled`
 
-By default, home directories are disabled totally. If needed, data for each user will be stored in his own directory and cannot be accessed by other users. By default, home directories are disabled.
+By default, home directories are disabled. If enabled, data for each user will be stored in their own directory and cannot be accessed by other users.
 
 ### Option: `public_calendars_enabled`
 
@@ -104,16 +114,21 @@ Trust the immediate proxy for X-Forwarded-\* headers including HTTPS detection
 
 ## Data folder
 
-The addon will store most of its data in the `/data/davis` folder. Please ensure this is included in your backup.
+The add-on will store most of its data in the `/data/davis` folder. Please ensure this is included in your backup.
+
+## Backups & Permissions
+
+- **Data backup:** Include `/data/davis` in your regular backups so configuration, databases and user data are preserved.
+- **Secret files:** Any files under `/data/davis` that contain secrets (tokens, keys, unseal keys, etc.) should be protected with strict permissions, e.g. `chmod 600 /data/davis/<file>` and restricted access.
+- **Editable config vs UI options:** Do not store sensitive secrets only in the editable files under `/homeassistant/addons/davis` — Home Assistant does not encrypt those. Put required secrets into the add-on `options` so Home Assistant stores them encrypted.
 
 ## Reverse Proxy
 
 Run Davis behind a reverse proxy like Nginx/Apache or others to enable secure access via HTTPS. Redirect traffic from standard ports (443 for HTTPS) to the Davis port (8080).
 
-## Possible Urls to connect
+## Possible URLs to connect
 
-Following Urls can be used to connect to the Davis Web Admin UI:
+The following URLs can be used to connect to the Davis Web Admin UI:
 
-Base Url to access Davis is `http://your-homeassistant-ip:8080/dav`. Data will be stored in the common folder accessible to all users.
-
-To access user home folder use `http://your-homeassistant-ip:8080/dav/<user>`. Replace `<user>` with the actual username. Data will be stored in the respective user home folder only for that user.
+- **Base URL:** `http://your-homeassistant-ip:8080/dav` (data is stored in the common folder accessible to all users).
+- **User home folder:** `http://your-homeassistant-ip:8080/dav/<user>` — replace `<user>` with the actual username to access a user's home folder; data for that user is stored in their respective folder only.

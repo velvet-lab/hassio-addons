@@ -1,14 +1,25 @@
 #!/command/with-contenv bashio
 # vim: ft=bash
 # shellcheck shell=bash
+
+# Static, unique build marker. Bump this value on every code change so we can
+# verify from the log whether the container image was actually rebuilt and is
+# not a stale cache. If the marker is NOT visible in the log, the image is old.
+readonly build_marker="davis-build-v9-config"
+
 root=/data
-data_root="$root/davis"
+app_name="davis"
+data_root="$root/${app_name}"
 log_root="$data_root/logs"
 public_root="$data_root/public"
 home_root="$data_root/homes"
-app_root="/opt/davis"
 database_driver="sqlite"
-database_url="sqlite:////data/davis/davis.db"
+database_url="sqlite:////data/${app_name}/davis.db"
+
+homeassistant_root="/homeassistant"
+config_source="$homeassistant_root/addons/${app_name}"
+config_dest="/etc/${app_name}"
+user_config="$config_source/davis.env"
 
 default_log_level="info"
 
@@ -16,7 +27,15 @@ default_log_level="info"
 log_level=$(bashio::config 'log_level' "$default_log_level")
 bashio::log.level "$log_level"
 
+bashio::log.info "Davis build marker: ${build_marker}"
 bashio::log.info "Starting davis pre-initialization script..."
+
+# Expose the app identity and config locations via the s6 container
+# environment (one file per variable). The core service reads them via
+# with-contenv.
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
 
 bashio::log.debug "Ensuring directories exists..."
 bashio::log.debug "Ensuring log directory exists..."
@@ -27,6 +46,24 @@ fi
 bashio::log.debug "Ensuring public and homes directories exist..."
 if ! bashio::fs.directory_exists "$public_root"; then
     mkdir -p "$public_root"
+fi
+
+bashio::log.debug "Ensuring config and user config directories exist..."
+for d in "$config_source" "$config_dest"; do
+    if ! bashio::fs.directory_exists "$d"; then
+        mkdir -p "$d"
+        chmod 755 "$d"
+    fi
+done
+
+# On first start copy the default configuration to the user-accessible folder
+# (APP_CONFIG_SOURCE) under /homeassistant, where the user can edit it (e.g.
+# with VS Code). If the user deletes the file it is recreated from the bundled
+# template.
+if ! bashio::fs.file_exists "$user_config"; then
+    bashio::log.info "Creating default Davis configuration for the user"
+    cp /etc/default/davis.env.template "$user_config"
+    chmod 644 "$user_config"
 fi
 
 bashio::log.debug "Reading configuration options..."
@@ -49,7 +86,15 @@ trusted_proxies=$(bashio::config 'trusted_proxies' 'REMOTE_ADDR')
 
 bashio::log.debug "Validate options..."
 bashio::config.require 'admin_login' "Admin login must be set!"
-bashio::config.require.password 'admin_password'
+
+# The `admin_password` option is REQUIRED but not optional. Abort startup if
+# the user has not provided one instead of initializing with an empty/default
+# value.
+if ! bashio::var.has_value "${admin_password}"; then
+    bashio::log.error "The 'admin_password' option is required but empty."
+    bashio::log.error "Set a strong admin password and restart the add-on."
+    exit 1
+fi
 
 if bashio::var.true "$home_enabled" && ! bashio::fs.directory_exists "$home_root"; then
     mkdir -p "$home_root"
@@ -77,39 +122,32 @@ if bashio::var.true "$use_mysql"; then
     bashio::log.warning "Uninstalling the MariaDB addon will remove any data"
 fi
 
-bashio::log.debug "Exporting environment variables for frontend build..."
-export APP_TIMEZONE="$app_timezone"
-export BIRTHDAY_REMINDER_OFFSET="$birthday_reminder_offset"
-export CALDAV_ENABLED="$caldav_enabled"
-export CARDDAV_ENABLED="$carddav_enabled"
-export WEBDAV_ENABLED="$webdav_enabled"
-export PUBLIC_CALENDARS_ENABLED="$public_calendars_enabled"
-export INVITE_FROM_ADDRESS="$invite_from_address"
-export MAIL_HOST="$mail_host"
-export MAIL_PORT="$mail_port"
-export MAIL_USERNAME="$mail_username"
-export MAIL_PASSWORD="$mail_password"
-export ADMIN_LOGIN="$admin_login"
-export ADMIN_PASSWORD="$admin_password"
-export HOME_DIR="$home_root"
-export DATABASE_DRIVER="$database_driver"
-export DATABASE_URL="$database_url"
-export TRUSTED_PROXIES="$trusted_proxies"
+bashio::log.debug "Exporting environment variables for the services..."
+# Write each resolved value into the s6 container environment (one file per
+# variable) so the davis-migration service and the longrun services
+# (php-fpm, davis-core) inherit them via with-contenv.
+echo -n "$app_timezone" > /var/run/s6/container_environment/APP_TIMEZONE
+echo -n "$birthday_reminder_offset" > /var/run/s6/container_environment/BIRTHDAY_REMINDER_OFFSET
+echo -n "$caldav_enabled" > /var/run/s6/container_environment/CALDAV_ENABLED
+echo -n "$carddav_enabled" > /var/run/s6/container_environment/CARDDAV_ENABLED
+echo -n "$webdav_enabled" > /var/run/s6/container_environment/WEBDAV_ENABLED
+echo -n "$public_calendars_enabled" > /var/run/s6/container_environment/PUBLIC_CALENDARS_ENABLED
+echo -n "$invite_from_address" > /var/run/s6/container_environment/INVITE_FROM_ADDRESS
+echo -n "$mail_host" > /var/run/s6/container_environment/MAIL_HOST
+echo -n "$mail_port" > /var/run/s6/container_environment/MAIL_PORT
+echo -n "$mail_username" > /var/run/s6/container_environment/MAIL_USERNAME
+echo -n "$mail_password" > /var/run/s6/container_environment/MAIL_PASSWORD
+echo -n "$admin_login" > /var/run/s6/container_environment/ADMIN_LOGIN
+echo -n "$admin_password" > /var/run/s6/container_environment/ADMIN_PASSWORD
+echo -n "$home_root" > /var/run/s6/container_environment/HOME_DIR
+echo -n "$database_driver" > /var/run/s6/container_environment/DATABASE_DRIVER
+echo -n "$database_url" > /var/run/s6/container_environment/DATABASE_URL
+echo -n "$trusted_proxies" > /var/run/s6/container_environment/TRUSTED_PROXIES
+echo -n "$data_root" > /var/run/s6/container_environment/DAVIS_DATA_DIR
+echo -n "$log_root/app.log" > /var/run/s6/container_environment/DAVIS_LOG_FILE_PATH
+echo -n "$public_root" > /var/run/s6/container_environment/DAVIS_PUBLIC_DIR
 
 bashio::log.debug "Setting permissions on data directory..."
-chmod -R 755 "$data_root"
-chown -R www-data:www-data "$data_root"
-
-bashio::log.debug "Generating davis configuration file..."
-envsubst < /etc/default/davis.conf > /opt/davis/.env.local
-
-cd "$app_root" || exit 1
-bin/console doctrine:migrations:migrate --no-interaction
-
-bashio::log.debug "Setting permissions on app and data directory..."
-chmod -R 755 "$app_root"
-chown -R www-data:www-data "$app_root"
-
 chmod -R 755 "$data_root"
 chown -R www-data:www-data "$data_root"
 
@@ -119,3 +157,8 @@ ln -s /proc/1/fd/1 "${root}/app.err"
 
 bashio::log.debug "Configure Nginx to log to stdout"
 sed -i 's|error_log /var/log/nginx/error\.log;|error_log /proc/1/fd/1 error;|' /etc/nginx/nginx.conf
+
+# s6 oneshot services MUST end with exit 0, otherwise s6 treats them as
+# "unable to start service ... command exited N" and aborts the whole
+# container bring-up (rc.init: fatal: stopping the container).
+exit 0

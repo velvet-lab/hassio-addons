@@ -2,12 +2,27 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
+# Config locations come from the container environment (set by newapi-pre).
+# They are REQUIRED: abort if they are missing instead of falling back to a default.
+# shellcheck disable=SC2153  # APP_CONFIG_* are container-env vars set by with-contenv
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (newapi-pre did not run)}"
+config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (newapi-pre did not run)}"
+
 # Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'info')"
 
 bashio::log.info "Start New API ..."
 
+# Render the final .env file from the user-edited configuration here in the
+# long-run service, where with-contenv has loaded the s6 container environment
+# (including SESSION_SECRET written by newapi-pre) so envsubst can expand any
+# ${VAR} placeholders with the full variable set.
+bashio::log.debug "Render New API configuration"
+mkdir -p "${config_dest}"
+envsubst < "${config_source}/newapi.env" > "${config_dest}/.env"
+chmod 644 "${config_dest}/.env"
+
 # New API reads its .env file (and creates the SQLite database) relative to the
-# current working directory, so we run it from the folder that holds the config.
-cd /data/newapi
+# current working directory, so we run it from the render destination.
+cd "${config_dest}" || exit 1
 exec /usr/bin/new-api

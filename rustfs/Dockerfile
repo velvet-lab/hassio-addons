@@ -10,6 +10,10 @@ ARG BUILD_NAME
 ARG BUILD_REF
 ARG BUILD_REPOSITORY
 
+# The release download URLs are built from a dedicated RUSTFS_VERSION arg (not
+# BUILD_VERSION), because the devcontainer build does not pass BUILD_VERSION.
+ARG RUSTFS_VERSION=1.0.0-rc.3
+
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -30,12 +34,13 @@ RUN set -x \
     && apt-get install -qy --no-install-recommends \
         ca-certificates \
         curl \
+        gettext-base \
         icu-devtools \
         unzip \
     && if [ "${BUILD_ARCH}" = "amd64" ]; then \
-            ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/1.0.0-rc.2-preview.1/rustfs-linux-x86_64-musl-v1.0.0-rc.2-preview.1.zip"; \
+            ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/${RUSTFS_VERSION}/rustfs-linux-x86_64-musl-v${RUSTFS_VERSION}.zip"; \
         elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
-            ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/1.0.0-rc.2-preview.1/rustfs-linux-aarch64-musl-v1.0.0-rc.2-preview.1.zip"; \
+            ARTIFACT_URL="https://github.com/rustfs/rustfs/releases/download/${RUSTFS_VERSION}/rustfs-linux-aarch64-musl-v${RUSTFS_VERSION}.zip"; \
         else \
             echo "Unsupported architecture: ${BUILD_ARCH}" && exit 1; \
         fi \

@@ -1,63 +1,111 @@
 #!/command/with-contenv bashio
 # vim: ft=bash
 # shellcheck shell=bash
+
+# Static, unique build marker. Bump this value on every code change so we can
+# verify from the log whether the container image was actually rebuilt and is
+# not a stale cache. If the marker is NOT visible in the log, the image is old.
+readonly build_marker="rustfs-build-v7-config"
+
 root=/data
-data_root="$root/rustfs"
+app_name="rustfs"
+data_root="$root/${app_name}"
 log_root="$root/logs"
+homeassistant_root="/homeassistant"
+config_source="$homeassistant_root/addons/${app_name}"
+config_dest="/etc/${app_name}"
+env_file="${config_dest}/rustfs.env"
+user_config="$config_source/rustfs.env"
 
 default_log_level="info"
 
-# Set Log Level
 log_level=$(bashio::config 'log_level' "$default_log_level")
-bashio::log.level "$log_level"
+bashio::log.level "${log_level}"
 
-bashio::log.info "Starting rustfs pre-initialization script..."
+bashio::log.info "RustFS build marker: ${build_marker}"
+bashio::log.info "Prepare RustFS configuration"
 
-bashio::log.debug "Ensuring data directory exists..."
+# Expose the app identity and config locations via the s6 container
+# environment (one file per variable). The core service reads them via
+# with-contenv.
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+
+bashio::log.debug "Create folders"
+for d in "${config_source}" "${config_dest}" "${log_root}"; do
+    if ! bashio::fs.directory_exists "${d}"; then
+        bashio::log.debug "Creating directory ${d}"
+        mkdir -p "${d}"
+        chmod 755 "${d}"
+    fi
+done
+
+# On first start copy the default configuration to the user-accessible folder
+# (APP_CONFIG_SOURCE) under /homeassistant, where the user can edit it (e.g.
+# with VS Code). If the user deletes the file it is recreated from the bundled
+# template.
+if ! bashio::fs.file_exists "${user_config}"; then
+    bashio::log.info "Creating default RustFS configuration for the user"
+    cp /etc/default/rustfs.template "${user_config}"
+    chmod 644 "${user_config}"
+fi
+
+# Render the configuration into the volatile APP_CONFIG_DEST folder. This
+# happens in pre (not core) because the env-loop below parses the rendered file
+# to export the variables into the container environment (documented
+# exception).
+bashio::log.debug "Render RustFS configuration"
+envsubst < "${user_config}" > "${env_file}"
+chmod 644 "${env_file}"
+
+# Resolve the credentials from the add-on options. `secret_key` is a REQUIRED
+# add-on option (Home Assistant stores it encrypted); RustFS rejects the
+# well-known default since 1.0.0-beta.10. Instead of generating a secret on
+# first start, abort startup if the user has not provided one.
+secret_key=$(bashio::config 'secret_key')
+
+if ! bashio::var.has_value "${secret_key}"; then
+    bashio::log.error "The 'secret_key' option is required but empty."
+    bashio::log.error "Set a strong random value, e.g. generated with:"
+    bashio::log.error "    openssl rand -hex 64"
+    bashio::log.error "and restart the add-on."
+    exit 1
+fi
+
+bashio::log.debug "Export RUSTFS_* environment variables"
+while IFS= read -r line; do
+    # Skip empty lines and comments
+    if bashio::var.has_value "${line}" && [[ "${line}" != \#* ]]; then
+        name="${line%%=*}"
+        value="${line#*=}"
+        # Strip one pair of surrounding double quotes, e.g. RUSTFS_VOLUMES="/data/rustfs"
+        if [[ "${value}" == \"*\" ]]; then
+            value="${value#\"}"
+            value="${value%\"}"
+        fi
+        bashio::log.debug "  ${name}"
+        echo -n "${value}" > "/var/run/s6/container_environment/${name}"
+    fi
+done < "${env_file}"
+
+# The credentials are exported from the add-on options (overriding the env file,
+# which no longer carries them).
+bashio::log.debug "Export credentials and console toggle from options"
+access_key=$(bashio::config 'access_key' 'admin')
+console_enable=$(bashio::config 'console_enable' true)
+echo -n "${access_key}" > "/var/run/s6/container_environment/RUSTFS_ACCESS_KEY"
+echo -n "${secret_key}" > "/var/run/s6/container_environment/RUSTFS_SECRET_KEY"
+echo -n "${console_enable}" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ENABLE"
+
+# Ensure the data directory exists (RUSTFS_VOLUMES points into it).
 if ! bashio::fs.directory_exists "$data_root"; then
     mkdir -p "$data_root"
     chmod 755 "$data_root"
 fi
 
-if ! bashio::fs.directory_exists "$log_root"; then
-    mkdir -p "$log_root"
-    chmod 755 "$log_root"
-fi
-
-bashio::log.debug "Reading configuration options..."
-access_key=$(bashio::config 'access_key')
-secret_key=$(bashio::config 'secret_key')
-console_enable=$(bashio::config 'console_enable' true)
-
-bashio::log.debug "Preparing and validating environment variables..."
-bashio::config.require 'access_key' "Access Key is not set in the configuration"
-bashio::config.require 'secret_key' "Secret Key is not set in the configuration"
-
-if [ "$log_level" == "warning" ]; then
-    log_level="warn"
-fi
-
-bashio::log.debug "Set environment variables for rustfs..."
-echo -n "${access_key}" > "/var/run/s6/container_environment/RUSTFS_ACCESS_KEY"
-echo -n "${secret_key}" > "/var/run/s6/container_environment/RUSTFS_SECRET_KEY"
-
-echo -n "${console_enable}" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ENABLE"
-
-# echo -n "rustfs=${log_level}" > "/var/run/s6/container_environment/RUSTFS_LOG_LEVEL"
-# echo -n "${log_root}" > "/var/run/s6/container_environment/RUSTFS_SINKS_FILE_PATH"
-# echo -n "1" > "/var/run/s6/container_environment/RUSTFS_BACKTRACE"
-# echo -n "<domain>" > "/var/run/s6/container_environment/RUSTFS_SERVER_DOMAINS"
-
-echo -n "*" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS"
-echo -n "*" > "/var/run/s6/container_environment/RUSTFS_CORS_ALLOWED_ORIGINS"
-
-echo -n ":9000" > "/var/run/s6/container_environment/RUSTFS_ADDRESS"
-echo -n ":9001" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ADDRESS"
-
-echo -n "${log_level}" > "/var/run/s6/container_environment/RUSTFS_OBS_LOGGER_LEVEL"
-echo -n "${log_root}" > "/var/run/s6/container_environment/RUSTFS_OBS_LOG_DIRECTORY"
-echo -n "production" > "/var/run/s6/container_environment/RUSTFS_OBS_ENVIRONMENT"
-
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
 ln -s /proc/1/fd/1 "${root}/app.err"
+
+exit 0

@@ -5,14 +5,15 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="newapi-build-v1-config"
+readonly build_marker="newapi-build-v4-config"
 
 root=/data
-data_root="$root/newapi"
+app_name="newapi"
+data_root="$root/${app_name}"
 homeassistant_root="/homeassistant"
-user_config_root="$homeassistant_root/addons/newapi"
-user_config="$user_config_root/newapi.env"
-secret_file="$data_root/secret"
+config_source="$homeassistant_root/addons/${app_name}"
+config_dest="/etc/${app_name}"
+user_config="$config_source/newapi.env"
 
 default_log_level="info"
 
@@ -22,10 +23,15 @@ bashio::log.level "${log_level}"
 bashio::log.info "New API build marker: ${build_marker}"
 bashio::log.info "Prepare New API configuration"
 
-# New API loads its .env file from the current working directory. The Dockerfile
-# sets WORKDIR to /data/newapi, so the rendered file must live there.
+# Expose the app identity and config locations via the s6 container
+# environment (one file per variable). The core service reads them via
+# with-contenv to render and load the configuration.
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+
 bashio::log.debug "Create folders"
-for folder in "${data_root}" "${user_config_root}"; do
+for folder in "${data_root}" "${config_source}" "${config_dest}"; do
     if ! bashio::fs.directory_exists "${folder}"; then
         bashio::log.debug "Creating folder ${folder}"
         mkdir -p "${folder}"
@@ -35,31 +41,20 @@ done
 
 # New API refuses to start when SESSION_SECRET is the literal string
 # "random_string" and generates a fresh random value on every start when it is
-# unset. Persist a generated secret on the first start so sessions survive a
-# restart. The user can override it with the `session_secret` add-on option, or
-# by editing the rendered .env file directly.
-if ! bashio::fs.file_exists "${secret_file}"; then
-    bashio::log.info "Generating a new New API SESSION_SECRET"
-    if command -v openssl >/dev/null 2>&1; then
-        session_secret=$(openssl rand -hex 32)
-    else
-        # Fallback without openssl: timestamp-based hash, no endless stream.
-        session_secret=$(date +%s%N | sha256sum)
-        session_secret="${session_secret%% *}"
-    fi
-    printf '%s' "${session_secret}" > "${secret_file}"
-    chmod 600 "${secret_file}"
-    unset session_secret
+# unset. The `session_secret` setting is a REQUIRED add-on option (Home
+# Assistant stores it encrypted). Instead of generating a secret on first start,
+# abort startup if the user has not provided one — a generated key would diverge
+# from the value in the user's configuration and break sessions after a restart.
+if ! bashio::var.has_value "$(bashio::config 'session_secret')"; then
+    bashio::log.error "The 'session_secret' option is required but empty."
+    bashio::log.error "Set a strong random value, e.g. generated with:"
+    bashio::log.error "    openssl rand -hex 32"
+    bashio::log.error "and restart the add-on."
+    exit 1
 fi
 
-# The `session_secret` add-on option overrides the generated/persisted key.
-if bashio::var.has_value "$(bashio::config 'session_secret')"; then
-    bashio::log.debug "Using the session_secret from the add-on configuration"
-    session_secret="$(bashio::config 'session_secret')"
-else
-    bashio::log.debug "Using the generated, persisted SESSION_SECRET"
-    session_secret="$(cat "${secret_file}")"
-fi
+bashio::log.debug "Using the session_secret from the add-on configuration"
+session_secret="$(bashio::config 'session_secret')"
 
 # Export the secret via the s6 container environment so the longrun service
 # can inherit it regardless of the .env file.
@@ -75,11 +70,9 @@ if ! bashio::fs.file_exists "${user_config}"; then
     chmod 644 "${user_config}"
 fi
 
-# Render the final .env file from the user-edited configuration. Any remaining
-# ${VAR} placeholders are expanded from the add-on environment.
-bashio::log.debug "Write New API configuration"
-envsubst < "${user_config}" > "${data_root}/.env"
-chmod 644 "${data_root}/.env"
+# Export paths for template rendering
+echo -n "${data_root}" > /var/run/s6/container_environment/NEWAPI_DATA_DIR
+echo -n "${data_root}/one-api.db" > /var/run/s6/container_environment/NEWAPI_SQLITE_PATH
 
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"

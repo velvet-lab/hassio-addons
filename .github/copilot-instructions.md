@@ -52,13 +52,45 @@ This repository provides Home Assistant add-ons under `velvet-lab/hassio-addons`
 
 For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `production.yaml`, MongoDB `config.conf`, ...), follow the established pattern:
 
+- **UI options vs editable file — the most important / REQUIRED settings MUST be exposed as add-on UI options** (in `config.yaml` `options`/`schema`), e.g. credentials (`access_key`/`secret_key`), `log_level`, or a console/web UI toggle. The editable file under `/homeassistant/addons/<slug>/` exists so users can fine-tune advanced settings; do NOT push every setting into the UI, and do NOT bury required/core settings only in the file. When you are unsure whether a given setting belongs in the UI options or in the editable file, ask the user instead of guessing.
+- **Anything that looks like a secret MUST be a UI option** because Home Assistant stores option values in its encrypted vault: passwords, secret keys, API keys, tokens, credentials and similar secrets (e.g. `admin_password`, `secret_key`, `access_key`, `mail_password`) must be in `options`/`schema` (with proper `password`/`password?` type where relevant) so HA encrypts them at rest. Do NOT put secrets into the editable file or the template; Home Assistant cannot encrypt them there, they would sit in plain text in `/homeassistant/addons/<slug>/`.
 - Declare `map: [ { type: homeassistant_config, read_only: false } ]` in `config.yaml` so the add-on can read/write `/homeassistant`.
 - **Do NOT use multiline (multi_line / `|` literal block) strings in `options`** – Home Assistant refuses to load the add-on when an option is a multiline string.
-- **Optional options go in `schema` ONLY with a trailing `?`, never in `options`.** An optional option (e.g. `secret_key`, `admin_password`) must NOT appear in the `options` list; it belongs only in `schema` as `secret_key: "password?"` / `admin_password: password?`. Home Assistant reads the empty/default value from the `?` marker. Required options with defaults go under `options:`.
+- **Any option that is NOT optional (no `?` in schema) MUST be in the `options` list.** If there is no sensible default, put `null` (e.g. a required secret is `options: secret_key: null` + `schema: secret_key: password`). Required options with a real default (e.g. `log_level: info`) also go under `options:`.
+- **Optional options go in `schema` ONLY with a trailing `?`, never in `options`.** An optional option (e.g. `secret_key`, `admin_password`) must NOT appear in the `options` list; it belongs only in `schema` as `secret_key: "password?"` / `admin_password: "password?"`. Home Assistant reads the empty/default value from the `?` marker.
+- **Required options MUST abort startup when unset — never initialize with a default.** For every non-optional option that has no real default (a secret declared as `options: <name>: null` + `schema: <name>: password`), the `*-pre/run` script must check `bashio::var.has_value "$(bashio::config '<name>')"` and `exit 1` with a clear `bashio::log.error` message when it is empty. Do **NOT** fall back to generating/persisting a random secret or any other default for a required option — that diverges from what the user configured and usually breaks sessions/cookies after a restart. (An explicit `exit 1` is used instead of `bashio::config.require.password`, which logs but does not reliably abort an s6 oneshot.) Example:
+
+  ```bash
+  if ! bashio::var.has_value "$(bashio::config 'admin_password')"; then
+      bashio::log.error "The 'admin_password' option is required but empty."
+      bashio::log.error "Set a strong value and restart the add-on."
+      exit 1
+  fi
+  ```
+
+- **Config folder is dissolved; config lives volatile under `/etc/<app>`, user file under `/homeassistant/addons/<app>`.** Do NOT create a separate `/data/<slug>/config` folder and don't use a `conf` short form. The application loads its configuration from the volatile destination `/etc/<app>` (linux-like), which is rendered fresh every container start.
 - Keep a bundled default template under `rootfs/etc/default/<name>.template` (use the `.template` suffix so it never collides with the actual runtime file, e.g. `openbao.template`, `production.template`). It can be re-created by the add-on if the user deletes their editable copy.
-- On first start the `*-pre/run` script does a plain `cp /etc/default/<name>.template /homeassistant/addons/<slug>/<name>` (NOT envsubst), giving the user an editable file (e.g. via VS Code). If deleted, it is re-created on the next start.
-- On every start the `*-pre/run` script renders the final config: `envsubst < /homeassistant/addons/<slug>/<name> > /data/<slug>/config/<name>`.
-- This requires `gettext-base` installed in the image (for `envsubst`).
+- **Canonical per-add-on config flow:**
+  - `*-pre/run` prepares everything and writes ALL runtime values (secrets, ports, resolved service URLs, booleans, ...) into the s6 container environment as **one file per variable** at `/var/run/s6/container_environment/<VARNAME>`. It MUST always also write the three identity/location variables:
+    - `APP_NAME` = the app name, e.g. `echo -n "gogs" > /var/run/s6/container_environment/APP_NAME`
+    - `APP_CONFIG_SOURCE` = `/homeassistant/addons/<app>` (the user-editable folder)
+    - `APP_CONFIG_DEST` = `/etc/<app>` (the volatile runtime destination)
+  - `*-pre/run` creates both `APP_CONFIG_SOURCE` and `APP_CONFIG_DEST` dirs, and on first start copies the bundled template into `APP_CONFIG_SOURCE` with a plain `cp` (NOT envsubst) so the user can edit it (e.g. via VS Code). If deleted, it is re-created on the next start.
+  - `*-core/run` (longrun) renders **every file** in `APP_CONFIG_SOURCE` into `APP_CONFIG_DEST` with `envsubst`, then starts the app from `APP_CONFIG_DEST`. Render ALL the time — even when the bundled template has no `${VAR}` placeholders, because the user may have added their own references that must be expanded with the full s6 container environment. Example:
+
+    ```bash
+    config_source="${APP_CONFIG_SOURCE:-/homeassistant/addons/<app>}"
+    config_dest="${APP_CONFIG_DEST:-/etc/<app>}"
+    mkdir -p "${config_dest}"
+    for file in "${config_source}"/*; do
+        name=$(basename "${file}")
+        envsubst < "${file}" > "${config_dest}/${name}"
+        chmod 644 "${config_dest}/${name}"
+    done
+    ```
+
+  - **Exception — render in `*-pre/run` only when a pre-side step consumes the rendered output** (e.g. OpenBao's init/temporary server reads the config in `pre`, Davis migrations run in `pre`, RustFS parses its rendered env file in `pre`). In that case render into `APP_CONFIG_DEST` in `pre` and also `export` any variable needed by `envsubst` in the same `pre` script (writing to the container env alone is not enough — it is only loaded at script start).
+- `gettext-base` (for `envsubst`) must be installed in the image.
 - **Internal listen ports are fixed.** The application always listens on `0.0.0.0:<its own default port>` (e.g. Gogs `3000`, OpenBao `8200`, Qdrant `6333`/`6334`, SearXNG `8080`). Do **NOT** read the port with `bashio::addon.port` and write it into the app config — that port is only the *exposed* port in the Home Assistant UI and has nothing to do with where the app should listen. If the app template needs a port, hardcode the application's own default.
 - Document the editable file location in `DOCS.md` and note that a restart is required after changes.
 
@@ -71,6 +103,7 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
 - s6 **oneshot** services that do work-then-exit (e.g. init or unseal) MUST end with `exit 0`, otherwise s6 treats them as "unable to start service ... command exited N" and aborts the whole container bring-up (`rc.init: fatal: stopping the container`).
 - Dependencies between units are declared with empty files in `<service>/dependencies.d/`; bundles reference their members in `<bundle>/contents.d/`; the top-level bundle is referenced by `user/contents.d/<bundle>`.
 - Runtime values shared with longrun services are exported via the s6 container environment as **one file per variable** at `/var/run/s6/container_environment/<VARNAME>`. The `with-contenv` mechanism turns each filename into an environment variable available to all services. Do **not** write a single `.env`-style file there.
+- **Required env vars are read with the `:?` idiom — never a silent `:-` fallback.** When a consumer (e.g. `*-core/run` or a migration oneshot) reads a variable that `*-pre/run` must have written (like `APP_CONFIG_SOURCE`, `APP_CONFIG_DEST`, `RUSTFS_VOLUMES`), read it as `${VAR:?VAR is not set (<pre> did not run)}` so a missing/unset variable aborts with a clear message instead of silently substituting an empty value or a hardcoded default. Do NOT use `${VAR:-default}` for values that are required (a fallback would mask a broken pre step). Add `# shellcheck disable=SC2153` above such lines since the vars are injected by `with-contenv`.
 - The rootfs is baked into the image via `Dockerfile COPY rootfs /`, so script changes only take effect after a **fresh image rebuild**, not on a plain container restart. Add a unique build marker logged at startup to verify which build is running.
 - Prefer the HTTP API (`curl http://127.0.0.1:<port>/...`) over parsing CLI text output for readiness checks; CLI text parsing can hang when a service is uninitialized.
 
@@ -119,7 +152,9 @@ Every add-on ships a `.devcontainer/` folder for local development against the a
 
 ### Secrets / keys generated at runtime
 
-- For services that need a random secret on first start (Gogs `SECRET_KEY`, OpenBao, SearXNG), **generate it once and persist it** (e.g. `/data/<slug>/secret` or similar, `chmod 600`) so sessions/cookies survive restarts; do NOT regenerate on every start.
+- **Anything that looks like a secret goes in the add-on UI options** (Home Assistant encrypts options): passwords, secret keys, tokens, API keys, mail passwords (see the "User-editable service configuration" section). Never store secrets in the editable template under `/homeassistant/addons/<slug>/` — HA does not encrypt them there.
+- For services that need a random secret on first start (Gogs `SECRET_KEY`, RustFS `secret_key`, NewAPI `session_secret`, OpenBao, SearXNG), **secrets are REQUIRED add-on options** — never declare them optional. Declare them BOTH in `options` (as `secret_key: null` / `session_secret: null`) AND in `schema:` as `secret_key: password` / `session_secret: password` (no `?`), so the user MUST provide a value; Home Assistant stores it encrypted. Only genuinely conditional secrets (e.g. `mail_password` when mail is disabled, `redis_password` when built-in search works without Redis) may keep the trailing `?`.
+- **Document how to generate a key and its length.** In the add-ons `DOCS.md`, tell the user to generate a strong random key, e.g. with `openssl rand -hex 32` (64 hex chars / 256-bit) or `openssl rand -hex 64` (128 hex chars / 512-bit), and state the required/expected length. Do NOT embed weak defaults.
 - **Do NOT use the `cat /dev/urandom | tr -dc '...' | head -c N` pipeline** inside a `$(...)` command substitution — when `head` closes the pipe early, `cat` (or upstream) gets `SIGPIPE` and the pipeline can exit non-zero (observed: exit code 128), which makes an s6 oneshot fail and abort the whole container bring-up. Use `openssl rand -hex 32` instead (available in the base images), with a simple fallback that does not rely on an endless stream (e.g. `date +%s%N | sha256sum`).
 
 ## Build and Test
