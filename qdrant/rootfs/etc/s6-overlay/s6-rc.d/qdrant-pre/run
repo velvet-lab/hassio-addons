@@ -51,13 +51,8 @@ if ! bashio::fs.file_exists "${user_config}"; then
     chmod 644 "${user_config}"
 fi
 
-# Render the final configuration for the server from the user-edited file. The
-# ports are read from the add-on configuration so they match the ports shown
-# in the Home Assistant UI.
+# Render the final configuration for the server from the user-edited file.
 bashio::log.debug "Write Qdrant configuration"
-export QDRANT_HTTP_PORT QDRANT_GRPC_PORT
-QDRANT_HTTP_PORT="$(bashio::addon.port '6333/tcp')"
-QDRANT_GRPC_PORT="$(bashio::addon.port '6334/tcp')"
 envsubst < "${user_config}" > "${config_file}"
 chmod 644 "${config_file}"
 

@@ -6,9 +6,11 @@
 log_level: INFO
 
 service:
+  # Qdrant listens on these internal ports regardless of the ports shown in
+  # the Home Assistant UI (the UI ports are only the exposed ports).
   host: 0.0.0.0
-  http_port: ${QDRANT_HTTP_PORT}
-  grpc_port: ${QDRANT_GRPC_PORT}
+  http_port: 6333
+  grpc_port: 6334
 
 storage:
   storage_path: /data/qdrant/storage
