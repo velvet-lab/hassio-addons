@@ -25,6 +25,16 @@ log_level: warning
 
 **Note**: _This is just an example, don't copy and paste it! Create your own!_
 
+## Configuration file
+
+The most important settings (admin credentials, protocol toggles, mail, database) are configured in the add-on options below. For fine-tuning there is an editable environment file, `davis.env`, created on first start at:
+
+`/homeassistant/addons/davis/davis.env`
+
+**Note**: _Remember to restart the add-on when the configuration is changed._
+
+This file is a copy of the bundled template. If you delete it, a fresh copy is re-created on the next start. The add-on renders it on every start, so your edits take effect on restart.
+
 ### Option: `log_level`
 
 The `log_level` option controls the level of log output by the addon and can be changed to be more or less verbose, which might be useful when you are dealing with an unknown issue. Possible values are:
