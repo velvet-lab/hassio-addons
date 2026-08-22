@@ -64,6 +64,10 @@ bashio::log.debug "Using the secret_key from the add-on configuration"
 GOGS_SECRET_KEY="$(bashio::config 'secret_key')"
 echo -n "${GOGS_SECRET_KEY}" > /var/run/s6/container_environment/GOGS_SECRET_KEY
 
+# Export data directory paths for template rendering
+echo -n "${data_root}" > /var/run/s6/container_environment/GOGS_DATA_PATH
+echo -n "${gogs_root}/repositories" > /var/run/s6/container_environment/GOGS_REPO_ROOT
+
 # On first start copy the default configuration to the user-accessible folder
 # under /homeassistant, where the user can edit it (e.g. with VS Code). If the
 # user deletes the file it is recreated from the bundled template.

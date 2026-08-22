@@ -29,6 +29,8 @@ bashio::log.info "Prepare Qdrant configuration"
 echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
 echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
 echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+echo -n "${storage_root}" > /var/run/s6/container_environment/QDRANT_STORAGE_PATH
+echo -n "${snapshots_root}" > /var/run/s6/container_environment/QDRANT_SNAPSHOTS_PATH
 
 bashio::log.debug "Create folders"
 for folder in "${config_source}" "${config_dest}" "${storage_root}" "${snapshots_root}"; do

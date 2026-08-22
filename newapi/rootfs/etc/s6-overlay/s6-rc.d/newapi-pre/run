@@ -70,6 +70,10 @@ if ! bashio::fs.file_exists "${user_config}"; then
     chmod 644 "${user_config}"
 fi
 
+# Export paths for template rendering
+echo -n "${data_root}" > /var/run/s6/container_environment/NEWAPI_DATA_DIR
+echo -n "${data_root}/one-api.db" > /var/run/s6/container_environment/NEWAPI_SQLITE_PATH
+
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
 ln -s /proc/1/fd/1 "${root}/app.err"

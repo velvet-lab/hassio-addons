@@ -11,7 +11,7 @@ log_level = "${BAO_LOG_LEVEL}"
 
 # File storage backend for persistent data
 storage "file" {
-  path = "/data/openbao/file"
+  path = "${BAO_STORAGE_ROOT}"
 }
 
 # HTTP listener (TLS is terminated by the add-on ingress). OpenBao listens

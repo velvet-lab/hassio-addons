@@ -95,6 +95,9 @@ bashio::log.debug "Render OpenBao configuration"
 envsubst < "${user_config}" > "${config_dest}/openbao.hcl"
 chmod 644 "${config_dest}/openbao.hcl"
 
+# Export storage path for template rendering
+echo -n "${storage_root}" > /var/run/s6/container_environment/BAO_STORAGE_ROOT
+
 # Initialize OpenBao on first start. The unseal keys file is the marker for a
 # finished initialization. Initialization requires a running server, so spin
 # up a temporary instance, initialize, persist the keys, then stop it again.

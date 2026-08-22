@@ -143,6 +143,9 @@ echo -n "$home_root" > /var/run/s6/container_environment/HOME_DIR
 echo -n "$database_driver" > /var/run/s6/container_environment/DATABASE_DRIVER
 echo -n "$database_url" > /var/run/s6/container_environment/DATABASE_URL
 echo -n "$trusted_proxies" > /var/run/s6/container_environment/TRUSTED_PROXIES
+echo -n "$data_root" > /var/run/s6/container_environment/DAVIS_DATA_DIR
+echo -n "$log_root/app.log" > /var/run/s6/container_environment/DAVIS_LOG_FILE_PATH
+echo -n "$public_root" > /var/run/s6/container_environment/DAVIS_PUBLIC_DIR
 
 bashio::log.debug "Setting permissions on data directory..."
 chmod -R 755 "$data_root"
