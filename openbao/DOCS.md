@@ -11,7 +11,7 @@ After starting the add-on, OpenBao is available on port `8200` of your Home Assi
 
 ## Configuration
 
-The add-on is **pre-configured** out of the box. There is no server configuration file exposed to the user by default; the add-on manages a minimal OpenBao configuration under the `/data/openbao` folder automatically.
+The add-on is **pre-configured** out of the box. The most important settings are configured in the add-on options (log level, web console); advanced server settings can be fine-tuned in an editable `openbao.hcl` file (see below).
 
 ### Option: `log_level`
 
@@ -25,6 +25,10 @@ The `log_level` option controls the level of log output by the add-on and can be
 *   `fatal`: Something went terribly wrong. Add-on becomes unusable.
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
+
+### Option: `ui_enable`
+
+Enable or disable the built-in OpenBao web console. Defaults to `true`.
 
 ### Configuration
 

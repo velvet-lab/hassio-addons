@@ -46,6 +46,11 @@ esac
 bashio::log.debug "Mapping add-on log level '${log_level}' to OpenBao '${bao_log_level}'"
 echo -n "${bao_log_level}" > /var/run/s6/container_environment/BAO_LOG_LEVEL
 
+# The Web UI toggle comes from the add-on options (defaults to true).
+bashio::log.debug "Read the ui_enable option"
+bao_ui_enabled=$(bashio::config 'ui_enable' true)
+echo -n "${bao_ui_enabled}" > /var/run/s6/container_environment/BAO_UI_ENABLED
+
 bashio::log.debug "Create folders"
 if ! bashio::fs.directory_exists "${config_root}"; then
     bashio::log.debug "Creating config root directory at ${config_root}"
