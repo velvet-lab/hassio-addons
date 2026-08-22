@@ -1,7 +1,7 @@
 ---
-name: Gogs (experimental)
+name: Gogs
 version: 0.14.3
-stage: experimental
+stage: stable
 slug: gogs
 description: >-
   Gogs is a painless self-hosted Git service written in Go
