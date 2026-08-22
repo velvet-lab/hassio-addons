@@ -54,6 +54,7 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
 
 - Declare `map: [ { type: homeassistant_config, read_only: false } ]` in `config.yaml` so the add-on can read/write `/homeassistant`.
 - **Do NOT use multiline (multi_line / `|` literal block) strings in `options`** – Home Assistant refuses to load the add-on when an option is a multiline string.
+- **Optional options go in `schema` ONLY with a trailing `?`, never in `options`.** An optional option (e.g. `secret_key`, `admin_password`) must NOT appear in the `options` list; it belongs only in `schema` as `secret_key: "password?"` / `admin_password: password?`. Home Assistant reads the empty/default value from the `?` marker. Required options with defaults go under `options:`.
 - Keep a bundled default template under `rootfs/etc/default/<name>.template` (use the `.template` suffix so it never collides with the actual runtime file, e.g. `openbao.template`, `production.template`). It can be re-created by the add-on if the user deletes their editable copy.
 - On first start the `*-pre/run` script does a plain `cp /etc/default/<name>.template /homeassistant/addons/<slug>/<name>` (NOT envsubst), giving the user an editable file (e.g. via VS Code). If deleted, it is re-created on the next start.
 - On every start the `*-pre/run` script renders the final config: `envsubst < /homeassistant/addons/<slug>/<name> > /data/<slug>/config/<name>`.
