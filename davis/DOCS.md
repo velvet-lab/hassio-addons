@@ -48,13 +48,14 @@ The `log_level` option controls the level of log output by the add-on and can be
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
 
-### Option: `app_timezone`
+### Advanced settings (not exposed in the UI)
 
-This must comply with the [official list](https://www.php.net/manual/en/timezones.php)
+The following settings are intentionally not configurable via the add-on UI. They can be edited in the rendered environment file `/homeassistant/addons/davis/davis.env` if you need to change them — a restart of the add-on is required after editing.
 
-### Option: `birthday_reminder_offset`
-
-For birthday calendars, what should be the reminder offset? The default is PT9H (9:00 on the day of the event). You must specify a relative duration as defined in the [RFC 5545 specification](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.6). By default, if the variable is not set or empty, PT9H is used.
+- `APP_TIMEZONE`: The add-on automatically detects the system timezone on startup (from `/etc/timezone` or the `/etc/localtime` symlink). Change only via `davis.env` when necessary.
+- `BIRTHDAY_REMINDER_OFFSET`: Reminder offset for birthday calendars. The application falls back to its internal default (PT9H) when this value is empty.
+- `INVITE_FROM_ADDRESS`: Default From: address for outgoing invitations. Leave empty to use the application's default or set a value in `davis.env`.
+- `TRUSTED_PROXIES`: Proxy address used for X-Forwarded-* headers. By default the add-on trusts the immediate remote address (`REMOTE_ADDR`).
 
 ### Option: `caldav_enabled`
 
@@ -83,10 +84,6 @@ The login username for the admin user
 ### Option: `admin_password`
 
 The login password for the admin user
-
-### Option: `invite_from_address`
-
-The email address that your invites are going to be sent from
 
 ### Option: `use_mysql`
 
