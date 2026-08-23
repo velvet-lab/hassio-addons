@@ -18,6 +18,8 @@ apparmor: true
 map:
   - type: homeassistant_config
     read_only: false
+services:
+  - mysql:want
 backup: hot
 backup_exclude:
   - /data/app.err
@@ -30,6 +32,7 @@ options:
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   secret_key: password
+  use_mysql: bool?
   redis_host: "str?"
   redis_port: "port?"
   redis_password: "password?"

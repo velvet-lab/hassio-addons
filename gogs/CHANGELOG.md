@@ -11,6 +11,8 @@
 - Add a `secret_key` option to override the generated per-install key
 - Make the `secret_key` a required option (set a strong random value, e.g. `openssl rand -hex 32` / 64 hex chars); since it is required, the add-on now uses the option value whenever present
 - Add optional Redis backing for sessions and cache via `redis_host` / `redis_port` / `redis_password`: Redis becomes active as soon as any of the three is set (then all are required); leave all empty to keep file sessions and in-memory cache
+- Point the upload, avatar and Git LFS storage paths at the persistent `/data/gogs/data` folder (attachments, avatars, `repo-avatars`, `lfs-objects`), matching the existing repository and database paths; the `gogs.ini` template now resolves all data paths absolutely via `GOGS_DATA_PATH`
+- Add an optional MySQL/MariaDB database backend via the `use_mysql` option: when enabled, Gogs uses the `mysql` service provided by another add-on (connection resolved automatically and a `gogs` database created on start); otherwise it stays on the built-in SQLite database
 
 ### Gogs
 

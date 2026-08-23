@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v11-config"
+readonly build_marker="gogs-build-v13-config"
 
 root=/data
 app_name="gogs"
@@ -35,7 +35,17 @@ echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
 # location is set via GOGS_CUSTOM in the image and holds data/ and log/. Config
 # is rendered volatile to APP_CONFIG_DEST (/etc/gogs) by the core service.
 bashio::log.debug "Create folders"
-for folder in "${config_source}" "${config_dest}" "${data_root}"; do
+# Persistent data subdirectories referenced by the gogs.ini template. Gogs
+# resolves relative data/ paths against its WORK DIR (not /data), so the
+# template points them at ${GOGS_DATA_PATH} (= /data/gogs/data). Pre-create
+# them here so they exist before http first start.
+for folder in "${config_source}" "${config_dest}" "${data_root}" \
+    "${data_root}/attachments" \
+    "${data_root}/avatars" \
+    "${data_root}/repo-avatars" \
+    "${data_root}/lfs-objects" \
+    "${data_root}/tmp" \
+    "${data_root}/sessions"; do
     if ! bashio::fs.directory_exists "${folder}"; then
         bashio::log.debug "Creating folder ${folder}"
         mkdir -p "${folder}"
@@ -67,6 +77,50 @@ echo -n "${GOGS_SECRET_KEY}" > /var/run/s6/container_environment/GOGS_SECRET_KEY
 # Export data directory paths for template rendering
 echo -n "${data_root}" > /var/run/s6/container_environment/GOGS_DATA_PATH
 echo -n "${gogs_root}/repositories" > /var/run/s6/container_environment/GOGS_REPO_ROOT
+
+# Database backend. By default Gogs uses the built-in SQLite file stored under
+# the persistent data directory. When the use_mysql option is enabled, Gogs
+# instead uses the MySQL/MariaDB service provided by another add-on. All values
+# are exported as one file per variable so the core service can render them
+# into the [database] section of app.ini.
+db_type="sqlite3"
+db_path="${data_root}/gogs.db"
+db_host=""
+db_name="gogs"
+db_user=""
+db_password=""
+
+use_mysql=$(bashio::config 'use_mysql' false)
+
+if bashio::var.true "${use_mysql}"; then
+    db_type="mysql"
+
+    db_hostname=$(bashio::services "mysql" "host")
+    db_host_ipv4=$(dig +short A "${db_hostname}" | head -1)
+    db_port=$(bashio::services "mysql" "port")
+    db_password=$(bashio::services "mysql" "password")
+    db_user=$(bashio::services "mysql" "username")
+
+    # Gogs expects the MySQL host as host:port and the matching database name.
+    db_host="${db_host_ipv4}:${db_port}"
+
+    bashio::log.debug "Creating database 'gogs' if it does not exist..."
+    bashio::log.debug "Connecting to MariaDB at ${db_host_ipv4}:${db_port} with user ${db_user}"
+    mariadb -u "${db_user}" -p"${db_password}" -h "${db_host_ipv4}" -P "${db_port}" --skip-ssl -e "CREATE DATABASE IF NOT EXISTS \`gogs\`;"
+
+    bashio::log.warning "Gogs is using the MariaDB add-on for its database"
+    bashio::log.warning "Please ensure this is included in your backups"
+    bashio::log.warning "Uninstalling the MariaDB add-on will remove any data"
+else
+    bashio::log.debug "Using the built-in SQLite database"
+fi
+
+echo -n "${db_type}" > /var/run/s6/container_environment/GOGS_DB_TYPE
+echo -n "${db_path}" > /var/run/s6/container_environment/GOGS_DB_PATH
+echo -n "${db_host}" > /var/run/s6/container_environment/GOGS_DB_HOST
+echo -n "${db_name}" > /var/run/s6/container_environment/GOGS_DB_NAME
+echo -n "${db_user}" > /var/run/s6/container_environment/GOGS_DB_USER
+echo -n "${db_password}" > /var/run/s6/container_environment/GOGS_DB_PASSWORD
 
 # Optional Redis-backed session + cache store. Redis is configured through the
 # add-on options redis_host / redis_port / redis_password. As soon as any one

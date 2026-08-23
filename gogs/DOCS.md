@@ -11,7 +11,7 @@ After starting the add-on, Gogs is available on port `3000` of your Home Assista
 
 ## Configuration
 
-The add-on is **pre-configured** out of the box with a SQLite database, so it does not require any external database service.
+The add-on is **pre-configured** out of the box with a SQLite database, so it does not require any external database service. Optionally, a MySQL/MariaDB service can be used instead — see the `use_mysql` option below.
 
 ### Option: `log_level`
 
@@ -42,6 +42,13 @@ The address of the Redis server used for Gogs sessions and cache. When you run t
 
 Redis is **optional** and disabled by default. It becomes active as soon as any of `redis_host`, `redis_port` or `redis_password` is set; the other two are then **required**. Leave all three empty to keep Gogs on file-based sessions and the in-memory cache.
 
+### Option: `use_mysql`
+
+Use MySQL/MariaDB as database backend instead of the default SQLite. Set to `true` to use MySQL/MariaDB, or `false` to use SQLite. By default, SQLite is used. If you enable this option, make sure you have a MariaDB add-on installed and configured properly.
+
+> [!NOTE]
+> The MariaDB add-on connection is resolved automatically — you do not enter a host, port or credentials here. Gogs will create and use a `gogs` database on that service.
+
 ### Option: `redis_port`
 
 The port of the Redis server (default `6379`). Required once Redis is configured.
@@ -51,7 +58,7 @@ The port of the Redis server (default `6379`). Required once Redis is configured
 The password required to authenticate against the Redis server. Home Assistant stores it encrypted. Required once Redis is configured.
 
 > [!NOTE]
-> Redis is used here only for Gogs **sessions and cache**, not for the Git/issue data, which stays in the SQLite database.
+> Redis is used here only for Gogs **sessions and cache**, not for the Git/issue data, which stays in the configured database (SQLite by default, or MySQL when `use_mysql` is enabled).
 
 ## Configuration
 
@@ -67,7 +74,16 @@ The web server listens on `0.0.0.0` on its default port `3000`. The port shown i
 
 ## Data folder
 
-The add-on stores the Gogs data in the `/data/gogs` folder: the SQLite database, repositories and sessions. Please ensure this is included in your backup.
+The add-on stores the Gogs data in the `/data/gogs` folder:
+
+- `repositories` — the Git repositories themselves.
+- `data/gogs.db` — the SQLite database.
+- `data/sessions` — file-based session data (when Redis is not configured).
+- `data/attachments` — file attachments uploaded to issues, comments and releases.
+- `data/avatars` and `data/repo-avatars` — custom user and repository avatars.
+- `data/lfs-objects` — objects stored with Git LFS (with temporary upload data under `data/tmp/`).
+
+All paths in the editable `gogs.ini` that point at this data folder are rendered absolute, so uploads, avatars and LFS objects survive restarts. Please ensure `/data/gogs` is included in your backups.
 
 ## Backups & Permissions
 

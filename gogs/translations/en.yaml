@@ -5,6 +5,9 @@ configuration:
   secret_key:
     name: Secret Key
     description: Set the secret key used to encrypt cookies and 2FA codes
+  use_mysql:
+    name: Use MySQL
+    description: Enable or disable MySQL database. If enabled, Gogs will use the MariaDB add-on. Take care that you install and configure it first.
   redis_host:
     name: Redis Host
     description: Address of the Redis server used for sessions and cache
