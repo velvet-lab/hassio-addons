@@ -40,11 +40,6 @@ PATH = ${GOGS_DATA_PATH}/gogs.db
 # want to set your own unguessable value.
 SECRET_KEY = ${GOGS_SECRET_KEY}
 
-[security]
-# A random per-install key is generated on first start. Change this if you
-# want to set your own unguessable value.
-SECRET_KEY = ${GOGS_SECRET_KEY}
-
 [session]
 # Sessions are kept on disk by default. When the 'redis_enabled' add-on option
 # is enabled, PROVIDER switches to "redis" and PROVIDER_CONFIG holds the Redis
