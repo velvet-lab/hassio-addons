@@ -40,19 +40,14 @@ This produces a 64-character hexadecimal key (256 bits). Home Assistant stores i
 
 When enabled, Gogs stores its sessions and cache in a Redis server instead of on disk (file sessions) and in memory (cache). This is useful when you run the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system. It maps to the `[session]` and `[cache]` sections of the Gogs configuration.
 
-When `redis_enabled` is `true`, the `redis_password` option becomes **required**; the add-on refuses to start without it.
+Gogs resolves the Redis connection automatically through the Supervisor Discovery API: the bundled Valkey add-on advertises a `redis` discovery service (host, port and password), and this add-on reads that entry. You only need to set `redis_enabled`; no host or port option is required.
 
-### Option: `redis_host`
-
-The address of the Redis server. Defaults to `core-valkey`, the internal hostname of the bundled Valkey add-on. Set this if you use a different Redis server or if the add-on is provided by a third party.
-
-### Option: `redis_port`
-
-The port of the Redis server. Defaults to `6379`.
+> [!IMPORTANT]
+> Enabling `redis_enabled` requires the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) to be **installed and running** so it can advertise the `redis` discovery service that this add-on connects to. Without it, Gogs cannot resolve a Redis server (unless you provide one that advertises its own `redis` discovery service). Install and start Valkey first, then enable this option.
 
 ### Option: `redis_password`
 
-The password required to authenticate against the Redis server. This option is **required when `redis_enabled` is true**. Home Assistant stores it encrypted. The add-on passes it as the `password` part of the Redis connection string.
+The password used by the Redis server. Home Assistant stores it encrypted. When a `redis` discovery service is available (e.g. the bundled Valkey add-on), the password is read from there automatically and this option is not needed. Set it only when the Redis server does not advertise itself (e.g. a third-party Redis without discovery). If no password can be resolved at all, the add-on refuses to start.
 
 ## Configuration
 

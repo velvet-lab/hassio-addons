@@ -8,15 +8,11 @@ configuration:
   redis_enabled:
     name: Use Redis
     description: Use a Redis server (e.g. the Valkey add-on) for sessions and cache
-  redis_host:
-    name: Redis Host
-    description: Address or IP of the Redis server (default core-valkey)
-  redis_port:
-    name: Redis Port
-    description: Port of the Redis server (default 6379)
   redis_password:
     name: Redis Password
-    description: Password of the Redis server (required when enabled)
+    description: >-
+      Password of the Redis server; resolved from the discovery service
+      unless the Redis server does not advertise itself
 
 network:
   3000/tcp: Port for the Gogs web interface and Git HTTP endpoints

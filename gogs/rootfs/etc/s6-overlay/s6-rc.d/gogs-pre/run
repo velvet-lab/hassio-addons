@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v8-config"
+readonly build_marker="gogs-build-v9-config"
 
 root=/data
 app_name="gogs"
@@ -71,9 +71,10 @@ echo -n "${gogs_root}/repositories" > /var/run/s6/container_environment/GOGS_REP
 # Optional Redis-backed session + cache store.
 #
 # Home Assistant only allows `mysql` and `mqtt` as add-on services, so the
-# internal valkey add-on cannot be registered as `redis`. We therefore prefer
-# the user-configurable redis_host / redis_port / redis_password options, and
-# only fall back to a Supervisor-registered `redis` service (e.g. a third-party
+# internal valkey add-on cannot be registered as `redis`. We therefore resolve
+# the connection from a Redis discovery service advertised by another add-on
+# (e.g. the bundled valkey add-on) via the Supervisor Discovery API, and only
+# fall back to a Supervisor-registered `redis` service (e.g. a third-party
 # Redis add-on) when such a service is genuinely available. The default host is
 # the internal hostname of the bundled valkey add-on (`core-valkey`).
 redis_enabled=$(bashio::config 'redis_enabled' false)
@@ -84,62 +85,61 @@ cache_adapter="memory"
 cache_host=""
 
 if bashio::var.true "$redis_enabled"; then
-    # Resolution priority:
-    #   1. Explicit redis_host / redis_port / redis_password options
-    #   2. A Redis discovery service advertised by another add-on via the
-    #      Supervisor Discovery API (hassio_api: true provides SUPERVISOR_TOKEN)
-    #   3. A Supervisor-registered `redis` service (e.g. third-party Redis add-on)
-    #   4. Defaults: core-valkey / 6379
-    redis_host=$(bashio::config 'redis_host')
-    redis_port=$(bashio::config 'redis_port')
+    # The redis_host / redis_port options were removed: the connection is
+    # resolved from a Redis discovery service. The optional `redis_password`
+    # option can still override / supply the password for a Redis server that
+    # does not advertise itself.
+    redis_host=""
+    redis_port=""
     redis_password=$(bashio::config 'redis_password' '')
 
-    if ! bashio::var.has_value "${redis_password}" \
-        || ! bashio::var.has_value "${redis_host}" \
-        || ! bashio::var.has_value "${redis_port}"; then
-        # Try to resolve host / port / password from a Discovery `redis` service.
-        if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
-            discovery=$(curl -sSL -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
-                "http://supervisor/discovery" 2>/dev/null)
-            if bashio::var.has_value "${discovery}"; then
-                # Pick the first discovery entry whose service is `redis`.
-                # shellcheck disable=SC2001
-                redis_entry="$(echo "${discovery}" | sed -E 's/.*\{[^{}]*"service":"redis"[^{}]*\}.*/\1/; t')"
-                # The sed above is fragile; instead extract simple key/value pairs
-                # from the whole document and keep the first redis host/port found.
-                redis_host=$(echo "${discovery}" | sed -E 's/.*"host"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/')
-                redis_port=$(echo "${discovery}" | sed -E 's/.*"port"[[:space:]]*:[[:space:]]*([0-9]+).*/\1/')
-                redis_password=$(echo "${discovery}" | sed -E 's/.*"password"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/')
-                if bashio::var.has_value "${redis_host}"; then
-                    bashio::log.info "Resolved Redis connection from Discovery"
+    # 1. Try the Supervisor Discovery API: look for the first discovery entry
+    #    whose service is `redis` and read host / port / password from its
+    #    config. Requires hassio_api: true (provides SUPERVISOR_TOKEN).
+    # shellcheck disable=SC2154  # SUPERVISOR_TOKEN is injected by the Supervisor
+    if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
+        discovery=$(curl -sSL -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+            "http://supervisor/discovery" 2>/dev/null)
+        if bashio::var.has_value "${discovery}"; then
+            redis_entry=$(echo "${discovery}" | jq -r '((.discovery // [])[] | select(.service == "redis") | .config) // {}')
+            if bashio::var.has_value "${redis_entry}"; then
+                candidate_host=$(echo "${redis_entry}" | jq -r '.host // ""')
+                candidate_port=$(echo "${redis_entry}" | jq -r '.port // ""')
+                candidate_password=$(echo "${redis_entry}" | jq -r '.password // ""')
+                if bashio::var.has_value "${candidate_host}"; then
+                    redis_host="${candidate_host}"
+                    redis_port="${candidate_port}"
+                    if ! bashio::var.has_value "${redis_password}"; then
+                        redis_password="${candidate_password}"
+                    fi
+                    bashio::log.info "Resolved Redis connection from Discovery (${redis_host}:${redis_port})"
                 fi
             fi
         fi
     fi
 
     if ! bashio::var.has_value "${redis_host}"; then
-        # No explicit redis_host option / discovery found: fall back to a
-        # Supervisor-registered redis service if present.
+        # No discovery service found: fall back to a Supervisor-registered
+        # redis service if present.
         if bashio::services.available "redis"; then
             redis_host=$(bashio::services "redis" "host")
+            redis_port=$(bashio::services "redis" "port")
+            if ! bashio::var.has_value "${redis_password}"; then
+                redis_password=$(bashio::services "redis" "password")
+            fi
         fi
     fi
     if ! bashio::var.has_value "${redis_host}"; then
         redis_host="core-valkey"
-    fi
-
-    if ! bashio::var.has_value "${redis_port}"; then
-        if bashio::services.available "redis"; then
-            redis_port=$(bashio::services "redis" "port")
-        fi
     fi
     if ! bashio::var.has_value "${redis_port}"; then
         redis_port=6379
     fi
 
     if ! bashio::var.has_value "${redis_password}"; then
-        bashio::log.error "The 'redis_password' option is required when 'redis_enabled' is true."
-        bashio::log.error "Set the password used by your Valkey/Redis server and restart the add-on."
+        bashio::log.error "No Redis connection could be resolved."
+        bashio::log.error "Expected a 'redis' discovery service or a 'redis_password' option."
+        bashio::log.error "Set the 'redis_password' option to the password used by your Valkey/Redis server and restart the add-on."
         exit 1
     fi
 
