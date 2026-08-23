@@ -71,6 +71,24 @@ Valkey speaks the Redis protocol, so any Redis-compatible client can connect to 
 valkey-cli -h <your-homeassistant-ip> -p 6379 -a <PASSWORD> ping
 ```
 
+## Memory overcommit warning
+
+On startup, Valkey may log:
+
+```
+WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. ...
+```
+
+This is **not an error** and the server starts normally. Valkey raises it when the host kernel has `vm.overcommit_memory` disabled. Because this is an operating-system setting on the machine that runs Home Assistant, an unprivileged add-on container **cannot** change it — the setting must be enabled on the host.
+
+To fix it on the host, add the following to `/etc/sysctl.conf` and reboot, or run it now:
+
+```bash
+sysctl vm.overcommit_memory=1
+```
+
+On **Home Assistant OS** the sysctl is not exposed by default; the same applies to Raspberry Pi/embedded installations. In most Home Assistant setups the warning is harmless — it only matters when a background save (RDB/AOF) can no longer fork under very low memory.
+
 ## Architecture notes
 
-- On all architectures the add-on bundles the official prebuilt Valkey binary, so it runs natively on both amd64 and arm64 (e.g. Raspberry Pi) systems. yourself.
+- On all architectures the add-on bundles the official prebuilt Valkey binary, so it runs natively on both amd64 and arm64 (e.g. Raspberry Pi) systems.
