@@ -36,20 +36,22 @@ openssl rand -hex 32
 
 This produces a 64-character hexadecimal key (256 bits). Home Assistant stores it encrypted. It must match the `[security] SECRET_KEY` value in the editable Gogs configuration file described below.
 
-### Option: `redis_enabled`
+### Option: `redis_host`
 
-When enabled, Gogs stores its sessions and cache in a Redis server instead of on disk (file sessions) and in memory (cache). This is useful when you run the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system. It maps to the `[session]` and `[cache]` sections of the Gogs configuration.
+The address of the Redis server used for Gogs sessions and cache. When you run the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system, use its add-on hostname.
 
-Gogs resolves the Redis host, port and password automatically through the Supervisor Discovery API: the bundled Valkey add-on advertises a `redis` discovery service, and this add-on reads that entry. You only need to set `redis_enabled`; no host or port option is required.
+Redis is **optional** and disabled by default. It becomes active as soon as any of `redis_host`, `redis_port` or `redis_password` is set; the other two are then **required**. Leave all three empty to keep Gogs on file-based sessions and the in-memory cache.
 
-> [!IMPORTANT]
-> - Enabling `redis_enabled` requires the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) to be **installed and running** so it can advertise the `redis` discovery service. Install and start Valkey first, then enable this option.
-> - This add-on must be started with `hassio_api: true` (already set in its configuration) so the Supervisor provides the token used to look up the discovery service. **Stop and start the add-on** after installing/updating so the Supervisor applies this setting; otherwise the discovery lookup cannot run.
-> - If the Redis host or password cannot be resolved, the add-on aborts with a clear error message instead of starting — it never falls back to a guessed host. Thus Gogs refuses to start until Valkey is running and advertising its service.
+### Option: `redis_port`
+
+The port of the Redis server (default `6379`). Required once Redis is configured.
 
 ### Option: `redis_password`
 
-The password used by the Redis server. Home Assistant stores it encrypted. When a `redis` discovery service is available (e.g. the bundled Valkey add-on), the password is read from there automatically and this option is not needed. Set it only when the Redis server does not advertise itself (e.g. a third-party Redis without discovery). If no password can be resolved at all, the add-on refuses to start.
+The password required to authenticate against the Redis server. Home Assistant stores it encrypted. Required once Redis is configured.
+
+> [!NOTE]
+> Redis is used here only for Gogs **sessions and cache**, not for the Git/issue data, which stays in the SQLite database.
 
 ## Configuration
 

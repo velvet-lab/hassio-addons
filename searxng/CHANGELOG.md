@@ -2,7 +2,7 @@
 
 ### Add-on
 
-- Fix: Redis connection is now resolved from the add-on options first (`redis_host` / `redis_port` / `redis_password`) and only falls back to a registered Home Assistant Redis service. This avoids a `/services/redis` not-found error and keeps Redis cleanly optional.
+- Fix: Redis connection is now configured entirely through the add-on options (`redis_host` / `redis_port` / `redis_password`). Redis becomes active as soon as any of the three is set (then all are required); with all three empty it stays cleanly disabled. The previous registered-service fallback (Home Assistant Redis service) was removed.
 - Fix: the `limiter.toml` is now created user-editable under `/homeassistant/addons/searxng/limiter.toml` and copied into the runtime config folder on every start (like `settings.yml`). Editing and restarting applies your limiter / bot-detection settings and the "missing config file" warning is gone.
 - `server.base_url` is now derived from the Home Assistant host address and the configured UI port at start (override the host in `settings.yml` if needed).
 - Remove the resource/network-intensive default engines `ahmia`, `torch` and `wikidata` out of the box so the instance starts reliably in a container (re-enable by editing `use_default_settings` in `settings.yml`).

@@ -28,15 +28,15 @@ Please note that each level automatically includes log messages from a more seve
 
 ### Option: `redis_host`
 
-The hostname or IP address of the Redis server SearXNG uses for the optional limiter / bot protection. This is the preferred way to connect a Redis server (for example the Redis add-on by fabio-garavini, which does not register a Home Assistant service). Leave it empty to run without Redis (the limiter stays off), unless a registered Redis service from another add-on is available.
+The hostname or IP address of the Redis server SearXNG uses for the optional limiter / bot protection, for example the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system. Redis is **optional** and disabled as long as all three options are empty. As soon as any of `redis_host`, `redis_port` or `redis_password` is set, the other two become **required**.
 
 ### Option: `redis_port`
 
-The port of the Redis server. The default is `6379`.
+The port of the Redis server (default `6379`).
 
 ### Option: `redis_password`
 
-Set this to the password of the Redis server, if it requires one (`requirepass` in Redis). Leave it empty if your Redis server runs without authentication.
+The password of the Redis server, if it requires one (`requirepass` in Redis). Required once Redis is configured.
 
 ## Configuration file
 
@@ -64,10 +64,7 @@ The add-on generates a random `secret_key` on first start and stores it under `/
 
 ## Redis (limiter / bot protection)  [optional]
 
-Redis is **not required** for SearXNG to run. It is only used for the limiter and bot protection when you enable `server.limiter: true` in your `settings.yml`. Without Redis the instance works normally, just without rate limiting. If you want the limiter, the connection is set up in one of two ways:
-
-* **Add-on options (preferred)**: set `redis_host`, `redis_port` and (if needed) `redis_password` to point at your Redis server. This is the way to connect a Redis add-on that does not register a Home Assistant service (for example the Redis add-on by fabio-garavini).
-* **Home Assistant Redis service**: if an installed add-on registers a `redis` service with Home Assistant, the add-on picks it up automatically as a fallback via `bashio::services redis`.
+Redis is **not required** for SearXNG to run. It is only used for the limiter and bot protection when you enable `server.limiter: true` in your `settings.yml`. Without Redis the instance works normally, just without rate limiting. To use the limiter, set the connection via the add-on options: `redis_host`, `redis_port` and `redis_password`. Redis becomes active as soon as any of the three is set; all three are then required, or leave all empty to keep it disabled.
 
 The resolved connection is written into the rendered `valkey.url` of the runtime `settings.yml` (it becomes `false` when no Redis is configured).
 

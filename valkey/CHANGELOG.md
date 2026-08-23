@@ -8,7 +8,6 @@
 - Add a configurable `log_level`
 - Expose the Valkey port `6379`
 - Provide an editable default Valkey configuration at `/homeassistant/addons/valkey/valkey.conf`
-- Advertise a `redis` discovery service via the Supervisor Discovery API (host / port / password) so other add-ons can resolve this instance automatically (requires `hassio_api: true`)
 
 ### Valkey
 

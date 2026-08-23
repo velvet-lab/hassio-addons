@@ -11,9 +11,7 @@ arch:
   - amd64
   - aarch64
 host_network: false
-hassio_api: true
-discovery:
-  - redis
+
 startup: services
 hassio_role: default
 homeassistant: 2026.1.0

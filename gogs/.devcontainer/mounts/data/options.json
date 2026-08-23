@@ -1,6 +1,5 @@
 {
     "log_level": "debug",
     "secret_key": "dev-secret-key-change-me",
-    "redis_enabled": false,
     "redis_password": ""
 }

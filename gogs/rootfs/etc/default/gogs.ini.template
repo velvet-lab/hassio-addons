@@ -41,15 +41,16 @@ PATH = ${GOGS_DATA_PATH}/gogs.db
 SECRET_KEY = ${GOGS_SECRET_KEY}
 
 [session]
-# Sessions are kept on disk by default. When the 'redis_enabled' add-on option
-# is enabled, PROVIDER switches to "redis" and PROVIDER_CONFIG holds the Redis
-# connection string (from the add-on options).
+# Sessions are kept on disk by default. When a Redis connection is configured
+# via the add-on options (redis_host / redis_port / redis_password), PROVIDER
+# switches to "redis" and PROVIDER_CONFIG holds the Redis connection string.
 PROVIDER = ${GOGS_SESSION_PROVIDER}
 PROVIDER_CONFIG = ${GOGS_SESSION_CONFIG}
 
 [cache]
-# The cache adapter defaults to "memory". When 'redis_enabled' is enabled,
-# ADAPTER switches to "redis" and HOST holds the Redis connection string.
+# The cache adapter defaults to "memory". When a Redis connection is
+# configured, ADAPTER switches to "redis" and HOST holds the Redis connection
+# string.
 ADAPTER = ${GOGS_CACHE_ADAPTER}
 HOST = ${GOGS_CACHE_HOST}
 

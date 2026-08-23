@@ -13,12 +13,9 @@ arch:
 host_network: false
 startup: application
 hassio_role: default
-hassio_api: true
 homeassistant: 2026.1.0
 init: false
 apparmor: true
-discovery:
-  - redis
 map:
   - type: homeassistant_config
     read_only: false

@@ -5,14 +5,15 @@ configuration:
   secret_key:
     name: Secret Key
     description: Set the secret key used to encrypt cookies and 2FA codes
-  redis_enabled:
-    name: Use Redis
-    description: Use a Redis server (e.g. the Valkey add-on) for sessions and cache
+  redis_host:
+    name: Redis Host
+    description: Address of the Redis server used for sessions and cache
+  redis_port:
+    name: Redis Port
+    description: Port of the Redis server (default 6379)
   redis_password:
     name: Redis Password
-    description: >-
-      Password of the Redis server; resolved from the discovery service
-      unless the Redis server does not advertise itself
+    description: Password of the Redis server
 
 network:
   3000/tcp: Port for the Gogs web interface and Git HTTP endpoints
