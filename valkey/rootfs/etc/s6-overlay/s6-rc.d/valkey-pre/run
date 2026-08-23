@@ -60,6 +60,34 @@ bashio::log.debug "Using the password from the add-on configuration"
 # (not here) where VALKEY_PASSWORD is already an environment variable.
 echo -n "$(bashio::config 'password')" > /var/run/s6/container_environment/VALKEY_PASSWORD
 
+# Advertise this Valkey instance as a Redis service through the Supervisor
+# Discovery API, so other add-ons (e.g. Gogs connecting to Redis) can look up
+# the host / port / password via GET /discovery instead of hard-coding the
+# endpoint. See:
+#   https://developers.home-assistant.io/docs/api/supervisor/endpoints/#discovery
+# This requires `hassio_api: true` (config.yaml) which provides the
+# SUPERVISOR_TOKEN. Registering is best-effort; a missing token is not fatal.
+if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
+    redis_account=$(bashio::config 'password')
+    # Resolve this add-on's own hostname (e.g. `core-valkey`), which other add-ons
+    # use to reach us on the internal Docker network.
+    own_host="$(bashio::addon.hostname)"
+    if bashio::var.has_value "${own_host}"; then
+        existing=$(curl -sSL -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+            "http://supervisor/discovery" 2>/dev/null)
+        # Only register if there is not already a redis discovery entry to avoid
+        # accumulating duplicates across restarts.
+        if [[ -z "${existing}" ]] || ! [[ "${existing}" =~ redis ]]; then
+            payload="{\"service\":\"redis\",\"config\":{\"host\":\"${own_host}\",\"port\":6379,\"password\":\"${redis_account}\"}}"
+            curl -sSL -X POST -H "Content-Type: application/json" \
+                -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+                -d "${payload}" \
+                "http://supervisor/discovery" 2>/dev/null
+            bashio::log.info "Advertised Valkey as a Redis discovery service at ${own_host}:6379"
+        fi
+    fi
+fi
+
 # On first start copy the default configuration to the user-accessible folder
 # under /homeassistant, where the user can edit it (e.g. with VS Code). If the
 # user deletes the file it is recreated from the bundled template.
