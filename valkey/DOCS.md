@@ -71,6 +71,8 @@ Valkey speaks the Redis protocol, so any Redis-compatible client can connect to 
 valkey-cli -h <your-homeassistant-ip> -p 6379 -a <PASSWORD> ping
 ```
 
+This add-on **automatically advertises itself as a `redis` discovery service** through the Supervisor Discovery API (host, port and password); no configuration is needed for that. Add-ons that support discovery for Redis — such as the bundled [Gogs add-on](https://github.com/velvet-lab/hassio-addons/tree/main/gogs) with its `redis_enabled` option — pick up this instance automatically and resolve its host, port and password without you entering them by hand.
+
 ## Memory overcommit warning
 
 On startup, Valkey may log:
