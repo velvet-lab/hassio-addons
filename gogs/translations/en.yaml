@@ -8,6 +8,9 @@ configuration:
   use_mysql:
     name: Use MySQL
     description: Enable or disable MySQL database. If enabled, Gogs will use the MariaDB add-on. Take care that you install and configure it first.
+  external_url:
+    name: External URL
+    description: The public-facing URL of Gogs, e.g. https://git.example.com/. Set this when Gogs is served through a reverse proxy.
   redis_host:
     name: Redis Host
     description: Address of the Redis server used for sessions and cache

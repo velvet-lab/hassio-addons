@@ -33,6 +33,7 @@ schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   secret_key: password
   use_mysql: bool?
+  external_url: "str?"
   redis_host: "str?"
   redis_port: "port?"
   redis_password: "password?"

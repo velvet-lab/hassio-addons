@@ -57,6 +57,12 @@ Use MySQL/MariaDB as database backend instead of the default SQLite. Set to `tru
 > [!NOTE]
 > The MariaDB add-on connection is resolved automatically — you do not enter a host, port or credentials here. Gogs will create and use a `gogs` database on that service.
 
+### Option: `external_url`
+
+The public-facing URL of Gogs, used for login redirects and clone URLs. This is normally built automatically from the server's protocol, domain and port. Set it explicitly when Gogs is served through a **reverse proxy** — for example `https://git.example.com/`.
+
+Leave it empty to keep the automatic value.
+
 ### Option: `redis_port`
 
 The port of the Redis server (default `6379`). Required once Redis is configured.
@@ -76,7 +82,9 @@ The Gogs server configuration is managed as a file on your Home Assistant config
 
 On first start the add-on copies a default configuration there, which you can edit directly (for example with Visual Studio Code). Gogs uses the INI format; see the [Gogs configuration documentation](https://gogs.io/docs/use/configuration.html) for all available options.
 
-The web server listens on `0.0.0.0` on its default port `3000`. The port shown in the add-on configuration is only the *exposed* port that Home Assistant forwards to the add-on; it does not change where Gogs itself listens. The `EXTERNAL_URL` and `DOMAIN` settings control the public URL used for login redirects and clone URLs. If you access the add-on from a different host than the one running Home Assistant (for example through a reverse proxy), update those values to match the address you use in the browser.
+The web server listens on `0.0.0.0` on its default port `3000`. The port shown in the add-on configuration is only the *exposed* port that Home Assistant forwards to the add-on; it does not change where Gogs itself listens.
+
+The `EXTERNAL_URL` and `DOMAIN` settings control the public URL used for login redirects and clone URLs. If you access the add-on from a different host than the one running Home Assistant (for example through a reverse proxy), set the `external_url` add-on option instead — it overrides `EXTERNAL_URL` here. You can also adjust `EXTERNAL_URL`/`DOMAIN` directly in this file; note that a non-empty `external_url` option always takes precedence over the values in this file.
 
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
 
