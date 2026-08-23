@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v7-config"
+readonly build_marker="gogs-build-v8-config"
 
 root=/data
 app_name="gogs"
@@ -67,6 +67,101 @@ echo -n "${GOGS_SECRET_KEY}" > /var/run/s6/container_environment/GOGS_SECRET_KEY
 # Export data directory paths for template rendering
 echo -n "${data_root}" > /var/run/s6/container_environment/GOGS_DATA_PATH
 echo -n "${gogs_root}/repositories" > /var/run/s6/container_environment/GOGS_REPO_ROOT
+
+# Optional Redis-backed session + cache store.
+#
+# Home Assistant only allows `mysql` and `mqtt` as add-on services, so the
+# internal valkey add-on cannot be registered as `redis`. We therefore prefer
+# the user-configurable redis_host / redis_port / redis_password options, and
+# only fall back to a Supervisor-registered `redis` service (e.g. a third-party
+# Redis add-on) when such a service is genuinely available. The default host is
+# the internal hostname of the bundled valkey add-on (`core-valkey`).
+redis_enabled=$(bashio::config 'redis_enabled' false)
+
+session_provider="file"
+session_config="${data_root}/sessions"
+cache_adapter="memory"
+cache_host=""
+
+if bashio::var.true "$redis_enabled"; then
+    # Resolution priority:
+    #   1. Explicit redis_host / redis_port / redis_password options
+    #   2. A Redis discovery service advertised by another add-on via the
+    #      Supervisor Discovery API (hassio_api: true provides SUPERVISOR_TOKEN)
+    #   3. A Supervisor-registered `redis` service (e.g. third-party Redis add-on)
+    #   4. Defaults: core-valkey / 6379
+    redis_host=$(bashio::config 'redis_host')
+    redis_port=$(bashio::config 'redis_port')
+    redis_password=$(bashio::config 'redis_password' '')
+
+    if ! bashio::var.has_value "${redis_password}" \
+        || ! bashio::var.has_value "${redis_host}" \
+        || ! bashio::var.has_value "${redis_port}"; then
+        # Try to resolve host / port / password from a Discovery `redis` service.
+        if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
+            discovery=$(curl -sSL -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+                "http://supervisor/discovery" 2>/dev/null)
+            if bashio::var.has_value "${discovery}"; then
+                # Pick the first discovery entry whose service is `redis`.
+                # shellcheck disable=SC2001
+                redis_entry="$(echo "${discovery}" | sed -E 's/.*\{[^{}]*"service":"redis"[^{}]*\}.*/\1/; t')"
+                # The sed above is fragile; instead extract simple key/value pairs
+                # from the whole document and keep the first redis host/port found.
+                redis_host=$(echo "${discovery}" | sed -E 's/.*"host"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/')
+                redis_port=$(echo "${discovery}" | sed -E 's/.*"port"[[:space:]]*:[[:space:]]*([0-9]+).*/\1/')
+                redis_password=$(echo "${discovery}" | sed -E 's/.*"password"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/')
+                if bashio::var.has_value "${redis_host}"; then
+                    bashio::log.info "Resolved Redis connection from Discovery"
+                fi
+            fi
+        fi
+    fi
+
+    if ! bashio::var.has_value "${redis_host}"; then
+        # No explicit redis_host option / discovery found: fall back to a
+        # Supervisor-registered redis service if present.
+        if bashio::services.available "redis"; then
+            redis_host=$(bashio::services "redis" "host")
+        fi
+    fi
+    if ! bashio::var.has_value "${redis_host}"; then
+        redis_host="core-valkey"
+    fi
+
+    if ! bashio::var.has_value "${redis_port}"; then
+        if bashio::services.available "redis"; then
+            redis_port=$(bashio::services "redis" "port")
+        fi
+    fi
+    if ! bashio::var.has_value "${redis_port}"; then
+        redis_port=6379
+    fi
+
+    if ! bashio::var.has_value "${redis_password}"; then
+        bashio::log.error "The 'redis_password' option is required when 'redis_enabled' is true."
+        bashio::log.error "Set the password used by your Valkey/Redis server and restart the add-on."
+        exit 1
+    fi
+
+    # A shared connection string used by the [session] PROVIDER_CONFIG and the
+    # [cache] HOST settings. password / db=0 are read-only here; users can tune
+    # the rest in the editable gogs.ini.
+    redis_url="network=tcp,addr=${redis_host}:${redis_port},password=${redis_password},db=0,pool_size=100,idle_timeout=180"
+
+    session_provider="redis"
+    session_config="${redis_url}"
+    cache_adapter="redis"
+    cache_host="${redis_url}"
+
+    bashio::log.info "Gogs will use a Redis server for sessions and cache (${redis_host}:${redis_port})"
+else
+    bashio::log.debug "Redis is disabled; using file-based sessions and in-memory cache"
+fi
+
+echo -n "${session_provider}" > /var/run/s6/container_environment/GOGS_SESSION_PROVIDER
+echo -n "${session_config}" > /var/run/s6/container_environment/GOGS_SESSION_CONFIG
+echo -n "${cache_adapter}" > /var/run/s6/container_environment/GOGS_CACHE_ADAPTER
+echo -n "${cache_host}" > /var/run/s6/container_environment/GOGS_CACHE_HOST
 
 # On first start copy the default configuration to the user-accessible folder
 # under /homeassistant, where the user can edit it (e.g. with VS Code). If the

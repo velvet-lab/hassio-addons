@@ -36,6 +36,24 @@ openssl rand -hex 32
 
 This produces a 64-character hexadecimal key (256 bits). Home Assistant stores it encrypted. It must match the `[security] SECRET_KEY` value in the editable Gogs configuration file described below.
 
+### Option: `redis_enabled`
+
+When enabled, Gogs stores its sessions and cache in a Redis server instead of on disk (file sessions) and in memory (cache). This is useful when you run the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system. It maps to the `[session]` and `[cache]` sections of the Gogs configuration.
+
+When `redis_enabled` is `true`, the `redis_password` option becomes **required**; the add-on refuses to start without it.
+
+### Option: `redis_host`
+
+The address of the Redis server. Defaults to `core-valkey`, the internal hostname of the bundled Valkey add-on. Set this if you use a different Redis server or if the add-on is provided by a third party.
+
+### Option: `redis_port`
+
+The port of the Redis server. Defaults to `6379`.
+
+### Option: `redis_password`
+
+The password required to authenticate against the Redis server. This option is **required when `redis_enabled` is true**. Home Assistant stores it encrypted. The add-on passes it as the `password` part of the Redis connection string.
+
 ## Configuration
 
 The Gogs server configuration is managed as a file on your Home Assistant configuration folder:

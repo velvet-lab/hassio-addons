@@ -10,6 +10,7 @@
 - Expose the Gogs server configuration as an editable file under `/homeassistant/addons/gogs/gogs.ini`
 - Add a `secret_key` option to override the generated per-install key
 - Make the `secret_key` a required option (set a strong random value, e.g. `openssl rand -hex 32` / 64 hex chars); since it is required, the add-on now uses the option value whenever present
+- Add optional Redis backing for sessions and cache: `redis_enabled` (with `redis_host` / `redis_port` / `redis_password`) switches Gogs to a Redis session provider and cache adapter, e.g. with the Valkey add-on
 
 ### Gogs
 

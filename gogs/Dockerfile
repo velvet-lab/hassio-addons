@@ -46,6 +46,7 @@ RUN set -x \
         curl \
         gettext-base \
         git \
+        jq \
     && mkdir -p /app/gogs /tmp/gogs-pkg && \
     if [ "${BUILD_ARCH}" = "aarch64" ]; then \
         curl --proto "=https" --tlsv1.2 -sSfL \

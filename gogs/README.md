@@ -6,7 +6,7 @@ Gogs is a painless, self-hosted Git service written in Go.
 
 ## About
 
-Gogs (Git Original Guts System) is a lightweight, self-hosted Git service written in Go. It makes it easy to set up your own, private GitHub-like Git repository with issue tracking, pull requests, wiki and a built-in web editor. This add-on bundles the Gogs pre-built binary together with a SQLite database, so no external service is required.
+Gogs (Git Original Guts System) is a lightweight, self-hosted Git service written in Go. It makes it easy to set up your own, private GitHub-like Git repository with issue tracking, pull requests, wiki and a built-in web editor. This add-on bundles the Gogs pre-built binary together with a SQLite database, so no external service is required. Optionally, Gogs can use a Redis server (e.g. the bundled Valkey add-on) for its sessions and cache.
 
 ## Support
 

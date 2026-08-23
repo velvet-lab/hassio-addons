@@ -10,6 +10,7 @@ arch:
   - amd64
   - aarch64
 host_network: false
+hassio_api: true
 startup: system
 hassio_role: default
 homeassistant: 2026.1.0
@@ -30,3 +31,7 @@ options:
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   secret_key: password
+  redis_enabled: bool?
+  redis_host: str?
+  redis_port: int?
+  redis_password: "password?"

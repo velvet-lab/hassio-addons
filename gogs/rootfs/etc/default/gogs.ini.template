@@ -40,10 +40,23 @@ PATH = ${GOGS_DATA_PATH}/gogs.db
 # want to set your own unguessable value.
 SECRET_KEY = ${GOGS_SECRET_KEY}
 
+[security]
+# A random per-install key is generated on first start. Change this if you
+# want to set your own unguessable value.
+SECRET_KEY = ${GOGS_SECRET_KEY}
+
 [session]
-# Sessions are kept on disk so a container restart preserves them.
-PROVIDER = file
-PROVIDER_CONFIG = ${GOGS_DATA_PATH}/sessions
+# Sessions are kept on disk by default. When the 'redis_enabled' add-on option
+# is enabled, PROVIDER switches to "redis" and PROVIDER_CONFIG holds the Redis
+# connection string (from the add-on options).
+PROVIDER = ${GOGS_SESSION_PROVIDER}
+PROVIDER_CONFIG = ${GOGS_SESSION_CONFIG}
+
+[cache]
+# The cache adapter defaults to "memory". When 'redis_enabled' is enabled,
+# ADAPTER switches to "redis" and HOST holds the Redis connection string.
+ADAPTER = ${GOGS_CACHE_ADAPTER}
+HOST = ${GOGS_CACHE_HOST}
 
 [cron]
 ENABLED = true
