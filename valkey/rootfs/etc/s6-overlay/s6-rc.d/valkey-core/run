@@ -1,0 +1,28 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Config locations come from the container environment (set by valkey-pre).
+# They are REQUIRED: abort if they are missing instead of falling back to a default.
+# shellcheck disable=SC2153  # APP_CONFIG_* are container-env vars set by with-contenv
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (valkey-pre did not run)}"
+config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (valkey-pre did not run)}"
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
+# Render every file from the user-edited APP_CONFIG_SOURCE into the volatile
+# APP_CONFIG_DEST folder with envsubst. This always runs, even when the bundled
+# template has no placeholders, because the user may have added ${VAR}
+# references to their configuration file that must be expanded here (with the
+# full s6 container environment available).
+bashio::log.debug "Render configuration files"
+mkdir -p "${config_dest}"
+for file in "${config_source}"/*; do
+    name=$(basename "${file}")
+    envsubst < "${file}" > "${config_dest}/${name}"
+    chmod 644 "${config_dest}/${name}"
+done
+
+bashio::log.info "Start Valkey ..."
+exec valkey-server "${config_dest}/valkey.conf"

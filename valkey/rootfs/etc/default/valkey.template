@@ -1,0 +1,25 @@
+# Valkey server configuration
+# This template is copied to /homeassistant/addons/valkey/valkey.conf on first
+# start, where you can edit it. Values of the form ${VAR} are expanded from
+# the add-on environment at runtime. Only the directives included below are set;
+# everything else uses the Valkey defaults.
+#
+# Full reference: https://valkey.io/topics/valkey.conf/
+
+# Valkey listens on this internal address and port regardless of the port shown
+# in the Home Assistant UI (the UI port is only the exposed port).
+bind 0.0.0.0
+port 6379
+
+# Persistence: keep the dataset and the append-only file under the data folder.
+dir ${VALKEY_DATA_PATH}
+dbfilename dump.rdb
+appendonly yes
+appendfilename "appendonly.aof"
+
+# Authentication. The password comes from the add-on 'password' option.
+requirepass ${VALKEY_PASSWORD}
+
+# Log to the console (captured by the add-on logs) instead of a file.
+logfile ""
+loglevel notice

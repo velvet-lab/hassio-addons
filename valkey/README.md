@@ -1,0 +1,62 @@
+# Home Assistant Add-on: Valkey
+
+Valkey is a high-performance, open source in-memory data store that is a fork of Redis. It is a drop-in replacement for Redis, offering the same RESP protocol, data structures, and command set.
+
+![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+## About
+
+Valkey is a Linux-first, high-performance in-memory key-value data store. It is a fork of Redis that keeps the RESP protocol, so existing Redis clients, libraries and commands work unchanged. This add-on provides Valkey as a Home Assistant service and registers it as `redis`, so other add-ons and integrations can connect to it as if it were a Redis server.
+
+The add-on bundles the official prebuilt Valkey binary for the version and runs it under the s6 overlay.
+
+## Features
+
+*   High-performance in-memory key-value data store (Redis-compatible)
+*   Persistence via RDB snapshots and append-only file
+*   Registered as the `redis` service for other add-ons
+*   Password protection via `requirepass`
+*   Configurable `log_level`
+
+## Support
+
+Got questions?
+
+You have several options to get them answered:
+
+* [Discord chat server](https://www.home-assistant.io/join-chat) for general Home Assistant discussions and questions.
+* [Community Forum](https://community.home-assistant.io)
+* Join the Reddit in [r/homeassistant](https://reddit.com/r/homeassistant)
+* Follow on X, use [@homeassistant](https://x.com/home_assistant)
+* Join the [Facebook community](https://www.facebook.com/homeassistantio)
+* You can also ask for help in the add-on's [GitHub Discussions](https://github.com/orgs/velvet-lab/discussions)
+* If you think you found a bug in the add-on, please report it [GitHub](https://github.com/velvet-lab/hassio-addons/issues)
+* The [Valkey](https://valkey.io) project
+
+## Authors & contributors
+
+The original setup of this repository is by [Roland Breitschaft](https://github.com/danlorb).
+
+## License
+
+MIT License
+
+Copyright (c) 2006-2026 Roland Breitschaft
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
