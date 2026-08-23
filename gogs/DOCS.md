@@ -40,10 +40,12 @@ This produces a 64-character hexadecimal key (256 bits). Home Assistant stores i
 
 When enabled, Gogs stores its sessions and cache in a Redis server instead of on disk (file sessions) and in memory (cache). This is useful when you run the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system. It maps to the `[session]` and `[cache]` sections of the Gogs configuration.
 
-Gogs resolves the Redis connection automatically through the Supervisor Discovery API: the bundled Valkey add-on advertises a `redis` discovery service (host, port and password), and this add-on reads that entry. You only need to set `redis_enabled`; no host or port option is required.
+Gogs resolves the Redis host, port and password automatically through the Supervisor Discovery API: the bundled Valkey add-on advertises a `redis` discovery service, and this add-on reads that entry. You only need to set `redis_enabled`; no host or port option is required.
 
 > [!IMPORTANT]
-> Enabling `redis_enabled` requires the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) to be **installed and running** so it can advertise the `redis` discovery service that this add-on connects to. Without it, Gogs cannot resolve a Redis server (unless you provide one that advertises its own `redis` discovery service). Install and start Valkey first, then enable this option.
+> - Enabling `redis_enabled` requires the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) to be **installed and running** so it can advertise the `redis` discovery service. Install and start Valkey first, then enable this option.
+> - This add-on must be started with `hassio_api: true` (already set in its configuration) so the Supervisor provides the token used to look up the discovery service. **Stop and start the add-on** after installing/updating so the Supervisor applies this setting; otherwise the discovery lookup cannot run.
+> - If the Redis host or password cannot be resolved, the add-on aborts with a clear error message instead of starting — it never falls back to a guessed host. Thus Gogs refuses to start until Valkey is running and advertising its service.
 
 ### Option: `redis_password`
 

@@ -131,16 +131,23 @@ if bashio::var.true "$redis_enabled"; then
             fi
         fi
     fi
+
+    # The internal add-on hostname is NOT a fixed `core-<slug>` name; it is
+    # hash-prefixed (e.g. `b65924cf-valkey`), so we must never fall back to a
+    # hard-coded host. Instead, require a resolved host and abort otherwise.
     if ! bashio::var.has_value "${redis_host}"; then
-        redis_host="core-valkey"
+        bashio::log.error "No Redis host could be resolved."
+        bashio::log.error "A 'redis' discovery service must be available (is the Valkey add-on installed, running, and registered?)."
+        bashio::log.error "Ensure the Valkey add-on is started and this add-on has been restarted with hassio_api enabled."
+        exit 1
     fi
     if ! bashio::var.has_value "${redis_port}"; then
         redis_port=6379
     fi
 
     if ! bashio::var.has_value "${redis_password}"; then
-        bashio::log.error "No Redis connection could be resolved."
-        bashio::log.error "Expected a 'redis' discovery service or a 'redis_password' option."
+        bashio::log.error "No Redis password could be resolved."
+        bashio::log.error "Expected a 'redis' discovery service (providing the password) or the 'redis_password' option."
         bashio::log.error "Set the 'redis_password' option to the password used by your Valkey/Redis server and restart the add-on."
         exit 1
     fi
