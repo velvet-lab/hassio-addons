@@ -13,6 +13,7 @@
 - Add optional Redis backing for sessions and cache via `redis_host` / `redis_port` / `redis_password`: Redis becomes active as soon as any of the three is set (then all are required); leave all empty to keep file sessions and in-memory cache
 - Point the upload, avatar and Git LFS storage paths at the persistent `/data/gogs/data` folder (attachments, avatars, `repo-avatars`, `lfs-objects`), matching the existing repository and database paths; the `gogs.ini` template now resolves all data paths absolutely via `GOGS_DATA_PATH`
 - Add an optional MySQL/MariaDB database backend via the `use_mysql` option: when enabled, Gogs uses the `mysql` service provided by another add-on (connection resolved automatically and a `gogs` database created on start); otherwise it stays on the built-in SQLite database
+- Control Gogs' own `[log] LEVEL` from the `log_level` option (HA levels are mapped onto Gogs' `Trace`/`Info`/`Warn`/`Error`/`Fatal`)
 
 ### Gogs
 

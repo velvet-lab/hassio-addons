@@ -26,6 +26,14 @@ The `log_level` option controls the level of log output by the add-on and can be
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
 
+The `log_level` also controls Gogs' own internal logging (`[log] LEVEL` in the editable `gogs.ini`). The available Gogs levels differ slightly from Home Assistant's, so they are mapped as follows:
+
+*   `trace` / `debug` → Gogs `Trace`
+*   `info` / `notice` → Gogs `Info`
+*   `warning` → Gogs `Warn`
+*   `error` → Gogs `Error`
+*   `fatal` → Gogs `Fatal`
+
 ### Option: `secret_key`
 
 The `secret_key` option is **required**: Gogs uses it to encrypt cookie values, two-factor authentication codes and similar sensitive data. Provide a strong, random value — for example generated with:

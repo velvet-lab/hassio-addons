@@ -120,8 +120,9 @@ DISABLE_REGULAR_ORG_CREATION = true
 
 ; General settings of loggers.
 [log]
-; Either "Trace", "Info", "Warn", "Error", "Fatal", default is "Trace"
-LEVEL = Trace
+; Either "Trace", "Info", "Warn", "Error", "Fatal", default is "Trace".
+; Controlled by the add-on log_level option.
+LEVEL = ${GOGS_LOG_LEVEL}
 
 [prometheus]
 ; Whether to enable Prometheus metrics.
