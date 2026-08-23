@@ -162,6 +162,17 @@ bashio::log.debug "Setting permissions on data directory..."
 chmod -R 755 "$data_root"
 chown -R www-data:www-data "$data_root"
 
+# Ensure Symfony/profiler storage exists and is writable. Some runtime
+# components attempt to write under /opt/davis/var/cache/prod/profiler
+# which is outside the user data folder; create it and set ownership so
+# the webserver (www-data) can write to it.
+profiler_dir="/opt/davis/var/cache/prod/profiler"
+if ! bashio::fs.directory_exists "$profiler_dir"; then
+    mkdir -p "$profiler_dir"
+fi
+chmod -R 755 "$profiler_dir"
+chown -R www-data:www-data "$profiler_dir"
+
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
 ln -s /proc/1/fd/1 "${root}/app.err"
