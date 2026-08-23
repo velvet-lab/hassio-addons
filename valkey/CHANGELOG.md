@@ -4,7 +4,6 @@
 
 - Initial release of the Valkey add-on
 - Bundle the official prebuilt Valkey binary artifacts (amd64 and aarch64)
-- Register the add-on as the `redis` service, so other add-ons can connect to it as a Redis server
 - Add a required `password` option (maps to `requirepass`) to protect the server
 - Add a configurable `log_level`
 - Expose the Valkey port `6379`

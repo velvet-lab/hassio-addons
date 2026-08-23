@@ -63,11 +63,9 @@ The add-on stores all Valkey persistent data (RDB snapshots and the append-only 
 - **Data backup:** Include `/data/valkey` in your regular backups so the dataset (and the append-only log) are preserved.
 - **Secret files:** The `password` is a required add-on option so Home Assistant keeps it encrypted in its vault. Avoid writing it into unprotected files under `/homeassistant/addons/valkey`; the add-on injects it into the rendered config at runtime.
 
-## Using the Redis-compatible service
+## Using the Redis-compatible server
 
-This add-on registers as the `redis` service, so other add-ons can use it through the Home Assistant Supervisor service API. A consuming add-on that declares `services: [ redis: want ]` can read the connection details with `bashio::services 'redis'` (host and port) and authenticate with the `password` configured above.
-
-You can also connect from anywhere on your network using any Redis-compatible client, for example:
+Valkey speaks the Redis protocol, so any Redis-compatible client can connect to it directly on port `6379` of your Home Assistant instance. Connect from your network using any Redis-compatible client, for example:
 
 ```bash
 valkey-cli -h <your-homeassistant-ip> -p 6379 -a <PASSWORD> ping

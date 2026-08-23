@@ -8,13 +8,12 @@ Valkey is a high-performance, open source in-memory data store that is a fork of
 
 Valkey is a Linux-first, high-performance in-memory key-value data store. It is a fork of Redis that keeps the RESP protocol, so existing Redis clients, libraries and commands work unchanged. This add-on provides Valkey as a Home Assistant service and registers it as `redis`, so other add-ons and integrations can connect to it as if it were a Redis server.
 
-The add-on bundles the official prebuilt Valkey binary for the version and runs it under the s6 overlay.
+The add-on bundles the official prebuilt Valkey binary for the version and runs it under the s6 overlay. Since Valkey speaks the Redis RESP protocol, it can be used as a drop-in Redis server on port `6379`.
 
 ## Features
 
 *   High-performance in-memory key-value data store (Redis-compatible)
 *   Persistence via RDB snapshots and append-only file
-*   Registered as the `redis` service for other add-ons
 *   Password protection via `requirepass`
 *   Configurable `log_level`
 
