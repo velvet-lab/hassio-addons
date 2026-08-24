@@ -47,6 +47,7 @@ RUN set -x \
         dnsutils \
         gettext-base \
         git \
+        git-lfs \
         jq \
         mariadb-client \
     && mkdir -p /app/gogs /tmp/gogs-pkg && \

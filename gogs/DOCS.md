@@ -55,7 +55,7 @@ Redis is **optional** and disabled by default. It becomes active as soon as any 
 Use MySQL/MariaDB as database backend instead of the default SQLite. Set to `true` to use MySQL/MariaDB, or `false` to use SQLite. By default, SQLite is used. If you enable this option, make sure you have a MariaDB add-on installed and configured properly.
 
 > [!NOTE]
-> The MariaDB add-on connection is resolved automatically — you do not enter a host, port or credentials here. On first start Gogs initializes its `gogs` database (utf8mb4) from the bundled Gogs setup script; existing databases are left untouched on subsequent starts.
+> The MariaDB add-on connection is resolved automatically — you do not enter a host, port or credentials here. On first start Gogs initializes its `gogs` database (utf8mb4) from the bundled Gogs setup script; existing databases are left untouched on subsequent starts. The resolved database password is stored in your central secrets file `/homeassistant/secrets.yaml` under the key `gogs_db_password` so you can look it up, e.g. when the Gogs install page asks for the database settings.
 
 ### Option: `external_url`
 
@@ -87,6 +87,12 @@ The web server listens on `0.0.0.0` on its default port `3000`. The port shown i
 The `EXTERNAL_URL` and `DOMAIN` settings control the public URL used for login redirects and clone URLs. If you access the add-on from a different host than the one running Home Assistant (for example through a reverse proxy), set the `external_url` add-on option instead — it overrides `EXTERNAL_URL` here. You can also adjust `EXTERNAL_URL`/`DOMAIN` directly in this file; note that a non-empty `external_url` option always takes precedence over the values in this file.
 
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
+
+## Git LFS
+
+Git LFS is active: the add-on bundles the `git-lfs` client and registers it system-wide (`git lfs install --system`) at start, and Gogs serves the Git LFS endpoints automatically. Large files tracked with Git LFS are stored on the server under `/data/gogs/data/lfs-objects` (temporary upload data under `data/tmp/lfs-objects`), as configured in the `[lfs]` section of `gogs.ini`.
+
+To use Git LFS in your repositories, install the Git LFS client on your machine (`sudo apt install git-lfs`, then `git lfs install`), track the large file patterns with `git lfs track` and commit the resulting `.gitattributes`. See the [Git LFS documentation](https://gogs.io/advancing/git-lfs) for details.
 
 ## Data folder
 
