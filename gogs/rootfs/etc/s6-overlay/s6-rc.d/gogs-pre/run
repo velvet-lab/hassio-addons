@@ -231,13 +231,12 @@ fi
 
 # Store the resolved MySQL password in the central Home Assistant secrets file so
 # it is visible in one known place (/homeassistant/secrets.yaml), e.g. to fill the
-# Gogs install page. YAML values using special characters are escaped with single
-# quotes. Idempotent: only writes the key when it is not already present, so it
-# does not overwrite a manually adjusted value.
+# Gogs install page. Written unquoted so it matches the style of the other
+# secrets in the file. Idempotent: only writes the key when it is not already
+# present, so it does not overwrite a manually adjusted value.
 if bashio::var.true "${use_mysql}" && ! grep -qE '^gogs_db_password:' "${homeassistant_root}/secrets.yaml"; then
     bashio::log.info "Writing the Gogs MySQL password to /homeassistant/secrets.yaml (key 'gogs_db_password')"
-    printf '%s\n' "gogs_db_password: '$(printf '%s' "${db_password}" | sed "s/'/''/g")'" \
-        >> "${homeassistant_root}/secrets.yaml"
+    printf '%s\n' "gogs_db_password: ${db_password}" >> "${homeassistant_root}/secrets.yaml"
 fi
 
 # Initialize Git LFS. The Gogs server serves LFS objects out of the box, but the
