@@ -7,6 +7,7 @@
   - amd64: via the official package
   - arm64: via the official binary distribution
 - Add HTTP (6333) and gRPC (6334) API ports
+- Bundle the Qdrant Web UI (dashboard) at `/opt/qdrant/static` and serve it via `service.static_content_dir`
 - Add `api_key` (required) and `read_only_api_key` (optional) options to protect the Qdrant API and Web UI
 - Provide an editable default Qdrant configuration at `/homeassistant/addons/qdrant/production.yaml`
 - Add `log_level` option that is applied to the Qdrant configuration (mapped from syslog-style to Qdrant's log levels)

@@ -7,7 +7,7 @@ The installation of this add-on is pretty straightforward and not different in c
 1.  Start the "Qdrant" add-on.
 2.  Check the logs of "Qdrant" to see if everything went well.
 
-After starting the add-on, Qdrant is available on port `6333` (HTTP API) and `6334` (gRPC API) of your Home Assistant instance.
+After starting the add-on, Qdrant is available on port `6333` (HTTP API and Web UI) and `6334` (gRPC API) of your Home Assistant instance. The Web UI (dashboard) is served at `http://<your-homeassistant-ip>:6333/dashboard`; use the `api_key` to log in when set.
 
 ## Configuration
 

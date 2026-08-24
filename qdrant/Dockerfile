@@ -46,6 +46,7 @@ RUN set -x \
         curl \
         gettext-base \
         tar \
+        unzip \
     && if [ "${BUILD_ARCH}" = "aarch64" ]; then \
         curl --proto "=https" --tlsv1.2 -sSfL \
             "https://github.com/qdrant/qdrant/releases/download/v${QDRANT_VERSION}/qdrant-aarch64-unknown-linux-musl.tar.gz" \
@@ -62,6 +63,14 @@ RUN set -x \
         && apt-get install -qy --no-install-recommends /tmp/qdrant.deb \
         && rm /tmp/qdrant.deb; \
     fi \
+    && mkdir -p /opt/qdrant/static \
+    && curl --proto "=https" --tlsv1.2 -sSfL \
+        "https://github.com/qdrant/qdrant-web-ui/releases/latest/download/dist-qdrant.zip" \
+        -o /tmp/dist-qdrant.zip \
+    && unzip -o /tmp/dist-qdrant.zip -d /opt/qdrant/static \
+    && rm /tmp/dist-qdrant.zip \
+    && cp -r /opt/qdrant/static/dist/* /opt/qdrant/static/ \
+    && rm -rf /opt/qdrant/static/dist \
     && apt-get clean \
     && rm -rf \
         /etc/logrotate.d \

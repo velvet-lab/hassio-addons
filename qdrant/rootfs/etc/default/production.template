@@ -14,6 +14,9 @@ service:
   http_port: 6333
   grpc_port: 6334
 
+  # Serve the Qdrant Web UI from the bundled static assets.
+  static_content_dir: /opt/qdrant/static
+
   # Set an api-key (required).
   # All requests must include a header with the api-key.
   # example header: `api-key: <API-KEY>`
