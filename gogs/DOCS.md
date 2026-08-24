@@ -52,7 +52,7 @@ The brand name shown in the Gogs web interface (page title / header). The defaul
 
 The address of the Redis server used for Gogs sessions and cache. When you run the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system, use its add-on hostname.
 
-Redis is **optional** and disabled by default. It becomes active as soon as any of `redis_host`, `redis_port` or `redis_password` is set; the other two are then **required**. Leave all three empty to keep Gogs on file-based sessions and the in-memory cache.
+Redis is **optional** and disabled by default. It becomes active as soon as `redis_host` **or** `redis_password` is set; the prefilled `redis_port` / `redis_db` values are no indicator on their own. Once Redis is active, both `redis_host` and `redis_password` are **required**. Leave `redis_host` and `redis_password` empty to keep Gogs on file-based sessions and the in-memory cache.
 
 ### Option: `use_mysql`
 
@@ -69,11 +69,15 @@ When set, Gogs uses this value verbatim for `EXTERNAL_URL`; when empty, the `EXT
 
 ### Option: `redis_port`
 
-The port of the Redis server (default `6379`). Required once Redis is configured.
+The port of the Redis server (default `6379`, prefilled in the UI).
 
 ### Option: `redis_password`
 
-The password required to authenticate against the Redis server. Home Assistant stores it encrypted. Required once Redis is configured.
+The password required to authenticate against the Redis server. Home Assistant stores it encrypted. Required once Redis is configured (i.e. once `redis_host` is set).
+
+### Option: `redis_db`
+
+The number of the Redis database to use (default `0`, prefilled in the UI). Give each app that shares a Redis server its **own database number** — for example Gogs `2` and SearXNG `1` — so sessions/cache keys of one app do not collide with another.
 
 > [!NOTE]
 > Redis is used here only for Gogs **sessions and cache**, not for the Git/issue data, which stays in the configured database (SQLite by default, or MySQL when `use_mysql` is enabled).

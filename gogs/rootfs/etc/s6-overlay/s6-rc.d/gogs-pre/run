@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v22-config"
+readonly build_marker="gogs-build-v23-config"
 
 root=/data
 app_name="gogs"
@@ -186,40 +186,48 @@ cache_adapter="memory"
 cache_host=""
 
 redis_host=$(bashio::config 'redis_host')
-redis_port=$(bashio::config 'redis_port')
 redis_password=$(bashio::config 'redis_password')
+# redis_port / redis_db are prefilled with defaults in the UI options, so they
+# always have a value. They are NOT indicators for Redis being used — only
+# redis_host or redis_password are.
+redis_port=$(bashio::config 'redis_port' '6379')
+redis_db=$(bashio::config 'redis_db' '0')
 
+# bashio returns the literal string "null" when an optional schema option is
+# unset (not an empty value). Normalize host/password (the indicators) and the
+# prefilled values to their defaults.
+[[ "${redis_host}" == "null" ]] && redis_host=""
+[[ "${redis_password}" == "null" ]] && redis_password=""
+[[ "${redis_port}" == "null" ]] && redis_port="6379"
+[[ "${redis_db}" == "null" ]] && redis_db="0"
+
+# Redis is considered active when redis_host OR redis_password is set. The
+# prefilled redis_port / redis_db are no indicator on their own. Once active,
+# both redis_host and redis_password are required.
 if bashio::var.has_value "${redis_host}" \
-    || bashio::var.has_value "${redis_port}" \
     || bashio::var.has_value "${redis_password}"; then
-    # At least one Redis option is set: the remaining ones become required.
     if ! bashio::var.has_value "${redis_host}"; then
         bashio::log.error "The 'redis_host' option is required when Redis is configured."
-        bashio::log.error "Set 'redis_host', 'redis_port' and 'redis_password' (or leave all empty to disable Redis)."
-        exit 1
-    fi
-    if ! bashio::var.has_value "${redis_port}"; then
-        bashio::log.error "The 'redis_port' option is required when Redis is configured."
-        bashio::log.error "Set 'redis_host', 'redis_port' and 'redis_password' (or leave all empty to disable Redis)."
+        bashio::log.error "Set 'redis_host' and 'redis_password' (or leave both empty to disable Redis)."
         exit 1
     fi
     if ! bashio::var.has_value "${redis_password}"; then
         bashio::log.error "The 'redis_password' option is required when Redis is configured."
-        bashio::log.error "Set 'redis_host', 'redis_port' and 'redis_password' (or leave all empty to disable Redis)."
+        bashio::log.error "Set 'redis_host' and 'redis_password' (or leave both empty to disable Redis)."
         exit 1
     fi
 
     # A shared connection string used by the [session] PROVIDER_CONFIG and the
-    # [cache] HOST settings. password / db=0 are read-only here; users can tune
-    # the rest in the editable gogs.ini.
-    redis_url="network=tcp,addr=${redis_host}:${redis_port},password=${redis_password},db=0,pool_size=100,idle_timeout=180"
+    # [cache] HOST settings. The db number is taken from redis_db so each app
+    # (e.g. Gogs vs SearXNG) can use its own database and avoid collisions.
+    redis_url="network=tcp,addr=${redis_host}:${redis_port},password=${redis_password},db=${redis_db},pool_size=100,idle_timeout=180"
 
     session_provider="redis"
     session_config="${redis_url}"
     cache_adapter="redis"
     cache_host="${redis_url}"
 
-    bashio::log.info "Gogs will use a Redis server for sessions and cache (${redis_host}:${redis_port})"
+    bashio::log.info "Gogs will use a Redis server for sessions and cache (${redis_host}:${redis_port}, db ${redis_db})"
 else
     bashio::log.debug "Redis is disabled; using file-based sessions and in-memory cache"
 fi

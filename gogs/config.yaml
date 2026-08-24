@@ -30,6 +30,8 @@ options:
   log_level: info
   instance_name: "Gogs"
   secret_key: null
+  redis_port: 6379
+  redis_db: 0
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   instance_name: "str?"
@@ -39,3 +41,4 @@ schema:
   redis_host: "str?"
   redis_port: "port?"
   redis_password: "password?"
+  redis_db: "int?"

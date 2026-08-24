@@ -23,6 +23,9 @@ configuration:
   redis_password:
     name: Redis Password
     description: Password of the Redis server
+  redis_db:
+    name: Redis Database
+    description: Number of the Redis database to use (default 0). Pick a unique number per app (e.g. Gogs vs SearXNG) to avoid collisions
 
 network:
   3000/tcp: Port for the Gogs web interface and Git HTTP endpoints

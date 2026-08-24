@@ -17,6 +17,8 @@
 - Add an optional `external_url` option to set the public-facing URL (e.g. for a reverse proxy); when set it overrides Gogs' `EXTERNAL_URL`, when empty the URL line stays commented out so Gogs uses its built-in default
 - Enable Git LFS: bundle the `git-lfs` client, initialize it system-wide (`git lfs install --system`), and route LFS objects to the persistent `/data/gogs/data/lfs-objects` folder (with `tmp/lfs-objects` for upload staging)
 - Add an `instance_name` option (default `Gogs`) that is rendered into `BRAND_NAME` and shown in the Gogs web interface (page title / header)
+- Add a `redis_db` option (default `0`, prefilled in the UI) so each app that shares a Redis server can use its own database and avoid collisions (e.g. Gogs vs SearXNG)
+- Change how Redis activation is detected: Redis is now only considered active when `redis_host` or `redis_password` is set (prefilled `redis_port` / `redis_db` are no longer an indicator). Once active, both `redis_host` and `redis_password` are required.
 
 ### Gogs
 
