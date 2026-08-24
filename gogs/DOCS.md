@@ -90,6 +90,8 @@ The Gogs server configuration is managed as a file on your Home Assistant config
 
 On first start the add-on copies a default configuration there, which you can edit directly (for example with Visual Studio Code). Gogs uses the INI format; see the [Gogs configuration documentation](https://gogs.io/docs/use/configuration.html) for all available options.
 
+At every start this file is rendered (placeholders of the form `${VAR}` are expanded from the add-on's environment) and placed into Gogs' *custom* configuration directory at `/etc/gogs/conf/app.ini`. Gogs finds that file automatically because the add-on sets the `GOGS_CUSTOM` environment variable to `/etc/gogs` — it is the actual `app.ini` that the running Gogs instance reads.
+
 The web server listens on `0.0.0.0` on its default port `3000`. The port shown in the add-on configuration is only the *exposed* port that Home Assistant forwards to the add-on; it does not change where Gogs itself listens.
 
 The `EXTERNAL_URL` and `DOMAIN` settings control the public URL used for login redirects and clone URLs. If you access the add-on from a different host than the one running Home Assistant (for example through a reverse proxy), set the `external_url` add-on option instead — it overrides `EXTERNAL_URL` here. You can also adjust `EXTERNAL_URL`/`DOMAIN` directly in this file; note that a non-empty `external_url` option always takes precedence over the values in this file.
