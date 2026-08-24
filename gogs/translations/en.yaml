@@ -2,6 +2,9 @@ configuration:
   log_level:
     name: Log Level
     description: Choose the Log Level
+  instance_name:
+    name: Instance Name
+    description: Set the brand name shown in the Gogs web interface
   secret_key:
     name: Secret Key
     description: Set the secret key used to encrypt cookies and 2FA codes

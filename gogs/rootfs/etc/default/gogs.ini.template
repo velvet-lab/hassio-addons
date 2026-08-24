@@ -13,7 +13,9 @@
 # browser (e.g. https://git.example.com/ if you add a reverse proxy).
 
 ; The brand name of the application, can be your company or team name.
-BRAND_NAME = Gogs
+; Rendered from the add-on instance_name option; the editable file here only
+; overrides it if you change this line (and restart the add-on).
+BRAND_NAME = ${GOGS_INSTANCE_NAME}
 
 # Run as root, matching the user the add-on container runs the process as.
 RUN_MODE = prod

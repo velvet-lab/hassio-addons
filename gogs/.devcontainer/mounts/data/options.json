@@ -1,5 +1,6 @@
 {
     "log_level": "debug",
+    "instance_name": "Gogs",
     "secret_key": "dev-secret-key-change-me",
     "use_mysql": false,
     "external_url": "",

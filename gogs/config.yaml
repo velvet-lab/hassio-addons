@@ -28,9 +28,11 @@ ports:
   3000/tcp: 3000
 options:
   log_level: info
+  instance_name: "Gogs"
   secret_key: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  instance_name: "str?"
   secret_key: password
   use_mysql: bool?
   external_url: "str?"

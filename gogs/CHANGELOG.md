@@ -16,6 +16,7 @@
 - Control Gogs' own `[log] LEVEL` from the `log_level` option (HA levels are mapped onto Gogs' `Trace`/`Info`/`Warn`/`Error`/`Fatal`)
 - Add an optional `external_url` option to set the public-facing URL (e.g. for a reverse proxy); when set it overrides Gogs' `EXTERNAL_URL`, when empty the URL line stays commented out so Gogs uses its built-in default
 - Enable Git LFS: bundle the `git-lfs` client, initialize it system-wide (`git lfs install --system`), and route LFS objects to the persistent `/data/gogs/data/lfs-objects` folder (with `tmp/lfs-objects` for upload staging)
+- Add an `instance_name` option (default `Gogs`) that is rendered into `BRAND_NAME` and shown in the Gogs web interface (page title / header)
 
 ### Gogs
 

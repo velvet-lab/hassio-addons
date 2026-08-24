@@ -44,6 +44,10 @@ openssl rand -hex 32
 
 This produces a 64-character hexadecimal key (256 bits). Home Assistant stores it encrypted. It must match the `[security] SECRET_KEY` value in the editable Gogs configuration file described below.
 
+### Option: `instance_name`
+
+The brand name shown in the Gogs web interface (page title / header). The default is `Gogs`; you can set any name for your installation (e.g. your company or team name). It is rendered into `BRAND_NAME` in the editable `gogs.ini`.
+
 ### Option: `redis_host`
 
 The address of the Redis server used for Gogs sessions and cache. When you run the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system, use its add-on hostname.
