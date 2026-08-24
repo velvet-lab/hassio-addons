@@ -32,6 +32,13 @@ for f in "${config_dest}"/*; do
     bashio::log.info "  rendered -> ${f}"
 done
 
+# Diagnostic: print the valkey/redis related lines of the rendered settings.yml
+# so we can see the exact value (bool false vs URL string) SearXNG will get.
+if bashio::fs.file_exists "${config_dest}/settings.yml"; then
+    bashio::log.info "--- rendered settings.yml (valkey/redis block) ---"
+    grep -nE '^[[:space:]]*(valkey|redis|url):' "${config_dest}/settings.yml"
+fi
+
 # Granian serves the WSGI application. SEARXNG_SETTINGS_PATH points to the
 # rendered settings.yml in APP_CONFIG_DEST (set by searxng-pre via the
 # container environment).

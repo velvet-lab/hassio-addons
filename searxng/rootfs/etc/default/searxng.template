@@ -71,10 +71,15 @@ outgoing:
 # they fail to load / initialize on a fresh container and only produce noisy
 # errors at startup. Remove the names below if you want to re-enable them.
 engines:
-  remove:
-    - ahmia
-    - torch
-    - wikidata
+  - name: ahmia
+    disabled: true
+    inactive: true
+  - name: torch
+    disabled: true
+    inactive: true
+  - name: wikidata
+    disabled: true
+    inactive: true
 
 ui:
   static_use_hash: true
