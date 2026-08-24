@@ -18,11 +18,12 @@ The most important settings are configured directly in the add-on options (see b
 
 **Note**: _Remember to restart the add-on when the configuration is changed._
 
-This file is a copy of the bundled template. If you delete it, a fresh copy is re-created on the next start. It carries the advanced server settings (volume path, console, CORS, logging) that are not exposed as UI options:
+This file is a copy of the bundled template. If you delete it, a fresh copy is re-created on the next start. It carries the advanced server settings (volume path, console, CORS) that are not exposed as UI options:
 
 - `RUSTFS_VOLUMES` — the storage volume path (defaults to `/data/rustfs`).
 - `RUSTFS_ADDRESS` / `RUSTFS_CONSOLE_ADDRESS` — the internal listen ports. These are fixed (`:9000` / `:9001`) and unrelated to the exposed ports in the Home Assistant UI.
-- `RUSTFS_OBS_LOGGER_LEVEL` — the RustFS log level (`trace`, `debug`, `info`, `warning`, `error`).
+
+The **RustFS server log level** is not set here — it is controlled by the add-on's `log_level` option in the Home Assistant UI.
 
 ## Option: `access_key`
 
@@ -44,7 +45,7 @@ Enable or disable the RustFS web console. Defaults to `true`.
 
 ## Option: `log_level`
 
-The `log_level` option controls the level of log output by the add-on and can be changed to be more or less verbose, which might be useful when you are troubleshooting. Possible values are:
+The `log_level` option controls the level of log output by the add-on and by the RustFS server itself, and can be changed to be more or less verbose, which might be useful when you are troubleshooting. Possible values are:
 
 *   `trace`: Show every detail, like all called internal functions.
 *   `debug`: Shows detailed debug information.

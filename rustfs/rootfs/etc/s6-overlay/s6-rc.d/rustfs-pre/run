@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="rustfs-build-v7-config"
+readonly build_marker="rustfs-build-v8-config"
 
 root=/data
 app_name="rustfs"
@@ -21,6 +21,21 @@ default_log_level="info"
 
 log_level=$(bashio::config 'log_level' "$default_log_level")
 bashio::log.level "${log_level}"
+
+# Map the add-on's syslog-style log level (used by bashio) to the level the
+# RustFS server understands. The UI option 'log_level' stays syslog-style; the
+# mapped value overrides RUSTFS_OBS_LOGGER_LEVEL (which the env-file loop below
+# would otherwise read from the template).
+case ${log_level} in
+    trace)   rustfs_log_level="trace" ;;
+    debug)   rustfs_log_level="debug" ;;
+    notice)  rustfs_log_level="info" ;;
+    info)    rustfs_log_level="info" ;;
+    warning) rustfs_log_level="warning" ;;
+    error)   rustfs_log_level="error" ;;
+    fatal)   rustfs_log_level="error" ;;
+    *)       rustfs_log_level="info" ;;
+esac
 
 bashio::log.info "RustFS build marker: ${build_marker}"
 bashio::log.info "Prepare RustFS configuration"
@@ -97,6 +112,10 @@ console_enable=$(bashio::config 'console_enable' true)
 echo -n "${access_key}" > "/var/run/s6/container_environment/RUSTFS_ACCESS_KEY"
 echo -n "${secret_key}" > "/var/run/s6/container_environment/RUSTFS_SECRET_KEY"
 echo -n "${console_enable}" > "/var/run/s6/container_environment/RUSTFS_CONSOLE_ENABLE"
+
+# Override the server log level from the UI option (the env-file loop above
+# exported the template's RUSTFS_OBS_LOGGER_LEVEL value first).
+echo -n "${rustfs_log_level}" > "/var/run/s6/container_environment/RUSTFS_OBS_LOGGER_LEVEL"
 
 # Ensure the data directory exists (RUSTFS_VOLUMES points into it).
 if ! bashio::fs.directory_exists "$data_root"; then
