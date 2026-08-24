@@ -20,6 +20,12 @@ configuration:
   redis_password:
     name: Redis Password
     description: Password of the Redis server (if set)
+  redis_username:
+    name: Redis Username
+    description: Username to authenticate against the Redis server (default 'default')
+  redis_db:
+    name: Redis Database
+    description: Number of the Redis database to use (default 0). Pick a unique number per app (e.g. SearXNG vs Gogs) to avoid collisions
 
 network:
   8080/tcp: SearXNG web interface

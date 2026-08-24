@@ -48,15 +48,23 @@ When set, `server.base_url` in the rendered configuration uses this value verbat
 
 ### Option: `redis_host`
 
-The hostname or IP address of the Redis server SearXNG uses for the optional limiter / bot protection, for example the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system. Redis is **optional** and disabled as long as all three options are empty. As soon as any of `redis_host`, `redis_port` or `redis_password` is set, the other two become **required**.
+The hostname or IP address of the Redis server SearXNG uses for the optional limiter / bot protection, for example the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system. Redis is **optional** and disabled as long as `redis_host` and `redis_password` are both empty. It becomes active as soon as `redis_host` **or** `redis_password` is set; the prefilled `redis_port` / `redis_username` / `redis_db` values are no indicator on their own. Once active, both `redis_host` and `redis_password` are **required**.
 
 ### Option: `redis_port`
 
-The port of the Redis server (default `6379`).
+The port of the Redis server (default `6379`, prefilled in the UI).
 
 ### Option: `redis_password`
 
-The password of the Redis server, if it requires one (`requirepass` in Redis). Required once Redis is configured.
+The password of the Redis server, if it requires one (`requirepass` in Redis). Required once Redis is configured (i.e. once `redis_host` is set).
+
+### Option: `redis_username`
+
+The username used to authenticate against the Redis server (default `default`, the built-in Valkey/Redis user). Included in the connection URL as `valkey://<username>:<password>@...`.
+
+### Option: `redis_db`
+
+The number of the Redis database to use (default `0`). Give each app that shares a Redis server its **own database number** — for example SearXNG `1` and Gogs `2` — so the apps do not collide on the same database (keys/limiter data of one app would otherwise mix with another).
 
 ## Configuration file
 
@@ -84,7 +92,9 @@ The `secret_key` is provided via the add-on `secret_key` option (Home Assistant 
 
 ## Redis (limiter / bot protection)  [optional]
 
-Redis is **not required** for SearXNG to run. It is only used for the limiter and bot protection when you enable `server.limiter: true` in your `settings.yml`. Without Redis the instance works normally, just without rate limiting. To use the limiter, set the connection via the add-on options: `redis_host`, `redis_port` and `redis_password`. Redis becomes active as soon as any of the three is set; all three are then required, or leave all empty to keep it disabled.
+Redis is **not required** for SearXNG to run. It is only used for the limiter and bot protection when you enable `server.limiter: true` in your `settings.yml`. Without Redis the instance works normally, just without rate limiting. To use the limiter, set the connection via the add-on options: `redis_host` and `redis_password` (with `redis_port` default `6379`, `redis_username` default `default` and `redis_db` default `0` being prefilled). Redis becomes active as soon as `redis_host` or `redis_password` is set; both are then required, or leave both empty to keep it disabled.
+
+When you share a Redis server with other apps (e.g. the Gogs add-on), give each app its own `redis_db` number so they do not collide on the same database.
 
 The resolved connection is written into the rendered `valkey.url` of the runtime `settings.yml` (it becomes `false` when no Redis is configured).
 
