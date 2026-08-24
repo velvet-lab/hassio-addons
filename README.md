@@ -26,13 +26,6 @@ If you want to do add the repository manually, please follow the procedure highl
 
 ## Add-ons provided by this repository
 
-### Davis
-
-A modern, simple, feature-packed, fully translatable CalDAV, CardDav and WebDav server
-
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
-![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
-
 ### Dns/Dhcp Server by Technitium (Deprecated)
 
 Greate Dns/Dhcp Server provided by [Technitium](https://technitium.com/dns) boxed in a HA AddOn

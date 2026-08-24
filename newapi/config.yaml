@@ -1,7 +1,7 @@
 ---
-name: New API (experimental)
+name: New API
 version: 1.0.0-rc.25
-stage: experimental
+stage: stable
 slug: newapi
 description: >-
   New API is a next-generation LLM gateway and AI asset management system
