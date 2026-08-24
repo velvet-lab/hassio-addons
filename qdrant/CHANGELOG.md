@@ -10,6 +10,8 @@
 - Add `admin_password` option to protect the Qdrant API and Web UI
 - Provide an editable default Qdrant configuration at `/homeassistant/addons/qdrant/production.yaml`
 - Add `log_level` option that is applied to the Qdrant configuration (mapped from syslog-style to Qdrant's log levels)
+- Fix aarch64 installation: the release tarball is a bare `qdrant` binary (no wrapping directory), so extraction no longer uses `--strip-components=1` (which extracted nothing and left a dangling `/usr/bin/qdrant` symlink)
+- Fix configuration loading: Qdrant resolves its config relative to the working directory and never reads a bare `production.yaml` from the binary folder. The add-on now passes `--config-path /etc/qdrant/production.yaml` so the rendered (and user-editable) config is actually loaded.
 
 ### Qdrant
 

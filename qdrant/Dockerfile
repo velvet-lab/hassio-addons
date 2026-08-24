@@ -33,6 +33,11 @@ WORKDIR /tmp
 #  - amd64: official .deb package from the GitHub release
 #  - aarch64: musl binary tarball (the only Linux artifact Qdrant publishes
 #    for arm64). See https://github.com/qdrant/qdrant/releases
+#
+# NOTE: the aarch64 tarball contains the bare `qdrant` binary at its root
+# (no wrapping directory), so it is extracted WITHOUT --strip-components
+# (stripping the only component would extract nothing and leave a dangling
+# /usr/bin/qdrant symlink).
 RUN set -x \
     && apt-get update \
     && apt-get upgrade -qy \
@@ -46,7 +51,8 @@ RUN set -x \
             "https://github.com/qdrant/qdrant/releases/download/v${QDRANT_VERSION}/qdrant-aarch64-unknown-linux-musl.tar.gz" \
             -o /tmp/qdrant.tar.gz \
         && mkdir -p /opt/qdrant \
-        && tar -zxf /tmp/qdrant.tar.gz -C /opt/qdrant --strip-components=1 \
+        && tar -zxf /tmp/qdrant.tar.gz -C /opt/qdrant \
+        && chmod 755 /opt/qdrant/qdrant \
         && rm /tmp/qdrant.tar.gz \
         && ln -s /opt/qdrant/qdrant /usr/bin/qdrant; \
     else \

@@ -26,6 +26,9 @@ for file in "${config_source}"/*; do
     chmod 644 "${config_dest}/${name}"
 done
 
-# Qdrant loads its production.yaml from the current working directory.
+# Qdrant accepts an explicit config file via --config-path (an absolute
+# path, added as the last/highest-priority source in Settings::new). Point it
+# directly at the rendered production.yaml - no config/ subdir or CWD games.
 cd "${config_dest}" || exit 1
-exec qdrant
+bashio::log.debug "Qdrant build marker: qdrant-build-v5-config"
+exec qdrant --config-path "${config_dest}/production.yaml"
