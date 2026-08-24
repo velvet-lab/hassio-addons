@@ -55,13 +55,13 @@ Redis is **optional** and disabled by default. It becomes active as soon as any 
 Use MySQL/MariaDB as database backend instead of the default SQLite. Set to `true` to use MySQL/MariaDB, or `false` to use SQLite. By default, SQLite is used. If you enable this option, make sure you have a MariaDB add-on installed and configured properly.
 
 > [!NOTE]
-> The MariaDB add-on connection is resolved automatically — you do not enter a host, port or credentials here. Gogs will create and use a `gogs` database on that service.
+> The MariaDB add-on connection is resolved automatically — you do not enter a host, port or credentials here. On first start Gogs initializes its `gogs` database (utf8mb4) from the bundled Gogs setup script; existing databases are left untouched on subsequent starts.
 
 ### Option: `external_url`
 
-The public-facing URL of Gogs, used for login redirects and clone URLs. This is normally built automatically from the server's protocol, domain and port. Set it explicitly when Gogs is served through a **reverse proxy** — for example `https://git.example.com/`.
+The public-facing URL of Gogs, used for login redirects and clone URLs. Leave it empty to let Gogs use its built-in default (derived from the server's protocol, domain and port). Set it explicitly when Gogs is served through a **reverse proxy** — for example `https://git.example.com/`.
 
-Leave it empty to keep the automatic value.
+When set, Gogs uses this value verbatim for `EXTERNAL_URL`; when empty, the `EXTERNAL_URL` line in the rendered configuration stays commented out.
 
 ### Option: `redis_port`
 

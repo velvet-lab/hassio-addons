@@ -21,11 +21,10 @@ RUN_USER = root
 
 [server]
 ; The public-facing URL for the application. When the add-on external_url option
-; is set (e.g. for a reverse proxy), it is used here verbatim; otherwise Gogs
-; builds it from PROTOCOL, DOMAIN and HTTP_PORT below.
-EXTERNAL_URL = ${GOGS_EXTERNAL_URL}
-; The public-facing domain name for the application.
-DOMAIN = localhost
+; is set (e.g. for a reverse proxy), the line below becomes active and uses the
+; configured URL verbatim. When unset, the line is commented out so Gogs falls
+; back to its built-in default (built from PROTOCOL, DOMAIN and HTTP_PORT).
+${GOGS_EXTERNAL_URL}
 ; The protocol that is used to serve direct traffic to the application.
 ; Currently supports "http", "https", "fcgi" and "unix".
 PROTOCOL = http
