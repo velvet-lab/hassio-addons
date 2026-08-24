@@ -34,10 +34,14 @@ WORKDIR /tmp
 #  - aarch64: musl binary tarball (the only Linux artifact Qdrant publishes
 #    for arm64). See https://github.com/qdrant/qdrant/releases
 #
-# NOTE: the aarch64 tarball contains the bare `qdrant` binary at its root
-# (no wrapping directory), so it is extracted WITHOUT --strip-components
-# (stripping the only component would extract nothing and leave a dangling
-# /usr/bin/qdrant symlink).
+# Both architectures use the same release tarball layout: the archive
+# contains a bare `qdrant` binary at its root (no wrapping directory), so it
+# is extracted WITHOUT --strip-components (stripping the only component would
+# extract nothing). The binary lives at /opt/qdrant/qdrant and the app runs
+# straight from /opt/qdrant - no system package and no /usr/bin symlink.
+#
+#   amd64   -> qdrant-x86_64-unknown-linux-musl.tar.gz
+#   aarch64 -> qdrant-aarch64-unknown-linux-musl.tar.gz
 RUN set -x \
     && apt-get update \
     && apt-get upgrade -qy \
@@ -47,22 +51,18 @@ RUN set -x \
         gettext-base \
         tar \
         unzip \
+    && mkdir -p /opt/qdrant \
     && if [ "${BUILD_ARCH}" = "aarch64" ]; then \
-        curl --proto "=https" --tlsv1.2 -sSfL \
-            "https://github.com/qdrant/qdrant/releases/download/v${QDRANT_VERSION}/qdrant-aarch64-unknown-linux-musl.tar.gz" \
-            -o /tmp/qdrant.tar.gz \
-        && mkdir -p /opt/qdrant \
-        && tar -zxf /tmp/qdrant.tar.gz -C /opt/qdrant \
-        && chmod 755 /opt/qdrant/qdrant \
-        && rm /tmp/qdrant.tar.gz \
-        && ln -s /opt/qdrant/qdrant /usr/bin/qdrant; \
+        QDRANT_TARBALL="qdrant-aarch64-unknown-linux-musl.tar.gz"; \
     else \
-        curl --proto "=https" --tlsv1.2 -sSfL \
-            "https://github.com/qdrant/qdrant/releases/download/v${QDRANT_VERSION}/qdrant_${QDRANT_VERSION}-1_amd64.deb" \
-            -o /tmp/qdrant.deb \
-        && apt-get install -qy --no-install-recommends /tmp/qdrant.deb \
-        && rm /tmp/qdrant.deb; \
+        QDRANT_TARBALL="qdrant-x86_64-unknown-linux-musl.tar.gz"; \
     fi \
+    && curl --proto "=https" --tlsv1.2 -sSfL \
+        "https://github.com/qdrant/qdrant/releases/download/v${QDRANT_VERSION}/${QDRANT_TARBALL}" \
+        -o /tmp/qdrant.tar.gz \
+    && tar -zxf /tmp/qdrant.tar.gz -C /opt/qdrant \
+    && chmod 755 /opt/qdrant/qdrant \
+    && rm /tmp/qdrant.tar.gz \
     && mkdir -p /opt/qdrant/static \
     && curl --proto "=https" --tlsv1.2 -sSfL \
         "https://github.com/qdrant/qdrant-web-ui/releases/latest/download/dist-qdrant.zip" \
