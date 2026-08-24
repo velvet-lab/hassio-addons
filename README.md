@@ -28,23 +28,51 @@ If you want to do add the repository manually, please follow the procedure highl
 
 ### Davis
 
-A modern, simple, feature-packed, fully translatable CalDAV, CardDav and WebDav server
+A modern, simple, feature-packed, fully translatable CalDAV, CardDav and WebDav server.
 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
 ### Dns/Dhcp Server by Technitium (Deprecated)
 
-Greate Dns/Dhcp Server provided by [Technitium](https://technitium.com/dns) boxed in a HA AddOn
+Great Dns/Dhcp Server provided by [Technitium](https://technitium.com/dns) boxed in a HA AddOn.
 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### MongoDb Community Edition 7.x
+### Gogs (Experimental)
+
+Gogs is a painless self-hosted Git service written in Go. A lightweight, private GitHub-like Git repository with issue tracking, pull requests, wiki and a built-in web editor.
+
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
+![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+### MongoDb Community Edition (Deprecated)
 
 A really simple implementation of MongoDb without TLS and Auth.
 
-**Remarks:** Currently only MongoDb till Version 7.x works on Raspberry. Version 8.x has issues with tsmalloc.
+**Remarks:** Currently only MongoDb up to version 7.x runs on Raspberry Pi 5 and higher. Version 8.x has issues with tsmalloc.
+
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
+![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+### New API (Experimental)
+
+New API is a next-generation LLM gateway and AI asset management system. A unified AI model hub for aggregation and distribution that cross-converts OpenAI, Claude, Gemini and many other models.
+
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
+![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+### OpenBao (Experimental)
+
+OpenBao is an open source secret management tool for storing and distributing secrets, certificates and keys.
+
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
+![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+### Qdrant (Experimental)
+
+Qdrant is a high-performance, open source vector search engine and database. An AI-native vector and semantic search service built for storing, searching and managing vectors.
 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
@@ -52,6 +80,20 @@ A really simple implementation of MongoDb without TLS and Auth.
 ### RustFS (Experimental)
 
 High-performance enterprise-grade distributed file system and S3 compatible object storage solution written in Rust.
+
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
+![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+### SearXNG (Experimental)
+
+SearXNG is a free, self-hosted metasearch engine. It aggregates results from many search services without tracking or profiling its users. Search without being tracked.
+
+![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
+![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
+
+### Valkey
+
+Valkey is a high-performance, open source in-memory data store. A Linux-first fork of Redis that uses the same RESP protocol, so existing Redis clients and commands work unchanged.
 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
