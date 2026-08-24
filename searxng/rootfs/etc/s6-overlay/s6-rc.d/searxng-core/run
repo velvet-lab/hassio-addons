@@ -34,5 +34,10 @@ done
 # not reachable from the home network). The add-on always listens on its own
 # internal default port 8888 on all interfaces; the port shown in the Home
 # Assistant UI is only the exposed port.
+#
+# The --interface wsgi flag is REQUIRED: SearXNG's flaskfix.py expects a real
+# WSGI environ (dict with .get). Granian's default RSGI mode passes an
+# RSGIHTTPScope object instead, which has no .get -> "Application callable
+# raised an exception: 'RSGIHTTPScope' object has no attribute 'get'".
 cd /opt/searxng || exit 1
-exec /opt/searxng/venv/bin/granian --host 0.0.0.0 --port 8888 searx.webapp:app
+exec /opt/searxng/venv/bin/granian --interface wsgi --host 0.0.0.0 --port 8888 searx.webapp:app
