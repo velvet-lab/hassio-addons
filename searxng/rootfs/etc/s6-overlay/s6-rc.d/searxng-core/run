@@ -26,6 +26,12 @@ for file in "${config_source}"/*; do
     chmod 644 "${config_dest}/${name}"
 done
 
+# Diagnostic: show what SearXNG will actually load and what was rendered.
+bashio::log.info "SEARXNG_SETTINGS_PATH=${SEARXNG_SETTINGS_PATH}"
+for f in "${config_dest}"/*; do
+    bashio::log.info "  rendered -> ${f}"
+done
+
 # Granian serves the WSGI application. SEARXNG_SETTINGS_PATH points to the
 # rendered settings.yml in APP_CONFIG_DEST (set by searxng-pre via the
 # container environment).

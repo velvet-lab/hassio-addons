@@ -16,7 +16,7 @@ configuration:
     description: Hostname or IP of the Redis server (used for the limiter / bot protection)
   redis_port:
     name: Redis Port
-    description: Port of the Redis server
+    description: Port of the Redis server (default 6379)
   redis_password:
     name: Redis Password
     description: Password of the Redis server (if set)
