@@ -15,9 +15,13 @@ ARG BUILD_REPOSITORY
 # even when BUILD_VERSION (the add-on version) is not passed explicitly.
 ARG GOGS_VERSION=0.14.3
 
-# Gogs reads its "custom" directory (containing config/app.ini, data/, log/,
-# etc.) from this environment variable unless an explicit config path is given.
-ENV GOGS_CUSTOM=/data/gogs
+# Gogs resolves its actual configuration from the "custom" directory. By
+# default that directory sits next to the gogs binary; the GOGS_CUSTOM
+# environment variable redirects it. We point it at the volatile config folder
+# (/etc/gogs) so Gogs loads "<custom>/conf/app.ini" which the add-on renders on
+# every start. Keeping it under /etc (instead of the persistent /data/gogs data
+# dir) matches the add-on convention of a regenerated config on each start.
+ENV GOGS_CUSTOM=/etc/gogs
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive

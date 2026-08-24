@@ -2,6 +2,7 @@
 
 ### Add-on
 
+- Load the Gogs configuration the way Gogs expects it: the add-on now points `GOGS_CUSTOM` at `/etc/gogs` and renders the user-editable `gogs.ini` into `/etc/gogs/conf/app.ini`, which Gogs resolves automatically. This replaces the previous explicit `--config` flag, so the rendered file is now a true `custom/conf/app.ini` overlay as described in the [Gogs installation docs](https://gogs.io/getting-started/installation).
 - Initial release of the Gogs add-on
 - Bundle the Gogs pre-built Linux binary (`linux_amd64` / `linux_arm64`)
 - Use a built-in SQLite database, so no external database service is required

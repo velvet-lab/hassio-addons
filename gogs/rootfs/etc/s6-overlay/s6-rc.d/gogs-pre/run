@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v23-config"
+readonly build_marker="gogs-build-v24-custom"
 
 root=/data
 app_name="gogs"
@@ -62,13 +62,18 @@ bashio::log.info "Prepare Gogs configuration"
 echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
 echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
 echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+# GOGS_CUSTOM tells Gogs where its custom dir (holding conf/app.ini) lives.
+# We point it at the volatile config folder; the core service renders app.ini
+# there. with-contenv turns this file into the GOGS_CUSTOM env var for longruns.
+echo -n "${config_dest}" > /var/run/s6/container_environment/GOGS_CUSTOM
 echo -n "${gogs_log_level}" > /var/run/s6/container_environment/GOGS_LOG_LEVEL
 echo -n "${instance_name}" > /var/run/s6/container_environment/GOGS_INSTANCE_NAME
 echo -n "${gogs_external_url}" > /var/run/s6/container_environment/GOGS_EXTERNAL_URL
 
-# Ensure the Gogs custom directory layout exists. The "custom" directory
-# location is set via GOGS_CUSTOM in the image and holds data/ and log/. Config
-# is rendered volatile to APP_CONFIG_DEST (/etc/gogs) by the core service.
+# Ensure the Gogs custom directory (GOGS_CUSTOM=/etc/gogs) and the persistent
+# data directory exist. Gogs reads its configuration from the custom dir's
+# conf/app.ini (rendered by the core service) and keeps data/ and log/ under
+# /data/gogs. The user-editable source lives under APP_CONFIG_SOURCE.
 bashio::log.debug "Create folders"
 # Persistent data subdirectories referenced by the gogs.ini template. Gogs
 # resolves relative data/ paths against its WORK DIR (not /data), so the
