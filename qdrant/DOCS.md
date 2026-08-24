@@ -49,6 +49,8 @@ On first start the add-on copies a default configuration there, which you can ed
 
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
 
+The `log_level` line is rendered from the add-on **`log_level` option** on every start, so you normally control it from the add-on configuration UI. If you edit it here directly, your change is lost on the next restart because the add-on re-applies the UI option.
+
 ## Data folder
 
 The add-on stores all Qdrant data (storage) and its snapshots in the `/data/qdrant` folder. The storage lives in `/data/qdrant/storage` and snapshots in `/data/qdrant/snapshots`. Please ensure this is included in your backup.

@@ -9,6 +9,7 @@
 - Add HTTP (6333) and gRPC (6334) API ports
 - Add `admin_password` option to protect the Qdrant API and Web UI
 - Provide an editable default Qdrant configuration at `/homeassistant/addons/qdrant/production.yaml`
+- Add `log_level` option that is applied to the Qdrant configuration (mapped from syslog-style to Qdrant's log levels)
 
 ### Qdrant
 
