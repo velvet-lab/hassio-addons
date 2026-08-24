@@ -20,18 +20,22 @@ PORT=3000
 TZ=Etc/UTC
 
 # SQLite database file. The default installation stores everything in a single
-# SQLite database file under /data/newapi. To use an external database instead,
-# comment out SQLITE_PATH and set SQL_DSN below.
+# SQLite database file under /data/newapi. Leave SQL_DSN empty to keep SQLite;
+# set SQL_DSN below to use an external database instead.
 SQLITE_PATH=${NEWAPI_SQLITE_PATH}
 
-# Optional: external database connection string (PostgreSQL recommended).
-# Example PostgreSQL: postgresql://user:pass@host:5432/new-api
-# Example MySQL:      user:pass@tcp(host:3306)/new-api
-# SQL_DSN=postgresql://user:pass@host:5432/new-api
+# External database connection string. Leave empty to use the bundled SQLite
+# database; set it to use an external database (PostgreSQL or MySQL). This is
+# rendered from the add-on options:
+#   - when the `use_mysql` option is enabled, this is filled with the MySQL DSN
+#     of the MariaDB add-on (user:pass@tcp(host:port)/new-api)
+#   - otherwise it stays empty and New API falls back to SQLite
+# You can also add your own value here to use PostgreSQL or an external MySQL.
+SQL_DSN=${NEWAPI_SQL_DSN}
 
 # Optional: Redis-compatible cache for rate limiting and sessions (improves
-# performance for multi-user deployments and shared rate limits).
-# REDIS_CONN_STRING=redis://default:pass@host:6379
-
-# Optional: enable in-memory cache (auto-enabled when Redis is configured).
-# MEMORY_CACHE_ENABLED=true
+# performance for multi-user deployments and shared rate limits). Leave empty
+# to disable Redis. This is rendered from the add-on options:
+#   redis://username:password@host:port/db
+# You can also add your own value here.
+REDIS_CONN_STRING=${NEWAPI_REDIS_CONN_STRING}

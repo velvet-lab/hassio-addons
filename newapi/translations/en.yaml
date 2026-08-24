@@ -5,6 +5,24 @@ configuration:
   session_secret:
     name: Session Secret
     description: Set the secret used to sign authentication sessions
+  use_mysql:
+    name: Use MySQL / MariaDB
+    description: Use the MySQL/MariaDB add-on as the database instead of the built-in SQLite database
+  redis_host:
+    name: Redis Host
+    description: Host of a Redis-compatible server (Valkey). Leave empty to disable Redis
+  redis_port:
+    name: Redis Port
+    description: Port of the Redis-compatible server
+  redis_password:
+    name: Redis Password
+    description: Password for the Redis-compatible server
+  redis_username:
+    name: Redis Username
+    description: Username for the Redis-compatible server (usually 'default')
+  redis_db:
+    name: Redis Database
+    description: Redis database index to use
 
 network:
   3000/tcp: Port for the New API web interface and API endpoints

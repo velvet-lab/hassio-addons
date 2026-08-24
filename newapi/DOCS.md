@@ -36,6 +36,34 @@ openssl rand -hex 32
 
 This produces a 64-character hexadecimal key (256 bits). Home Assistant stores it encrypted. It must match the `SESSION_SECRET` value in the New API configuration file described below.
 
+### Option: `use_mysql`
+
+When enabled, New API uses the **MySQL/MariaDB** add-on as its database instead of the built-in SQLite database. The connection is resolved automatically from the MariaDB add-on (`host`, `port`, `username`, `password`) and the `new-api` database is created on first start. Enable this when you prefer a server database for production use.
+
+**Note:** Include the MariaDB add-on in your backups; uninstalling it removes your New API data.
+
+### Option: `redis_host`
+
+Host of a Redis-compatible server (for example the **Valkey** add-on). Redis is used by New API for caching, rate limiting and sessions, which improves performance and shares rate limits across instances.
+
+Redis is **optional** and activated only when you fill in `redis_host` **and** `redis_password` (leaving both empty disables Redis). Once one of them is set, the other is required.
+
+### Option: `redis_port`
+
+Port of the Redis-compatible server. Default `6379`.
+
+### Option: `redis_password`
+
+Password for the Redis-compatible server. Required when Redis is activated.
+
+### Option: `redis_username`
+
+Username for the Redis-compatible server (usually `default`). Defaults to `default`.
+
+### Option: `redis_db`
+
+Redis database index to use. This lets multiple add-ons share one Redis server without collisions (for example New API vs SearXNG). Default `0`.
+
 ## Configuration
 
 The New API server configuration is managed as a file on your Home Assistant configuration folder:
@@ -46,7 +74,7 @@ On first start the add-on copies a default configuration there, which you can ed
 
 The web server listens on `0.0.0.0` on its default port `3000`. The port shown in the add-on configuration is only the *exposed* port that Home Assistant forwards to the add-on; it does not change where New API itself listens.
 
-To use an external database (PostgreSQL recommended), comment out `SQLITE_PATH` and set `SQL_DSN`. To enable rate limiting and caching for multi-user deployments, configure `REDIS_CONN_STRING`.
+The `SQL_DSN` and `REDIS_CONN_STRING` variables are rendered from the add-on options above — enabling `use_mysql` fills `SQL_DSN` with the MariaDB connection string, and setting the Redis options fills `REDIS_CONN_STRING`. You can instead set `SQL_DSN` manually in this file (for example to use PostgreSQL or an external MySQL server).
 
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
 
