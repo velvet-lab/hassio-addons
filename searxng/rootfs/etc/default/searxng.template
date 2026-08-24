@@ -44,7 +44,7 @@ server:
 # it, configure the redis_host / redis_port / redis_password options and set
 # `server.limiter: true` above.
 valkey:
-  url: ${SEARXNG_REDIS_URL}
+  url: ${SEARXNG_VALKEY_URL}
 
 search:
   safe_search: 0
