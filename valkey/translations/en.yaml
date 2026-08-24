@@ -1,0 +1,12 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: >-
+      The level of log output by the add-on. Choose between
+      trace, debug, info, notice, warning, error and fatal.
+  password:
+    name: Password
+    description: The password required to connect to the Valkey server (requirepass)
+
+network:
+  6379/tcp: Valkey server (Redis-compatible)

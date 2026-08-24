@@ -9,7 +9,7 @@ url: https://github.com/velvet-lab/hassio-addons/tree/main/rustfs
 arch:
   - amd64
   - aarch64
-startup: system
+startup: services
 homeassistant: 2026.1.0
 init: false
 apparmor: true

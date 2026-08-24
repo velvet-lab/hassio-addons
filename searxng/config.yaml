@@ -11,7 +11,7 @@ arch:
   - amd64
   - aarch64
 host_network: false
-startup: system
+startup: application
 hassio_role: default
 homeassistant: 2026.1.0
 init: false
@@ -22,13 +22,20 @@ map:
 backup: hot
 backup_exclude:
   - /data/app.err
-watchdog: tcp://[HOST]:[PORT:8080]
+watchdog: tcp://[HOST]:[PORT:8888]
 ports:
-  8080/tcp: 8080
+  8888/tcp: 8888
 options:
   log_level: info
+  instance_name: "Privat-SearXNG"
+  secret_key: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  instance_name: "str?"
+  secret_key: password
+  external_url: "str?"
   redis_host: "str?"
   redis_port: "port?"
   redis_password: "password?"
+  redis_username: "str?"
+  redis_db: "int?"

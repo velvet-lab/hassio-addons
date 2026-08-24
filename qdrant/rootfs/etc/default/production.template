@@ -3,7 +3,9 @@
 # This template is copied to /homeassistant/addons/qdrant/production.yaml on
 # first start, where you can edit it.
 
-log_level: INFO
+# Log level is controlled via the add-on UI option 'log_level' and rendered
+# by the add-on (syslog-style names are mapped to Qdrant's log levels).
+log_level: ${QDRANT_LOG_LEVEL}
 
 service:
   # Qdrant listens on these internal ports regardless of the ports shown in
@@ -12,6 +14,46 @@ service:
   http_port: 6333
   grpc_port: 6334
 
+  # Serve the Qdrant Web UI. Relative to the working directory (/opt/qdrant).
+  static_content_dir: static
+
+  # Set an api-key (required).
+  # All requests must include a header with the api-key.
+  # example header: `api-key: <API-KEY>`
+  api_key: ${QDRANT_API_KEY}
+
+  # Set an api-key for read-only operations (optional).
+  # If set, all requests must include a header with the api-key.
+  # example header: `api-key: <API-KEY>`
+  # Empty (unset in the add-on UI) renders as null and disables the read-only
+  # key - it never falls back to the write api_key.
+  read_only_api_key: ${QDRANT_READ_ONLY_API_KEY}
+
 storage:
   storage_path: ${QDRANT_STORAGE_PATH}
   snapshots_path: ${QDRANT_SNAPSHOTS_PATH}
+
+  # MMAP HÄLT DIE SYSTEM-BALANCE:
+  # Nutzt RAM für extrem schnelle Zugriffe, gibt ihn aber bei System-Peaks ab.
+  performance_mode: "mmap"
+  on_disk_payload: false
+
+  wal:
+    wal_capacity_mb: 32
+    wal_segments_ahead: 1
+
+# HNSW-INDEX CONCURRENCY
+hnsw_config:
+  m: 16
+  ef_construct: 100
+  full_scan_threshold: 5000      # Bis zu 5k Vektoren werden ungefiltert blitzschnell im RAM gescannt
+  on_disk: false
+
+# THREAD- & SYSTEM-TUNING:
+optimizers:
+  deleted_threshold: 0.2
+  vacuum_min_vector_number: 1000
+  default_segment_number: 2      # 2 Cores für Vektor-Optimierung freigegeben (Pi 5 schafft das locker)
+  indexing_threshold_kb: 10000
+
+telemetry_disabled: true

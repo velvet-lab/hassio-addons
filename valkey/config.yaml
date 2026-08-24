@@ -1,0 +1,34 @@
+---
+name: Valkey
+version: 9.1.1
+stage: experimental
+slug: valkey
+description: >-
+  Valkey is a high-performance, open source in-memory data store that is a
+  fork of Redis
+url: https://github.com/velvet-lab/hassio-addons/tree/main/valkey
+arch:
+  - amd64
+  - aarch64
+host_network: false
+
+startup: services
+hassio_role: default
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
+backup: hot
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:6379]
+ports:
+  6379/tcp: 6379
+options:
+  log_level: info
+  password: null
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  password: password

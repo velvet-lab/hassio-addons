@@ -10,7 +10,7 @@ arch:
   - amd64
   - aarch64
 host_network: false
-startup: system
+startup: application
 hassio_role: default
 homeassistant: 2026.1.0
 init: false
@@ -18,6 +18,8 @@ apparmor: true
 map:
   - type: homeassistant_config
     read_only: false
+services:
+  - mysql:want
 backup: hot
 backup_exclude:
   - /data/app.err
@@ -26,7 +28,17 @@ ports:
   3000/tcp: 3000
 options:
   log_level: info
+  instance_name: "Gogs"
   secret_key: null
+  redis_port: 6379
+  redis_db: 0
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  instance_name: "str?"
   secret_key: password
+  use_mysql: bool?
+  external_url: "str?"
+  redis_host: "str?"
+  redis_port: "port?"
+  redis_password: "password?"
+  redis_db: "int?"

@@ -11,7 +11,7 @@ After starting the add-on, Gogs is available on port `3000` of your Home Assista
 
 ## Configuration
 
-The add-on is **pre-configured** out of the box with a SQLite database, so it does not require any external database service.
+The add-on is **pre-configured** out of the box with a SQLite database, so it does not require any external database service. Optionally, a MySQL/MariaDB service can be used instead — see the `use_mysql` option below.
 
 ### Option: `log_level`
 
@@ -26,6 +26,14 @@ The `log_level` option controls the level of log output by the add-on and can be
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
 
+The `log_level` also controls Gogs' own internal logging (`[log] LEVEL` in the editable `gogs.ini`). The available Gogs levels differ slightly from Home Assistant's, so they are mapped as follows:
+
+*   `trace` / `debug` → Gogs `Trace`
+*   `info` / `notice` → Gogs `Info`
+*   `warning` → Gogs `Warn`
+*   `error` → Gogs `Error`
+*   `fatal` → Gogs `Fatal`
+
 ### Option: `secret_key`
 
 The `secret_key` option is **required**: Gogs uses it to encrypt cookie values, two-factor authentication codes and similar sensitive data. Provide a strong, random value — for example generated with:
@@ -36,6 +44,44 @@ openssl rand -hex 32
 
 This produces a 64-character hexadecimal key (256 bits). Home Assistant stores it encrypted. It must match the `[security] SECRET_KEY` value in the editable Gogs configuration file described below.
 
+### Option: `instance_name`
+
+The brand name shown in the Gogs web interface (page title / header). The default is `Gogs`; you can set any name for your installation (e.g. your company or team name). It is rendered into `BRAND_NAME` in the editable `gogs.ini`.
+
+### Option: `redis_host`
+
+The address of the Redis server used for Gogs sessions and cache. When you run the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system, use its add-on hostname.
+
+Redis is **optional** and disabled by default. It becomes active as soon as `redis_host` **or** `redis_password` is set; the prefilled `redis_port` / `redis_db` values are no indicator on their own. Once Redis is active, both `redis_host` and `redis_password` are **required**. Leave `redis_host` and `redis_password` empty to keep Gogs on file-based sessions and the in-memory cache.
+
+### Option: `use_mysql`
+
+Use MySQL/MariaDB as database backend instead of the default SQLite. Set to `true` to use MySQL/MariaDB, or `false` to use SQLite. By default, SQLite is used. If you enable this option, make sure you have a MariaDB add-on installed and configured properly.
+
+> [!NOTE]
+> The MariaDB add-on connection is resolved automatically — you do not enter a host, port or credentials here. On first start Gogs initializes its `gogs` database (utf8mb4) from the bundled Gogs setup script; existing databases are left untouched on subsequent starts. The resolved database password is stored in your central secrets file `/homeassistant/secrets.yaml` under the key `gogs_db_password` so you can look it up, e.g. when the Gogs install page asks for the database settings.
+
+### Option: `external_url`
+
+The public-facing URL of Gogs, used for login redirects and clone URLs. Leave it empty to let Gogs use its built-in default (derived from the server's protocol, domain and port). Set it explicitly when Gogs is served through a **reverse proxy** — for example `https://git.example.com/`.
+
+When set, Gogs uses this value verbatim for `EXTERNAL_URL`; when empty, the `EXTERNAL_URL` line in the rendered configuration stays commented out.
+
+### Option: `redis_port`
+
+The port of the Redis server (default `6379`, prefilled in the UI).
+
+### Option: `redis_password`
+
+The password required to authenticate against the Redis server. Home Assistant stores it encrypted. Required once Redis is configured (i.e. once `redis_host` is set).
+
+### Option: `redis_db`
+
+The number of the Redis database to use (default `0`, prefilled in the UI). Give each app that shares a Redis server its **own database number** — for example Gogs `2` and SearXNG `1` — so sessions/cache keys of one app do not collide with another.
+
+> [!NOTE]
+> Redis is used here only for Gogs **sessions and cache**, not for the Git/issue data, which stays in the configured database (SQLite by default, or MySQL when `use_mysql` is enabled).
+
 ## Configuration
 
 The Gogs server configuration is managed as a file on your Home Assistant configuration folder:
@@ -44,13 +90,30 @@ The Gogs server configuration is managed as a file on your Home Assistant config
 
 On first start the add-on copies a default configuration there, which you can edit directly (for example with Visual Studio Code). Gogs uses the INI format; see the [Gogs configuration documentation](https://gogs.io/docs/use/configuration.html) for all available options.
 
-The web server listens on `0.0.0.0` on its default port `3000`. The port shown in the add-on configuration is only the *exposed* port that Home Assistant forwards to the add-on; it does not change where Gogs itself listens. The `EXTERNAL_URL` and `DOMAIN` settings control the public URL used for login redirects and clone URLs. If you access the add-on from a different host than the one running Home Assistant (for example through a reverse proxy), update those values to match the address you use in the browser.
+The web server listens on `0.0.0.0` on its default port `3000`. The port shown in the add-on configuration is only the *exposed* port that Home Assistant forwards to the add-on; it does not change where Gogs itself listens.
+
+The `EXTERNAL_URL` and `DOMAIN` settings control the public URL used for login redirects and clone URLs. If you access the add-on from a different host than the one running Home Assistant (for example through a reverse proxy), set the `external_url` add-on option instead — it overrides `EXTERNAL_URL` here. You can also adjust `EXTERNAL_URL`/`DOMAIN` directly in this file; note that a non-empty `external_url` option always takes precedence over the values in this file.
 
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
 
+## Git LFS
+
+Git LFS is active: the add-on bundles the `git-lfs` client and registers it system-wide (`git lfs install --system`) at start, and Gogs serves the Git LFS endpoints automatically. Large files tracked with Git LFS are stored on the server under `/data/gogs/data/lfs-objects` (temporary upload data under `data/tmp/lfs-objects`), as configured in the `[lfs]` section of `gogs.ini`.
+
+To use Git LFS in your repositories, install the Git LFS client on your machine (`sudo apt install git-lfs`, then `git lfs install`), track the large file patterns with `git lfs track` and commit the resulting `.gitattributes`. See the [Git LFS documentation](https://gogs.io/advancing/git-lfs) for details.
+
 ## Data folder
 
-The add-on stores the Gogs data in the `/data/gogs` folder: the SQLite database, repositories and sessions. Please ensure this is included in your backup.
+The add-on stores the Gogs data in the `/data/gogs` folder:
+
+- `repositories` — the Git repositories themselves.
+- `data/gogs.db` — the SQLite database.
+- `data/sessions` — file-based session data (when Redis is not configured).
+- `data/attachments` — file attachments uploaded to issues, comments and releases.
+- `data/avatars` and `data/repo-avatars` — custom user and repository avatars.
+- `data/lfs-objects` — objects stored with Git LFS (with temporary upload data under `data/tmp/`).
+
+All paths in the editable `gogs.ini` that point at this data folder are rendered absolute, so uploads, avatars and LFS objects survive restarts. Please ensure `/data/gogs` is included in your backups.
 
 ## Backups & Permissions
 

@@ -37,13 +37,17 @@ WORKDIR /tmp
 # release assets are statically linked binaries named new-api-vX / new-api-arm64-vX.
 # ca-certificates is required for outbound HTTPS to model providers, tzdata
 # provides timezone data, and gettext-base provides envsubst to render .env.
+# dnsutils (dig) and mariadb-client are used when the add-on connects to the
+# MariaDB add-on (resolve the service host and create the database).
 RUN set -x \
     && apt-get update \
     && apt-get upgrade -qy \
     && apt-get install -qy --no-install-recommends \
         ca-certificates \
         curl \
+        dnsutils \
         gettext-base \
+        mariadb-client \
         tzdata \
     && if [ "${BUILD_ARCH}" = "aarch64" ]; then \
         curl --proto "=https" --tlsv1.2 -sSfL \

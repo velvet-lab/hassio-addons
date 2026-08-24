@@ -1,4 +1,8 @@
 {
     "log_level": "debug",
-    "secret_key": "dev-secret-key-change-me"
+    "instance_name": "Gogs",
+    "secret_key": "dev-secret-key-change-me",
+    "use_mysql": false,
+    "external_url": "",
+    "redis_password": ""
 }

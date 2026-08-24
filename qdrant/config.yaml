@@ -10,7 +10,7 @@ arch:
   - amd64
   - aarch64
 host_network: false
-startup: system
+startup: services
 hassio_role: default
 homeassistant: 2026.1.0
 init: false
@@ -27,6 +27,8 @@ ports:
   6334/tcp: 6334
 options:
   log_level: info
+  api_key: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
-  admin_password: "password?"
+  api_key: password
+  read_only_api_key: "password?"

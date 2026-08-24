@@ -1,4 +1,6 @@
 {
     "log_level": "debug",
-    "session_secret": "dev-session-secret-change-me"
+    "session_secret": "dev-session-secret-change-me",
+    "use_mysql": false,
+    "redis_password": ""
 }

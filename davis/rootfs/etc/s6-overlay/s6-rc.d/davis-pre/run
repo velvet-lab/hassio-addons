@@ -66,9 +66,22 @@ if ! bashio::fs.file_exists "$user_config"; then
     chmod 644 "$user_config"
 fi
 
-bashio::log.debug "Reading configuration options..."
-app_timezone=$(bashio::config 'app_timezone' '')
-birthday_reminder_offset=$(bashio::config 'birthday_reminder_offset' '')
+bashio::log.debug "Reading configuration options (UI options only)..."
+# Auto-detect application timezone; prefer /etc/timezone, then /etc/localtime symlink.
+if [ -f /etc/timezone ]; then
+    app_timezone=$(cat /etc/timezone)
+elif [ -L /etc/localtime ]; then
+    app_timezone=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||')
+else
+    app_timezone="UTC"
+fi
+
+# These settings are intentionally not UI-configurable; use sensible defaults
+# or the editable `davis.env` template under /homeassistant/addons/davis.
+birthday_reminder_offset=''
+invite_from_address=''
+trusted_proxies='REMOTE_ADDR'
+
 caldav_enabled=$(bashio::config 'caldav_enabled' false)
 carddav_enabled=$(bashio::config 'carddav_enabled' false)
 webdav_enabled=$(bashio::config 'webdav_enabled' false)
@@ -76,13 +89,11 @@ home_enabled=$(bashio::config 'home_enabled' false)
 public_calendars_enabled=$(bashio::config 'public_calendars_enabled' false)
 admin_login=$(bashio::config 'admin_login')
 admin_password=$(bashio::config 'admin_password')
-invite_from_address=$(bashio::config 'invite_from_address' '')
 mail_host=$(bashio::config 'mail_host' '')
 mail_port=$(bashio::config 'mail_port' '')
 mail_username=$(bashio::config 'mail_username' '')
 mail_password=$(bashio::config 'mail_password' '')
 use_mysql=$(bashio::config 'use_mysql' false)
-trusted_proxies=$(bashio::config 'trusted_proxies' 'REMOTE_ADDR')
 
 bashio::log.debug "Validate options..."
 bashio::config.require 'admin_login' "Admin login must be set!"
@@ -150,6 +161,17 @@ echo -n "$public_root" > /var/run/s6/container_environment/DAVIS_PUBLIC_DIR
 bashio::log.debug "Setting permissions on data directory..."
 chmod -R 755 "$data_root"
 chown -R www-data:www-data "$data_root"
+
+# Ensure Symfony/profiler storage exists and is writable. Some runtime
+# components attempt to write under /opt/davis/var/cache/prod/profiler
+# which is outside the user data folder; create it and set ownership so
+# the webserver (www-data) can write to it.
+profiler_dir="/opt/davis/var/cache/prod/profiler"
+if ! bashio::fs.directory_exists "$profiler_dir"; then
+    mkdir -p "$profiler_dir"
+fi
+chmod -R 755 "$profiler_dir"
+chown -R www-data:www-data "$profiler_dir"
 
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"

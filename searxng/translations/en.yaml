@@ -2,15 +2,30 @@ configuration:
   log_level:
     name: Log Level
     description: Choose the Log Level
+  instance_name:
+    name: Instance Name
+    description: Set the name shown in the search page header / starts page
+  secret_key:
+    name: Secret Key
+    description: Set the secret key used to sign session cookies
+  external_url:
+    name: External URL
+    description: The public-facing URL of SearXNG, e.g. https://search.example.com/. Set this when the instance is served through a reverse proxy.
   redis_host:
     name: Redis Host
     description: Hostname or IP of the Redis server (used for the limiter / bot protection)
   redis_port:
     name: Redis Port
-    description: Port of the Redis server
+    description: Port of the Redis server (default 6379)
   redis_password:
     name: Redis Password
     description: Password of the Redis server (if set)
+  redis_username:
+    name: Redis Username
+    description: Username to authenticate against the Redis server (default 'default')
+  redis_db:
+    name: Redis Database
+    description: Number of the Redis database to use (default 0). Pick a unique number per app (e.g. SearXNG vs Gogs) to avoid collisions
 
 network:
-  8080/tcp: SearXNG web interface
+  8888/tcp: SearXNG web interface

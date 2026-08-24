@@ -28,6 +28,16 @@ done
 
 # Granian serves the WSGI application. SEARXNG_SETTINGS_PATH points to the
 # rendered settings.yml in APP_CONFIG_DEST (set by searxng-pre via the
-# container environment).
+# container environment). The bind host and port are passed explicitly:
+# Granian does NOT read server.bind_address/server.port from settings.yml and
+# would otherwise fall back to its built-in default 127.0.0.1:8000 (which is
+# not reachable from the home network). The add-on always listens on its own
+# internal default port 8888 on all interfaces; the port shown in the Home
+# Assistant UI is only the exposed port.
+#
+# The --interface wsgi flag is REQUIRED: SearXNG's flaskfix.py expects a real
+# WSGI environ (dict with .get). Granian's default RSGI mode passes an
+# RSGIHTTPScope object instead, which has no .get -> "Application callable
+# raised an exception: 'RSGIHTTPScope' object has no attribute 'get'".
 cd /opt/searxng || exit 1
-exec /opt/searxng/venv/bin/granian searx.webapp:app
+exec /opt/searxng/venv/bin/granian --interface wsgi --host 0.0.0.0 --port 8888 searx.webapp:app

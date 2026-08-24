@@ -44,8 +44,12 @@ RUN set -x \
     && apt-get install -qy --no-install-recommends \
         ca-certificates \
         curl \
+        dnsutils \
         gettext-base \
         git \
+        git-lfs \
+        jq \
+        mariadb-client \
     && mkdir -p /app/gogs /tmp/gogs-pkg && \
     if [ "${BUILD_ARCH}" = "aarch64" ]; then \
         curl --proto "=https" --tlsv1.2 -sSfL \

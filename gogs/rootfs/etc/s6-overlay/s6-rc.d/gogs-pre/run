@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v7-config"
+readonly build_marker="gogs-build-v23-config"
 
 root=/data
 app_name="gogs"
@@ -21,6 +21,38 @@ default_log_level="info"
 log_level=$(bashio::config 'log_level' "$default_log_level")
 bashio::log.level "${log_level}"
 
+# Map the add-on log_level onto the Gogs [log] LEVEL. Gogs supports Trace, Info,
+# Warn, Error and Fatal; the add-on's debug/notice values have no direct
+# counterpart, so they fall back to the nearest Gogs level.
+case "${log_level}" in
+    trace|debug) gogs_log_level="Trace" ;;
+    info|notice) gogs_log_level="Info" ;;
+    warning) gogs_log_level="Warn" ;;
+    error) gogs_log_level="Error" ;;
+    fatal) gogs_log_level="Fatal" ;;
+    *) gogs_log_level="Trace" ;;
+esac
+# Optional public-facing URL for reverse-proxy setups. When the user sets the
+# external_url option, the variable carries the full 'EXTERNAL_URL = <value>'
+# line so Gogs overrides its default. When unset, it carries a commented-out
+# '# EXTERNAL_URL =' line so Gogs falls back to its built-in default URL.
+# Note: for an unset optional option bashio::config returns the literal string
+# "null", so we treat empty and "null" as unset.
+external_url=$(bashio::config 'external_url' '')
+if ! bashio::var.has_value "${external_url}" || [[ "${external_url}" == "null" ]]; then
+    gogs_external_url="# EXTERNAL_URL ="
+else
+    gogs_external_url="EXTERNAL_URL = ${external_url}"
+    bashio::log.info "Using a custom external URL: ${external_url}"
+fi
+
+# The instance / brand name shown in the web UI. It is a UI option with a
+# default; it is optional in the HA schema only so the user may clear it and
+# fall back to the default.
+instance_name=$(bashio::config 'instance_name' 'Gogs')
+if ! bashio::var.has_value "${instance_name}" || [[ "${instance_name}" == "null" ]]; then
+    instance_name="Gogs"
+fi
 bashio::log.info "Gogs build marker: ${build_marker}"
 bashio::log.info "Prepare Gogs configuration"
 
@@ -30,12 +62,26 @@ bashio::log.info "Prepare Gogs configuration"
 echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
 echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
 echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+echo -n "${gogs_log_level}" > /var/run/s6/container_environment/GOGS_LOG_LEVEL
+echo -n "${instance_name}" > /var/run/s6/container_environment/GOGS_INSTANCE_NAME
+echo -n "${gogs_external_url}" > /var/run/s6/container_environment/GOGS_EXTERNAL_URL
 
 # Ensure the Gogs custom directory layout exists. The "custom" directory
 # location is set via GOGS_CUSTOM in the image and holds data/ and log/. Config
 # is rendered volatile to APP_CONFIG_DEST (/etc/gogs) by the core service.
 bashio::log.debug "Create folders"
-for folder in "${config_source}" "${config_dest}" "${data_root}"; do
+# Persistent data subdirectories referenced by the gogs.ini template. Gogs
+# resolves relative data/ paths against its WORK DIR (not /data), so the
+# template points them at ${GOGS_DATA_PATH} (= /data/gogs/data). Pre-create
+# them here so they exist before http first start.
+for folder in "${config_source}" "${config_dest}" "${data_root}" \
+    "${data_root}/attachments" \
+    "${data_root}/avatars" \
+    "${data_root}/repo-avatars" \
+    "${data_root}/lfs-objects" \
+    "${data_root}/tmp" \
+    "${data_root}/tmp/lfs-objects" \
+    "${data_root}/sessions"; do
     if ! bashio::fs.directory_exists "${folder}"; then
         bashio::log.debug "Creating folder ${folder}"
         mkdir -p "${folder}"
@@ -68,6 +114,129 @@ echo -n "${GOGS_SECRET_KEY}" > /var/run/s6/container_environment/GOGS_SECRET_KEY
 echo -n "${data_root}" > /var/run/s6/container_environment/GOGS_DATA_PATH
 echo -n "${gogs_root}/repositories" > /var/run/s6/container_environment/GOGS_REPO_ROOT
 
+# Database backend. By default Gogs uses the built-in SQLite file stored under
+# the persistent data directory. When the use_mysql option is enabled, Gogs
+# instead uses the MySQL/MariaDB service provided by another add-on. All values
+# are exported as one file per variable so the core service can render them
+# into the [database] section of app.ini.
+db_type="sqlite3"
+db_path="${data_root}/gogs.db"
+db_host=""
+db_name="gogs"
+db_user=""
+db_password=""
+
+use_mysql=$(bashio::config 'use_mysql' false)
+
+if bashio::var.true "${use_mysql}"; then
+    db_type="mysql"
+
+    db_hostname=$(bashio::services "mysql" "host")
+    db_host_ipv4=$(dig +short A "${db_hostname}" | head -1)
+    db_port=$(bashio::services "mysql" "port")
+    db_password=$(bashio::services "mysql" "password")
+    db_user=$(bashio::services "mysql" "username")
+
+    # Gogs expects the MySQL host as host:port and the matching database name.
+    db_host="${db_host_ipv4}:${db_port}"
+
+    bashio::log.debug "Connecting to MariaDB at ${db_host_ipv4}:${db_port} with user ${db_user}"
+
+    # Initialize the 'gogs' database. The bundled Gogs script sets the InnoDB
+    # engine options and creates the database with the utf8mb4 charset. Because
+    # that script contains 'DROP DATABASE IF EXISTS gogs', it must only run when
+    # the database does not exist yet — otherwise every container start would
+    # wipe existing data.
+    if mariadb -u "${db_user}" -p"${db_password}" -h "${db_host_ipv4}" -P "${db_port}" --skip-ssl \
+        -e "SHOW DATABASES LIKE 'gogs';" 2>/dev/null | grep -qx "gogs"; then
+        bashio::log.debug "The 'gogs' database already exists; skipping initialization"
+    else
+        if bashio::fs.file_exists "/app/gogs/scripts/mysql.sql"; then
+            bashio::log.info "Initializing the 'gogs' database from the bundled Gogs script"
+            mariadb -u "${db_user}" -p"${db_password}" -h "${db_host_ipv4}" -P "${db_port}" --skip-ssl \
+                < /app/gogs/scripts/mysql.sql
+        else
+            bashio::log.info "Bundled MySQL init script not found; creating the database manually"
+            mariadb -u "${db_user}" -p"${db_password}" -h "${db_host_ipv4}" -P "${db_port}" --skip-ssl \
+                -e "CREATE DATABASE IF NOT EXISTS \`gogs\` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+        fi
+    fi
+
+    bashio::log.warning "Gogs is using the MariaDB add-on for its database"
+    bashio::log.warning "Please ensure this is included in your backups"
+    bashio::log.warning "Uninstalling the MariaDB add-on will remove any data"
+else
+    bashio::log.debug "Using the built-in SQLite database"
+fi
+
+echo -n "${db_type}" > /var/run/s6/container_environment/GOGS_DB_TYPE
+echo -n "${db_path}" > /var/run/s6/container_environment/GOGS_DB_PATH
+echo -n "${db_host}" > /var/run/s6/container_environment/GOGS_DB_HOST
+echo -n "${db_name}" > /var/run/s6/container_environment/GOGS_DB_NAME
+echo -n "${db_user}" > /var/run/s6/container_environment/GOGS_DB_USER
+echo -n "${db_password}" > /var/run/s6/container_environment/GOGS_DB_PASSWORD
+
+# Optional Redis-backed session + cache store. Redis is configured through the
+# add-on options redis_host / redis_port / redis_password. As soon as any one
+# of them is set, all three are required; when all are left empty, Redis is
+# disabled (file-based sessions and in-memory cache).
+session_provider="file"
+session_config="${data_root}/sessions"
+cache_adapter="memory"
+cache_host=""
+
+redis_host=$(bashio::config 'redis_host')
+redis_password=$(bashio::config 'redis_password')
+# redis_port / redis_db are prefilled with defaults in the UI options, so they
+# always have a value. They are NOT indicators for Redis being used — only
+# redis_host or redis_password are.
+redis_port=$(bashio::config 'redis_port' '6379')
+redis_db=$(bashio::config 'redis_db' '0')
+
+# bashio returns the literal string "null" when an optional schema option is
+# unset (not an empty value). Normalize host/password (the indicators) and the
+# prefilled values to their defaults.
+[[ "${redis_host}" == "null" ]] && redis_host=""
+[[ "${redis_password}" == "null" ]] && redis_password=""
+[[ "${redis_port}" == "null" ]] && redis_port="6379"
+[[ "${redis_db}" == "null" ]] && redis_db="0"
+
+# Redis is considered active when redis_host OR redis_password is set. The
+# prefilled redis_port / redis_db are no indicator on their own. Once active,
+# both redis_host and redis_password are required.
+if bashio::var.has_value "${redis_host}" \
+    || bashio::var.has_value "${redis_password}"; then
+    if ! bashio::var.has_value "${redis_host}"; then
+        bashio::log.error "The 'redis_host' option is required when Redis is configured."
+        bashio::log.error "Set 'redis_host' and 'redis_password' (or leave both empty to disable Redis)."
+        exit 1
+    fi
+    if ! bashio::var.has_value "${redis_password}"; then
+        bashio::log.error "The 'redis_password' option is required when Redis is configured."
+        bashio::log.error "Set 'redis_host' and 'redis_password' (or leave both empty to disable Redis)."
+        exit 1
+    fi
+
+    # A shared connection string used by the [session] PROVIDER_CONFIG and the
+    # [cache] HOST settings. The db number is taken from redis_db so each app
+    # (e.g. Gogs vs SearXNG) can use its own database and avoid collisions.
+    redis_url="network=tcp,addr=${redis_host}:${redis_port},password=${redis_password},db=${redis_db},pool_size=100,idle_timeout=180"
+
+    session_provider="redis"
+    session_config="${redis_url}"
+    cache_adapter="redis"
+    cache_host="${redis_url}"
+
+    bashio::log.info "Gogs will use a Redis server for sessions and cache (${redis_host}:${redis_port}, db ${redis_db})"
+else
+    bashio::log.debug "Redis is disabled; using file-based sessions and in-memory cache"
+fi
+
+echo -n "${session_provider}" > /var/run/s6/container_environment/GOGS_SESSION_PROVIDER
+echo -n "${session_config}" > /var/run/s6/container_environment/GOGS_SESSION_CONFIG
+echo -n "${cache_adapter}" > /var/run/s6/container_environment/GOGS_CACHE_ADAPTER
+echo -n "${cache_host}" > /var/run/s6/container_environment/GOGS_CACHE_HOST
+
 # On first start copy the default configuration to the user-accessible folder
 # under /homeassistant, where the user can edit it (e.g. with VS Code). If the
 # user deletes the file it is recreated from the bundled template.
@@ -75,6 +244,26 @@ if ! bashio::fs.file_exists "${user_config}"; then
     bashio::log.info "Creating default Gogs configuration for the user"
     cp /etc/default/gogs.ini.template "${user_config}"
     chmod 644 "${user_config}"
+fi
+
+# Store the resolved MySQL password in the central Home Assistant secrets file so
+# it is visible in one known place (/homeassistant/secrets.yaml), e.g. to fill the
+# Gogs install page. Written unquoted so it matches the style of the other
+# secrets in the file. Idempotent: only writes the key when it is not already
+# present, so it does not overwrite a manually adjusted value.
+if bashio::var.true "${use_mysql}" && ! grep -qE '^gogs_db_password:' "${homeassistant_root}/secrets.yaml"; then
+    bashio::log.info "Writing the Gogs MySQL password to /homeassistant/secrets.yaml (key 'gogs_db_password')"
+    printf '%s\n' "gogs_db_password: ${db_password}" >> "${homeassistant_root}/secrets.yaml"
+fi
+
+# Initialize Git LFS. The Gogs server serves LFS objects out of the box, but the
+# `git-lfs` client must register its smudge/clean filters so server-side Git
+# operations recognize LFS pointers. --system writes to /etc/gitconfig, so it
+# applies regardless of the HOME of the running user. Best-effort: if it fails
+# (e.g. older git-lfs), log a warning but do not abort startup.
+bashio::log.debug "Initialize Git LFS"
+if ! git lfs install --system 2>/dev/null; then
+    bashio::log.warning "Could not run 'git lfs install --system'; Git LFS may not be fully configured."
 fi
 
 bashio::log.debug "Redirect log output"

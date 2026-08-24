@@ -10,7 +10,7 @@ arch:
   - amd64
   - aarch64
 host_network: false
-startup: system
+startup: services
 hassio_role: default
 homeassistant: 2026.1.0
 init: false

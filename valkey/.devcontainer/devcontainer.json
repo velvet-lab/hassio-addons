@@ -1,0 +1,29 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/debian
+{
+  "name": "valkey",
+  "mounts": [
+    {
+      "source": "${localWorkspaceFolder}/.devcontainer/mounts/data",
+      "target": "/data",
+      "type": "bind"
+    },
+    {
+      "source": "${localWorkspaceFolder}/.devcontainer/mounts/config",
+      "target": "/homeassistant",
+      "type": "bind"
+    }
+  ],
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "args": {
+      "BUILD_FROM": "ghcr.io/home-assistant/amd64-base-ubuntu:22.04",
+      "BUILD_ARCH": "amd64"
+    }
+  },
+  "privileged": true,
+  "forwardPorts": [6379],
+  "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/post-create.sh",
+  "postStartCommand": "${containerWorkspaceFolder}/.devcontainer/post-start.sh",
+  "postAttachCommand": "${containerWorkspaceFolder}/.devcontainer/post-attach.sh"
+}

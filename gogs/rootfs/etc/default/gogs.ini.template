@@ -12,38 +12,121 @@
 # Assistant, set DOMAIN and EXTERNAL_URL to match the address you use in the
 # browser (e.g. https://git.example.com/ if you add a reverse proxy).
 
+; The brand name of the application, can be your company or team name.
+; Rendered from the add-on instance_name option; the editable file here only
+; overrides it if you change this line (and restart the add-on).
+BRAND_NAME = ${GOGS_INSTANCE_NAME}
+
 # Run as root, matching the user the add-on container runs the process as.
 RUN_MODE = prod
 RUN_USER = root
 
 [server]
-; Gogs listens on this internal address and port regardless of the port
-; shown in the Home Assistant UI (the UI port is only the exposed port).
+; The public-facing URL for the application. When the add-on external_url option
+; is set (e.g. for a reverse proxy), the line below becomes active and uses the
+; configured URL verbatim. When unset, the line is commented out so Gogs falls
+; back to its built-in default (built from PROTOCOL, DOMAIN and HTTP_PORT).
+${GOGS_EXTERNAL_URL}
+; The protocol that is used to serve direct traffic to the application.
+; Currently supports "http", "https", "fcgi" and "unix".
+PROTOCOL = http
+; The address to be listened by the application.
 HTTP_ADDR = 0.0.0.0
+; The port number to be listened by the application.
 HTTP_PORT = 3000
 
-; The public URL used by the web UI for redirects and clone URLs.
-DOMAIN      = localhost
-EXTERNAL_URL = %(PROTOCOL)s://%(DOMAIN)s:%(HTTP_PORT)s/
-PROTOCOL    = http
+; Whether to disable using CDN for static files regardless.
+OFFLINE_MODE = true
+; Whether to enable application level GZIP compression.
+ENABLE_GZIP = true
+
+; Whether to disable SSH access to the application entirely.
+DISABLE_SSH = true
+; Whether to start a builtin SSH server.
+START_SSH_SERVER = false
 
 [repository]
+; The root path for storing managed repositories, default is "~/gogs-repositories"
 ROOT = ${GOGS_REPO_ROOT}
+; Whether to force every new repository to be private.
+FORCE_PRIVATE = true
+; Default branch name when creating new repositories.
+DEFAULT_BRANCH = main
 
 [database]
-# SQLite requires an absolute path.
-TYPE = sqlite3
-PATH = ${GOGS_DATA_PATH}/gogs.db
+; The database backend is either "sqlite3" (built-in, default) or "mysql"
+; (when the use_mysql add-on option is enabled). SQLite requires an absolute
+; path; when TYPE is "mysql", HOST/NAME/USER/PASSWORD are used instead.
+TYPE = ${GOGS_DB_TYPE}
+# SQLite only:
+PATH = ${GOGS_DB_PATH}
+# MySQL/MariaDB only:
+HOST = ${GOGS_DB_HOST}
+NAME = ${GOGS_DB_NAME}
+USER = ${GOGS_DB_USER}
+PASSWORD = ${GOGS_DB_PASSWORD}
 
 [security]
 # A random per-install key is generated on first start. Change this if you
 # want to set your own unguessable value.
 SECRET_KEY = ${GOGS_SECRET_KEY}
 
-[session]
-# Sessions are kept on disk so a container restart preserves them.
-PROVIDER = file
-PROVIDER_CONFIG = ${GOGS_DATA_PATH}/sessions
+[email]
+; Whether to enable the email service.
+ENABLED = false
 
-[cron]
+[session]
+# Sessions are kept on disk by default. When a Redis connection is configured
+# via the add-on options (redis_host / redis_port / redis_password), PROVIDER
+# switches to "redis" and PROVIDER_CONFIG holds the Redis connection string.
+PROVIDER = ${GOGS_SESSION_PROVIDER}
+PROVIDER_CONFIG = ${GOGS_SESSION_CONFIG}
+
+[cache]
+# The cache adapter defaults to "memory". When a Redis connection is
+# configured, ADAPTER switches to "redis" and HOST holds the Redis connection
+# string.
+ADAPTER = ${GOGS_CACHE_ADAPTER}
+HOST = ${GOGS_CACHE_HOST}
+
+[lfs]
+; The storage backend for uploading new objects.
+STORAGE = local
+; The root path to store LFS objects on local file system.
+OBJECTS_PATH = ${GOGS_DATA_PATH}/lfs-objects
+; The path to temporarily store LFS objects during upload verification.
+OBJECTS_TEMP_PATH = ${GOGS_DATA_PATH}/tmp/lfs-objects
+
+[attachment]
+; Whether to enabled upload attachments in general.
 ENABLED = true
+; The path to store attachments on the file system.
+PATH = ${GOGS_DATA_PATH}/attachments
+
+[picture]
+; The path to store user avatars on the file system.
+AVATAR_UPLOAD_PATH = ${GOGS_DATA_PATH}/avatars
+; The path to store repository avatars on the file system.
+REPOSITORY_AVATAR_UPLOAD_PATH = ${GOGS_DATA_PATH}/repo-avatars
+; Chinese users can use a custom avatar source, such as http://cn.gravatar.com/avatar/.
+GRAVATAR_SOURCE = gravatar
+; Whether to disable Gravatar, this value will be forced to be true in offline mode.
+DISABLE_GRAVATAR = true
+; Whether to enable federated avatar lookup uses DNS to discover avatar associated
+; with emails, see https://www.libravatar.org for details.
+; This value will be forced to be false in offline mode or when Gravatar is disabled.
+ENABLE_FEDERATED_AVATAR = false
+
+[admin]
+; Whether to disable regular (non-admin) users to create organizations.
+DISABLE_REGULAR_ORG_CREATION = true
+
+; General settings of loggers.
+[log]
+; Either "Trace", "Info", "Warn", "Error", "Fatal", default is "Trace".
+; Controlled by the add-on log_level option.
+LEVEL = ${GOGS_LOG_LEVEL}
+
+[prometheus]
+; Whether to enable Prometheus metrics.
+ENABLED = false

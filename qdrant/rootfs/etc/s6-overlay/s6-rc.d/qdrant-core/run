@@ -26,6 +26,13 @@ for file in "${config_source}"/*; do
     chmod 644 "${config_dest}/${name}"
 done
 
-# Qdrant loads its production.yaml from the current working directory.
-cd "${config_dest}" || exit 1
-exec qdrant
+# Run Qdrant from its bundle directory so the (relative) static_content_dir
+# resolves to the bundled Web UI in /opt/qdrant/static. The config is passed
+# explicitly via --config-path; storage/snapshots paths are absolute. The
+# binary is the same release tarball on both architectures at
+# /opt/qdrant/qdrant.
+cd /opt/qdrant || exit 1
+
+# shellcheck disable=SC2153  # APP_CONFIG_DEST is a container-env var
+bashio::log.debug "Qdrant build marker: qdrant-build-v7-config"
+exec /opt/qdrant/qdrant --config-path "${config_dest}/production.yaml"

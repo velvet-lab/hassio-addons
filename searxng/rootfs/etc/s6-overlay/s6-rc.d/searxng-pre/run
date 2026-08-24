@@ -5,19 +5,16 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="searxng-build-v11-config"
+readonly build_marker="searxng-build-v24-config"
 
 root=/data
 app_name="searxng"
 data_root="$root/${app_name}"
-secret_file="${data_root}/secret"
 homeassistant_root="/homeassistant"
 config_source="$homeassistant_root/addons/${app_name}"
 config_dest="/etc/${app_name}"
 settings_file="${config_dest}/settings.yml"
 user_config="$config_source/settings.yml"
-
-default_redis_port="6379"
 
 default_log_level="info"
 
@@ -66,85 +63,94 @@ if ! bashio::fs.file_exists "${limiter_user}"; then
 fi
 
 # Resolve the Redis connection to use for the limiter / bot protection.
-# Redis is OPTIONAL: it is only enabled when a connection is configured. The
-# preferred way is to provide the connection via the add-on options
-# (redis_host / redis_port / redis_password). As a fallback, a Redis service
-# provided by another add-on is used when it is registered and resolves.
-redis_host=""
-redis_password=""
-redis_port=$(bashio::config 'redis_port' "${default_redis_port}")
+# Redis is OPTIONAL: it is configured through the add-on options
+# (redis_host / redis_port / redis_password). As soon as any one of them is
+# set, all three are required; when all are left empty, Redis is disabled.
+redis_host=$(bashio::config 'redis_host')
+redis_password=$(bashio::config 'redis_password')
+# redis_port / redis_username / redis_db are prefilled with defaults in the UI
+# options, so they always have a value. They are NOT indicators for Redis being
+# used — only redis_host or redis_password are.
+redis_port=$(bashio::config 'redis_port' '6379')
+redis_username=$(bashio::config 'redis_username' 'default')
+redis_db=$(bashio::config 'redis_db' '0')
 
-# 1) add-on options (primary, e.g. for a Redis add-on that does not register a
-#    service)
-option_host=$(bashio::config 'redis_host')
-if bashio::var.has_value "${option_host}"; then
-    redis_host="${option_host}"
-    redis_password=$(bashio::config 'redis_password')
-    bashio::log.info "Using Redis from add-on options at ${redis_host}:${redis_port}"
-else
-    # 2) a registered Redis service (best effort)
-    if bashio::services.available "redis"; then
-        service_host=$(bashio::services redis "host")
-        if bashio::var.has_value "${service_host}" && [[ "${service_host}" != "null" ]]; then
-            redis_host="${service_host}"
-            redis_port=$(bashio::services redis "port")
-            redis_password=$(bashio::services redis "password")
-            bashio::log.info "Using the Redis service provided by Home Assistant"
-        fi
+# bashio returns the literal string "null" when an optional schema option is
+# unset (not an empty value). Normalize host/password (the indicators) and the
+# prefilled values to their defaults so a disabled Redis is not misdetected.
+[[ "${redis_host}" == "null" ]] && redis_host=""
+[[ "${redis_password}" == "null" ]] && redis_password=""
+[[ "${redis_port}" == "null" ]] && redis_port="6379"
+[[ "${redis_username}" == "null" ]] && redis_username="default"
+[[ "${redis_db}" == "null" ]] && redis_db="0"
+
+# Redis is considered active when redis_host OR redis_password is set. The two
+# prefilled values (redis_port / redis_username / redis_db) are no indicator on
+# their own. Once active, both redis_host and redis_password are required.
+if bashio::var.has_value "${redis_host}" \
+    || bashio::var.has_value "${redis_password}"; then
+    if ! bashio::var.has_value "${redis_host}"; then
+        bashio::log.error "The 'redis_host' option is required when Redis is configured."
+        bashio::log.error "Set 'redis_host' and 'redis_password' (or leave both empty to disable Redis)."
+        exit 1
+    fi
+    if ! bashio::var.has_value "${redis_password}"; then
+        bashio::log.error "The 'redis_password' option is required when Redis is configured."
+        bashio::log.error "Set 'redis_host' and 'redis_password' (or leave both empty to disable Redis)."
+        exit 1
     fi
 fi
 
 if bashio::var.has_value "${redis_host}"; then
+    # Build valkey://[user[:pass]@]host:port/db. The user/username is included
+    # (default "default") and the DB index is taken from the redis_db option so
+    # each app (e.g. SearXNG vs Gogs) can use its own database and avoid
+    # collisions.
     redis_url="valkey://"
+    redis_creds="${redis_username}"
     if bashio::var.has_value "${redis_password}"; then
-        redis_url="${redis_url}${redis_password}@"
+        redis_creds="${redis_creds}:${redis_password}"
     fi
-    redis_url="${redis_url}${redis_host}:${redis_port}/0"
-    bashio::log.info "SearXNG will use Redis at ${redis_host}:${redis_port}"
+    redis_url="${redis_url}${redis_creds}@${redis_host}:${redis_port}/${redis_db}"
+    bashio::log.info "SearXNG will use Redis at ${redis_host}:${redis_port} (db ${redis_db})"
 else
     redis_url="false"
     bashio::log.info "No Redis configured; the SearXNG limiter / bot protection is disabled"
 fi
-export SEARXNG_REDIS_URL="${redis_url}"
+export SEARXNG_VALKEY_CUSTOM_URL="${redis_url}"
 
-# Determine the host/base URL. Home Assistant exposes the supervisor's network
-# info; use the first non-loopback IPv4 as the instance base URL host, falling
-# back to the hostname if the API is not reachable.
-searxng_host="homeassistant"
-if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
-    network_info=$(curl -sSL -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" "http://supervisor/network/info" 2>/dev/null)
-    # Best-effort: extract the first IPv4 address (skip loopback and link-local).
-    # shellcheck disable=SC2001
-    raw_ipv4="$(echo "${network_info}" | sed -E 's/.*"ipv4"[[:space:]]*:?[[:space:]]*\[([^]]*)\].*/\1/' | tr ',' '\n')"
-    for candidate in $raw_ipv4; do
-        candidate="${candidate//[\" ]/}"
-        if [[ -n "${candidate}" ]] && ! [[ "${candidate}" =~ ^(127\.|::1|fe80) ]]; then
-            searxng_host="${candidate}"
-            break
-        fi
-    done
+# The server secret key is a REQUIRED add-on option (Home Assistant stores it
+# encrypted). It must be stable across restarts or sessions and cookies are
+# invalidated. Instead of generating a secret on first start, abort startup if
+# the user has not provided one — a generated key would diverge from the value
+# in the user's configuration and break sessions/cookies after a restart.
+if ! bashio::var.has_value "$(bashio::config 'secret_key')"; then
+    bashio::log.error "The 'secret_key' option is required but empty."
+    bashio::log.error "Set a strong random value, e.g. generated with:"
+    bashio::log.error "    openssl rand -hex 32"
+    bashio::log.error "and restart the add-on."
+    exit 1
 fi
-if ! [[ -n "${searxng_host}" ]]; then
-    searxng_host="homeassistant"
+secret_key="$(bashio::config 'secret_key')"
+
+# The instance name is a UI option with a default. It is shown in the search
+# page header / starts page. It is optional in the HA schema only so the user
+# may clear it and fall back to the default.
+instance_name=$(bashio::config 'instance_name' 'Privat-SearXNG')
+if ! bashio::var.has_value "${instance_name}" || [[ "${instance_name}" == "null" ]]; then
+    instance_name="Privat-SearXNG"
 fi
-export SEARXNG_HOST="${searxng_host}"
 
-# The web server listens on the internal default port 8080 regardless of
-# the port shown in the Home Assistant UI (the UI port is only the exposed
-# port). Export it so it can be substituted into `server.base_url` and used
-# as the Granian listening port.
-export SEARXNG_PORT="8080"
-
-# The server secret key must be stable across restarts (otherwise sessions and
-# cookies are invalidated). Generate one on first start and persist it, then
-# export it via the container environment so the core service inherits it.
-if bashio::fs.file_exists "${secret_file}"; then
-    secret_key=$(cat "${secret_file}")
+# Public-facing base URL. When the user sets the external_url option (e.g. for
+# a reverse proxy), base_url becomes the configured URL verbatim. When unset,
+# the line is commented out so SearXNG derives the instance URL from the
+# incoming request.
+external_url=$(bashio::config 'external_url' '')
+if ! bashio::var.has_value "${external_url}" || [[ "${external_url}" == "null" ]]; then
+    searxng_base_url="false"
 else
-    bashio::log.info "Generating a new SearXNG secret key"
-    secret_key=$(head -c 32 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9' | head -c 32)
-    printf '%s' "${secret_key}" > "${secret_file}"
-    chmod 600 "${secret_file}"
+    searxng_base_url="${external_url}"
+    bashio::log.info "Using a custom external base URL: ${external_url}"
 fi
 
 bashio::log.debug "Writing container environment variables"
@@ -152,16 +158,10 @@ bashio::log.debug "Writing container environment variables"
 # environment (one file per variable). The actual envsubst runs in
 # searxng-core, which re-loads these via with-contenv.
 echo -n "${settings_file}" > /var/run/s6/container_environment/SEARXNG_SETTINGS_PATH
-echo -n "${secret_key}" > /var/run/s6/container_environment/SEARXNG_SECRET
-echo -n "${redis_url}" > /var/run/s6/container_environment/SEARXNG_REDIS_URL
-echo -n "${searxng_host}" > /var/run/s6/container_environment/SEARXNG_HOST
-echo -n "${SEARXNG_PORT}" > /var/run/s6/container_environment/SEARXNG_PORT
-echo -n "0.0.0.0" > /var/run/s6/container_environment/SEARXNG_BIND_ADDRESS
-echo -n "0.0.0.0" > /var/run/s6/container_environment/GRANIAN_HOST
-echo -n "${SEARXNG_PORT}" > /var/run/s6/container_environment/GRANIAN_PORT
-echo -n "searxng" > /var/run/s6/container_environment/GRANIAN_PROCESS_NAME
-echo -n "wsgi" > /var/run/s6/container_environment/GRANIAN_INTERFACE
-echo -n "4" > /var/run/s6/container_environment/GRANIAN_BLOCKING_THREADS
+echo -n "${secret_key}" > /var/run/s6/container_environment/SEARXNG_CUSTOM_SECRET
+echo -n "${instance_name}" > /var/run/s6/container_environment/SEARXNG_INSTANCE_NAME
+echo -n "${searxng_base_url}" > /var/run/s6/container_environment/SEARXNG_CUSTOM_BASE_URL
+echo -n "${redis_url}" > /var/run/s6/container_environment/SEARXNG_VALKEY_CUSTOM_URL
 
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
