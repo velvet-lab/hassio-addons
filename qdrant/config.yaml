@@ -27,6 +27,8 @@ ports:
   6334/tcp: 6334
 options:
   log_level: info
+  api_key: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
-  admin_password: "password?"
+  api_key: password
+  read_only_api_key: "password?"

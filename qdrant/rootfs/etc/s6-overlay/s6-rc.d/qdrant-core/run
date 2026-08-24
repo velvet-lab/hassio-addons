@@ -31,5 +31,5 @@ done
 # directory chdir is therefore not needed - start from the s6 default.
 
 # shellcheck disable=SC2153  # APP_CONFIG_DEST is a container-env var
-bashio::log.debug "Qdrant build marker: qdrant-build-v5-config"
+bashio::log.debug "Qdrant build marker: qdrant-build-v6-config"
 exec qdrant --config-path "${config_dest}/production.yaml"

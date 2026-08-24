@@ -14,6 +14,18 @@ service:
   http_port: 6333
   grpc_port: 6334
 
+  # Set an api-key (required).
+  # All requests must include a header with the api-key.
+  # example header: `api-key: <API-KEY>`
+  api_key: ${QDRANT_API_KEY}
+
+  # Set an api-key for read-only operations (optional).
+  # If set, all requests must include a header with the api-key.
+  # example header: `api-key: <API-KEY>`
+  # Empty (unset in the add-on UI) renders as null and disables the read-only
+  # key - it never falls back to the write api_key.
+  read_only_api_key: ${QDRANT_READ_ONLY_API_KEY}
+
 storage:
   storage_path: ${QDRANT_STORAGE_PATH}
   snapshots_path: ${QDRANT_SNAPSHOTS_PATH}

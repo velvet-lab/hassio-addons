@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="qdrant-build-v5-config"
+readonly build_marker="qdrant-build-v6-config"
 
 root=/data
 app_name="qdrant"
@@ -65,14 +65,28 @@ if ! bashio::fs.file_exists "${config_source}/production.yaml"; then
     chmod 644 "${config_source}/production.yaml"
 fi
 
-# Protect the Qdrant HTTP/gRPC APIs (and thus the Web UI) with an admin
-# password. Qdrant picks up the value from the QDRANT__SERVICE__API_KEY
-# environment variable (double-underscore based env config mapping).
-admin_password=$(bashio::config 'admin_password')
-if bashio::var.has_value "${admin_password}"; then
-    bashio::log.debug "Enabling Qdrant admin password"
-    echo -n "${admin_password}" > /var/run/s6/container_environment/QDRANT__SERVICE__API_KEY
+# The main api_key is a REQUIRED add-on option (HA stores it encrypted).
+# Abort if it is empty; never fall back to a generated default.
+api_key=$(bashio::config 'api_key')
+if ! bashio::var.has_value "${api_key}"; then
+    bashio::log.error "The 'api_key' option is required but empty."
+    bashio::log.error "Set a strong api key and restart the add-on."
+    exit 1
 fi
+
+# The read-only api key is optional. When set, it is rendered into the
+# Qdrant config; when empty, it renders as explicit YAML null so Qdrant
+# treats it as unset (never falls back to the write api_key).
+read_only_api_key=$(bashio::config 'read_only_api_key')
+if ! bashio::var.has_value "${read_only_api_key}"; then
+    read_only_api_key="null"
+fi
+
+# Render both keys into the Qdrant config every start (the template uses
+# these placeholders; the user-editable source copy never holds the plain
+# secret, only the volatile /etc/qdrant/production.yaml gets the values).
+echo -n "${api_key}" > /var/run/s6/container_environment/QDRANT_API_KEY
+echo -n "${read_only_api_key}" > /var/run/s6/container_environment/QDRANT_READ_ONLY_API_KEY
 
 bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
