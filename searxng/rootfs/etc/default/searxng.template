@@ -21,16 +21,13 @@ general:
   contact_url: false
 
 server:
-  secret_key: "${SEARXNG_SECRET}"
-  port: 8080
-  bind_address: "0.0.0.0"
+  secret_key: "${SEARXNG_CUSTOM_SECRET}"
 
   # Public base URL of this instance. When the external_url add-on option is
-  # set (e.g. for a reverse proxy), the line below becomes active and uses the
-  # configured URL verbatim (e.g. "http://192.168.1.10:8080/" or
-  # "https://search.example.com/"). When unset, the line is commented out so
-  # SearXNG derives the instance URL from the incoming request.
-  ${SEARXNG_BASE_URL}
+# set (e.g. for a reverse proxy), the line below uses the configured URL
+# verbatim (e.g. "https://search.example.com/"). When unset, SEARXNG_CUSTOM_BASE_URL
+# is `false` so SearXNG derives the instance URL from the incoming request.
+  base_url: ${SEARXNG_CUSTOM_BASE_URL}
 
   # rate limit requests and block some bots. Only enable if you also provide a
   # Redis connection (see the valkey block below).

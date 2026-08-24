@@ -22,16 +22,13 @@ map:
 backup: hot
 backup_exclude:
   - /data/app.err
-watchdog: tcp://[HOST]:[PORT:8080]
+watchdog: tcp://[HOST]:[PORT:8888]
 ports:
-  8080/tcp: 8080
+  8888/tcp: 8888
 options:
   log_level: info
   instance_name: "Privat-SearXNG"
   secret_key: null
-  redis_port: 6379
-  redis_username: "default"
-  redis_db: 0
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   instance_name: "str?"

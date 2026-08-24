@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="searxng-build-v19-config"
+readonly build_marker="searxng-build-v23-config"
 
 root=/data
 app_name="searxng"
@@ -147,9 +147,9 @@ fi
 # incoming request.
 external_url=$(bashio::config 'external_url' '')
 if ! bashio::var.has_value "${external_url}" || [[ "${external_url}" == "null" ]]; then
-    searxng_base_url="# base_url: (unset; SearXNG derives the instance URL from the request)"
+    searxng_base_url="false"
 else
-    searxng_base_url="base_url: \"${external_url}\""
+    searxng_base_url="${external_url}"
     bashio::log.info "Using a custom external base URL: ${external_url}"
 fi
 
@@ -158,9 +158,9 @@ bashio::log.debug "Writing container environment variables"
 # environment (one file per variable). The actual envsubst runs in
 # searxng-core, which re-loads these via with-contenv.
 echo -n "${settings_file}" > /var/run/s6/container_environment/SEARXNG_SETTINGS_PATH
-echo -n "${secret_key}" > /var/run/s6/container_environment/SEARXNG_SECRET
+echo -n "${secret_key}" > /var/run/s6/container_environment/SEARXNG_CUSTOM_SECRET
 echo -n "${instance_name}" > /var/run/s6/container_environment/SEARXNG_INSTANCE_NAME
-echo -n "${searxng_base_url}" > /var/run/s6/container_environment/SEARXNG_BASE_URL
+echo -n "${searxng_base_url}" > /var/run/s6/container_environment/SEARXNG_CUSTOM_BASE_URL
 echo -n "${redis_url}" > /var/run/s6/container_environment/SEARXNG_VALKEY_CUSTOM_URL
 
 bashio::log.debug "Redirect log output"

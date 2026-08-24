@@ -7,7 +7,7 @@ The installation of this add-on is straightforward and not different in comparis
 1.  Start the "SearXNG" add-on.
 2.  Check the logs of "SearXNG" to see if everything went well.
 
-After starting the add-on, SearXNG is available on port `8080` of your Home Assistant instance.
+After starting the add-on, SearXNG is available on port `8888` of your Home Assistant instance.
 
 ## Configuration
 
@@ -78,7 +78,7 @@ On first start the add-on copies a default configuration there, which you can ed
 
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
 
-The `server.base_url` and `server.secret_key` values in `settings.yml` are rendered from the add-on options at start. Set `base_url` here directly (or use the `external_url` option, which takes precedence) for a reverse-proxy setup; `secret_key` is always taken from the required `secret_key` option. The instance listens on its internal default port `8080`; the port shown in the add-on configuration is only the *exposed* port Home Assistant maps to it.
+The `server.base_url` and `server.secret_key` values in `settings.yml` are rendered from the add-on options at start. Set `base_url` here directly (or use the `external_url` option, which takes precedence) for a reverse-proxy setup; `secret_key` is always taken from the required `secret_key` option. The instance listens on its internal default port `8888`; the port shown in the add-on configuration is only the *exposed* port Home Assistant maps to it.
 
 The bot-detection / limiter configuration lives in:
 
@@ -100,7 +100,7 @@ The resolved connection is written into the rendered `valkey.url` of the runtime
 
 ## Using SearXNG
 
-Open `http://<your-homeassistant-ip>:8080` in your browser and start searching. SearXNG aggregates results from many search services without tracking or profiling its users.
+Open `http://<your-homeassistant-ip>:8888` in your browser and start searching. SearXNG aggregates results from many search services without tracking or profiling its users.
 
 SearXNG also exposes a [search API](https://docs.searxng.org/dev/search_api.html) (e.g. `?format=json` or `?format=rss`) that can be called from Home Assistant automations or scripts.
 
