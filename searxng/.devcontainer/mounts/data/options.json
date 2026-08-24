@@ -1,3 +1,6 @@
 {
-    "log_level": "debug"
+    "log_level": "debug",
+    "instance_name": "Privat-SearXNG",
+    "secret_key": "dev-placeholder-secret-change-me",
+    "external_url": ""
 }

@@ -27,8 +27,13 @@ ports:
   8080/tcp: 8080
 options:
   log_level: info
+  instance_name: "Privat-SearXNG"
+  secret_key: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  instance_name: "str?"
+  secret_key: password
+  external_url: "str?"
   redis_host: "str?"
   redis_port: "port?"
   redis_password: "password?"
