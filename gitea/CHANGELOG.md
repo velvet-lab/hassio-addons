@@ -1,3 +1,19 @@
+## 0.1.2
+
+### Add-on
+
+- Fix Gitea refusing to start as root: since the add-on container runs the whole s6 stack as root (like the sibling add-ons), the rendered `app.ini` now sets `I_AM_BEING_UNSAFE_RUNNING_AS_ROOT = true` in the `[DEFAULT]` section. Gitea aborts with `Gitea is not supposed to be run as root` otherwise. `RUN_USER` stays `root` so it matches Gitea's run-user check (enforced when `INSTALL_LOCK` is set).
+
+### Gitea
+
+- Bundled Gitea version: **1.27.2**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Gitea version.
+> This release bundles Gitea 1.27.2.
+
 ## 0.1.1
 
 ### Add-on
