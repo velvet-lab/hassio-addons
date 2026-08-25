@@ -57,7 +57,7 @@ profile newapi flags=(attach_disconnected,mediate_deleted) {
 
   # New API
   /usr/bin/new-api ix,
-  /etc/default/newapi.template r,
+  /etc/default/newapi.env r,
   /data/newapi/** rw,
 
   # Data access

@@ -26,7 +26,7 @@ The `log_level` option controls the level of log output by the add-on and can be
 
 Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
 
-The `log_level` also controls Gogs' own internal logging (`[log] LEVEL` in the editable `gogs.ini`). The available Gogs levels differ slightly from Home Assistant's, so they are mapped as follows:
+The `log_level` also controls Gogs' own internal logging (`[log] LEVEL` in the editable `app.ini`). The available Gogs levels differ slightly from Home Assistant's, so they are mapped as follows:
 
 *   `trace` / `debug` → Gogs `Trace`
 *   `info` / `notice` → Gogs `Info`
@@ -46,7 +46,25 @@ This produces a 64-character hexadecimal key (256 bits). Home Assistant stores i
 
 ### Option: `instance_name`
 
-The brand name shown in the Gogs web interface (page title / header). The default is `Gogs`; you can set any name for your installation (e.g. your company or team name). It is rendered into `BRAND_NAME` in the editable `gogs.ini`.
+The brand name shown in the Gogs web interface (page title / header). The default is `Gogs`; you can set any name for your installation (e.g. your company or team name). It is rendered into `BRAND_NAME` in the editable `app.ini`.
+
+### Option: `admin_user`
+
+The **required** username of the initial administrator account. Gogs' web setup page is disabled (`INSTALL_LOCK`), so the add-on creates this account automatically on first start via `gogs admin create-user --admin`. The account is only created when it does not already exist; on later starts the option is ignored.
+
+### Option: `admin_email`
+
+The **required** email address of the initial administrator account.
+
+### Option: `admin_password`
+
+The **required** password of the initial administrator account. Provide a strong, random value — for example:
+
+```
+openssl rand -base64 24
+```
+
+Home Assistant stores it encrypted. This password is only used when the admin account is first created; changing the option later does **not** change an existing account's password.
 
 ### Option: `redis_host`
 
@@ -98,17 +116,17 @@ The SMTP username used for authentication (usually the full email address). Requ
 
 The SMTP password used for authentication. Home Assistant stores it encrypted. Required once `email_host` is set.
 
-> Advanced SMTP settings (e.g. `SUBJECT_PREFIX`, `HELO_HOSTNAME`, `SKIP_VERIFY`, `USE_CERTIFICATE`, `CERT_FILE`, `KEY_FILE`, `USE_PLAIN_TEXT`, `ADD_PLAIN_TEXT_ALT`) can be edited in the `[email]` section of the editable `gogs.ini` (see below).
+> Advanced SMTP settings (e.g. `SUBJECT_PREFIX`, `HELO_HOSTNAME`, `SKIP_VERIFY`, `USE_CERTIFICATE`, `CERT_FILE`, `KEY_FILE`, `USE_PLAIN_TEXT`, `ADD_PLAIN_TEXT_ALT`) can be edited in the `[email]` section of the editable `app.ini` (see below).
 
 ## Configuration
 
 The Gogs server configuration is managed as a file on your Home Assistant configuration folder:
 
-`/homeassistant/addons/gogs/gogs.ini`
+`/homeassistant/addons/gogs/app.ini`
 
 On first start the add-on copies a default configuration there, which you can edit directly (for example with Visual Studio Code). Gogs uses the INI format; see the [Gogs configuration documentation](https://gogs.io/docs/use/configuration.html) for all available options.
 
-At every start this file is rendered (placeholders of the form `${VAR}` are expanded from the add-on's environment) and placed into Gogs' *custom* configuration directory at `/etc/gogs/conf/app.ini`. Gogs finds that file automatically because the add-on sets the `GOGS_CUSTOM` environment variable to `/etc/gogs` — it is the actual `app.ini` that the running Gogs instance reads.
+At every start this file is rendered (placeholders of the form `${VAR}` are expanded from the add-on's environment) and placed into Gogs' *custom* configuration directory at `/etc/gogs/conf/app.ini`. Gogs finds that file automatically because the add-on sets the `GOGS_CUSTOM` environment variable to `/etc/gogs` — it is the actual `app.ini` that the running Gogs instance reads. The file is named `app.ini` to match what Gogs itself expects (`custom/conf/app.ini`).
 
 The web server listens on `0.0.0.0` on its default port `3000`. The port shown in the add-on configuration is only the *exposed* port that Home Assistant forwards to the add-on; it does not change where Gogs itself listens.
 
@@ -118,13 +136,13 @@ The `EXTERNAL_URL` and `DOMAIN` settings control the public URL used for login r
 
 ## Git LFS
 
-Git LFS is active: the add-on bundles the `git-lfs` client and registers it system-wide (`git lfs install --system`) at start, and Gogs serves the Git LFS endpoints automatically. Large files tracked with Git LFS are stored on the server under `/data/gogs/data/lfs-objects` (temporary upload data under `data/tmp/lfs-objects`), as configured in the `[lfs]` section of `gogs.ini`.
+Git LFS is active: the add-on bundles the `git-lfs` client and registers it system-wide (`git lfs install --system`) at start, and Gogs serves the Git LFS endpoints automatically. Large files tracked with Git LFS are stored on the server under `/data/gogs/data/lfs-objects` (temporary upload data under `data/tmp/lfs-objects`), as configured in the `[lfs]` section of `app.ini`.
 
 To use Git LFS in your repositories, install the Git LFS client on your machine (`sudo apt install git-lfs`, then `git lfs install`), track the large file patterns with `git lfs track` and commit the resulting `.gitattributes`. See the [Git LFS documentation](https://gogs.io/advancing/git-lfs) for details.
 
 ## Git over SSH
 
-Git over SSH is **disabled by default** (`DISABLE_SSH = true` / `START_SSH_SERVER = false` in the editable `gogs.ini`). To enable it, edit `/homeassistant/addons/gogs/gogs.ini` and set:
+Git over SSH is **disabled by default** (`DISABLE_SSH = true` / `START_SSH_SERVER = false` in the editable `app.ini`). To enable it, edit `/homeassistant/addons/gogs/app.ini` and set:
 
 ```ini
 [server]
@@ -134,7 +152,7 @@ START_SSH_SERVER = true
 
 then restart the add-on. The builtin SSH server listens on its default port `22`, which is exposed by the add-on (see the `22/tcp` port mapping). `SSH_PORT` / `SSH_LISTEN_PORT` default to `22`; only change them if you also adjust the port mapping accordingly. Gogs uses its **builtin Go SSH server** (not a system `sshd`), which needs the `ssh-keygen` tool for host-key generation and key parsing — the add-on image now bundles `openssh-client` to provide it.
 
-The SSH host keys are stored persistently under `/data/gogs/data/ssh/` (see `APP_DATA_PATH` in `gogs.ini`), so they stay stable across restarts and your clients do not get a "host key changed" warning. When you add users' public keys in the Gogs web UI, they can clone with `git clone ssh://git@<host>:22/<user>/<repo>.git`.
+The SSH host keys are stored persistently under `/data/gogs/data/ssh/` (see `APP_DATA_PATH` in `app.ini`), so they stay stable across restarts and your clients do not get a "host key changed" warning. When you add users' public keys in the Gogs web UI, they can clone with `git clone ssh://git@<host>:22/<user>/<repo>.git`.
 
 ## Data folder
 
@@ -148,7 +166,7 @@ The add-on stores the Gogs data in the `/data/gogs` folder:
 - `data/lfs-objects` — objects stored with Git LFS (with temporary upload data under `data/tmp/`).
 - `data/ssh` — SSH host keys for the builtin SSH server (only when Git over SSH is enabled).
 
-All paths in the editable `gogs.ini` that point at this data folder are rendered absolute, so uploads, avatars and LFS objects survive restarts. Please ensure `/data/gogs` is included in your backups.
+All paths in the editable `app.ini` that point at this data folder are rendered absolute, so uploads, avatars and LFS objects survive restarts. Please ensure `/data/gogs` is included in your backups.
 
 ## Backups & Permissions
 
@@ -158,6 +176,7 @@ All paths in the editable `gogs.ini` that point at this data folder are rendered
 
 ## First steps
 
-- Set the required `secret_key` option and restart the add-on.
-- Open the Gogs web interface on port `3000` and complete the install wizard to create the administrator account.
+- Set the required `secret_key` option, plus the `admin_user` / `admin_email` / `admin_password` options, and restart the add-on.
+- The add-on creates the administrator account automatically on first start (and disables the Gogs web setup page).
+- Open the Gogs web interface on port `3000` and log in with the admin credentials.
 - Use the web interface to create repositories; clone/push works over HTTP and HTTPS using the `EXTERNAL_URL`.

@@ -45,7 +45,7 @@ done
 # user deletes the file it is recreated from the bundled template.
 if ! bashio::fs.file_exists "${user_config}"; then
     bashio::log.info "Creating default SearXNG configuration for the user"
-    cp /etc/default/searxng.template "${user_config}"
+    cp /etc/default/settings.yml "${user_config}"
     chmod 644 "${user_config}"
 fi
 

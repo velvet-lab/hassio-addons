@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v27-custom"
+readonly build_marker="gogs-build-v28-custom"
 
 root=/data
 app_name="gogs"
@@ -14,7 +14,7 @@ data_root="$gogs_root/data"
 homeassistant_root="/homeassistant"
 config_source="$homeassistant_root/addons/${app_name}"
 config_dest="/etc/${app_name}"
-user_config="$config_source/gogs.ini"
+user_config="$config_source/app.ini"
 
 default_log_level="info"
 
@@ -87,7 +87,7 @@ echo -n "${gogs_domain}" > /var/run/s6/container_environment/GOGS_DOMAIN
 # conf/app.ini (rendered by the core service) and keeps data/ and log/ under
 # /data/gogs. The user-editable source lives under APP_CONFIG_SOURCE.
 bashio::log.debug "Create folders"
-# Persistent data subdirectories referenced by the gogs.ini template. Gogs
+# Persistent data subdirectories referenced by the app.ini template. Gogs
 # resolves relative data/ paths against its WORK DIR (not /data), so the
 # template points them at ${GOGS_DATA_PATH} (= /data/gogs/data). Pre-create
 # them here so they exist before http first start.
@@ -259,7 +259,7 @@ echo -n "${cache_host}" > /var/run/s6/container_environment/GOGS_CACHE_HOST
 # email_host option is set (email_from / email_user / email_password are then
 # expected too). All four are optional; when email_host is empty, the mailer
 # stays disabled. Because Home Assistant encrypts option values, the password
-# is a UI option (password?) and never stored in the editable gogs.ini source.
+# is a UI option (password?) and never stored in the editable app.ini source.
 email_host=$(bashio::config 'email_host' '')
 [[ "${email_host}" == "null" ]] && email_host=""
 email_from=$(bashio::config 'email_from' '')
@@ -300,7 +300,7 @@ echo -n "${email_password}" > /var/run/s6/container_environment/GOGS_EMAIL_PASSW
 # user deletes the file it is recreated from the bundled template.
 if ! bashio::fs.file_exists "${user_config}"; then
     bashio::log.info "Creating default Gogs configuration for the user"
-    cp /etc/default/gogs.ini.template "${user_config}"
+    cp /etc/default/app.ini "${user_config}"
     chmod 644 "${user_config}"
 fi
 

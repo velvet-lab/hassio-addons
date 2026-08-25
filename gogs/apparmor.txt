@@ -57,7 +57,7 @@ profile gogs flags=(attach_disconnected,mediate_deleted) {
   # Gogs
   /usr/bin/gogs ix,
   /app/gogs/** r,
-  /etc/default/gogs.ini.template r,
+  /etc/default/app.ini r,
   /data/gogs/** rw,
 
   # Git (repository operations, hooks, pack files)

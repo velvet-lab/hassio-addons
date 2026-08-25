@@ -69,7 +69,7 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
   ```
 
 - **Config folder is dissolved; config lives volatile under `/etc/<app>`, user file under `/homeassistant/addons/<app>`.** Do NOT create a separate `/data/<slug>/config` folder and don't use a `conf` short form. The application loads its configuration from the volatile destination `/etc/<app>` (linux-like), which is rendered fresh every container start.
-- Keep a bundled default template under `rootfs/etc/default/<name>.template` (use the `.template` suffix so it never collides with the actual runtime file, e.g. `openbao.template`, `production.template`). It can be re-created by the add-on if the user deletes their editable copy.
+- Keep a bundled default template under `rootfs/etc/default/<app-config-name>` named **exactly as the application names its config file** (no `.template` suffix), so users can relate it to the app's documentation, e.g. `app.ini` (Gogs), `openbao.hcl` (OpenBao), `production.yaml` (Qdrant), `settings.yml` (SearXNG), `valkey.conf` (Valkey), `newapi.env` (NewAPI), `rustfs.env` (RustFS), `davis.env` (Davis). It can be re-created by the add-on if the user deletes their editable copy.
 - **Canonical per-add-on config flow:**
   - `*-pre/run` prepares everything and writes ALL runtime values (secrets, ports, resolved service URLs, booleans, ...) into the s6 container environment as **one file per variable** at `/var/run/s6/container_environment/<VARNAME>`. It MUST always also write the three identity/location variables:
     - `APP_NAME` = the app name, e.g. `echo -n "gogs" > /var/run/s6/container_environment/APP_NAME`

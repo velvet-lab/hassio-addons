@@ -1,0 +1,64 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Config locations come from the container environment (set by gogs-pre). They
+# are REQUIRED: abort if they are missing instead of falling back to a default.
+# shellcheck disable=SC2153  # APP_CONFIG_* / GOGS_CUSTOM are container-env vars set by with-contenv
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (gogs-pre did not run)}"
+config_dest="${GOGS_CUSTOM:?GOGS_CUSTOM is not set (gogs-pre did not run)}"
+
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
+# The admin credentials are REQUIRED add-on options. Home Assistant stores the
+# password encrypted; there is no sensible default, so we abort startup if the
+# user has not provided them instead of guessing.
+admin_user=$(bashio::config 'admin_user')
+admin_email=$(bashio::config 'admin_email')
+admin_password=$(bashio::config 'admin_password')
+
+if ! bashio::var.has_value "${admin_user}"; then
+    bashio::log.error "The 'admin_user' option is required but empty."
+    bashio::log.error "Set a value and restart the add-on."
+    exit 1
+fi
+if ! bashio::var.has_value "${admin_email}"; then
+    bashio::log.error "The 'admin_email' option is required but empty."
+    bashio::log.error "Set a value and restart the add-on."
+    exit 1
+fi
+if ! bashio::var.has_value "${admin_password}"; then
+    bashio::log.error "The 'admin_password' option is required but empty."
+    bashio::log.error "Set a strong random value, e.g. generated with:"
+    bashio::log.error "    openssl rand -base64 24"
+    bashio::log.error "and restart the add-on."
+    exit 1
+fi
+
+# Render the configuration so the CLI connects to the right database. This
+# oneshot needs app.ini before gogs-core starts the web server, so we render
+# here (gogs-core renders again on start, which is harmless).
+bashio::log.debug "Render Gogs configuration"
+mkdir -p "${config_dest}/conf"
+envsubst < "${config_source}/app.ini" > "${config_dest}/conf/app.ini"
+chmod 644 "${config_dest}/conf/app.ini"
+
+# Create the first admin account if it does not exist yet. The Gogs web
+# installer would otherwise show its install page on first start and overwrite
+# the add-on-managed app.ini (INSTALL_LOCK is set in the template instead).
+# There is no "list-users" subcommand, so we simply attempt creation and treat
+# a failure (e.g. the user already exists on a later start) as non-fatal.
+bashio::log.info "Creating admin user '${admin_user}' ..."
+if ! gogs admin create-user \
+    --config "${config_dest}/conf/app.ini" \
+    --name "${admin_user}" \
+    --password "${admin_password}" \
+    --email "${admin_email}" \
+    --admin; then
+    bashio::log.warning "Could not create admin user '${admin_user}' (it may already exist); continuing."
+fi
+
+# s6 oneshot services MUST end with exit 0, otherwise s6 treats them as
+# "unable to start service ... command exited N" and aborts the whole container
+# bring-up (rc.init: fatal: stopping the container).
+exit 0
