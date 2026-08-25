@@ -61,7 +61,7 @@ done
 # the file it is recreated from the bundled template on the next start.
 if ! bashio::fs.file_exists "${config_source}/production.yaml"; then
     bashio::log.info "Creating default Qdrant configuration for the user"
-    cp /etc/default/production.template "${config_source}/production.yaml"
+    cp /etc/default/production.yaml "${config_source}/production.yaml"
     chmod 644 "${config_source}/production.yaml"
 fi
 

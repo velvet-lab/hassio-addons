@@ -65,7 +65,7 @@ echo -n "$(bashio::config 'password')" > /var/run/s6/container_environment/VALKE
 # user deletes the file it is recreated from the bundled template.
 if ! bashio::fs.file_exists "${user_config}"; then
     bashio::log.info "Creating default Valkey configuration for the user"
-    cp /etc/default/valkey.template "${user_config}"
+    cp /etc/default/valkey.conf "${user_config}"
     chmod 644 "${user_config}"
 fi
 

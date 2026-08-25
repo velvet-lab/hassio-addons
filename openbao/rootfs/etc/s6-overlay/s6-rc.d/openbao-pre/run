@@ -83,7 +83,7 @@ done
 # template.
 if ! bashio::fs.file_exists "${user_config}"; then
     bashio::log.info "Creating default OpenBao configuration for the user"
-    cp /etc/default/openbao.template "${user_config}"
+    cp /etc/default/openbao.hcl "${user_config}"
     chmod 644 "${user_config}"
 fi
 

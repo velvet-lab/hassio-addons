@@ -62,7 +62,7 @@ done
 # template.
 if ! bashio::fs.file_exists "$user_config"; then
     bashio::log.info "Creating default Davis configuration for the user"
-    cp /etc/default/davis.env.template "$user_config"
+    cp /etc/default/davis.env "$user_config"
     chmod 644 "$user_config"
 fi
 

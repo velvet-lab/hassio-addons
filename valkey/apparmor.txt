@@ -58,7 +58,7 @@ profile valkey flags=(attach_disconnected,mediate_deleted) {
   /usr/local/bin/valkey-server ix,
   /usr/local/bin/valkey-cli ix,
   /usr/local/bin/valkey-benchmark ix,
-  /etc/default/valkey.template r,
+  /etc/default/valkey.conf r,
   /etc/valkey/** rw,
   /data/valkey/** rw,
 
