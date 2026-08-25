@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v28-custom"
+readonly build_marker="gogs-build-v29-custom"
 
 root=/data
 app_name="gogs"
@@ -41,13 +41,17 @@ esac
 external_url=$(bashio::config 'external_url' '')
 if ! bashio::var.has_value "${external_url}" || [[ "${external_url}" == "null" ]]; then
     gogs_external_url="# EXTERNAL_URL ="
-    # Without an external_url the domain defaults to "localhost" (Gogs' own
-    # built-in default is derived from EXTERNAL_URL/PROTOCOL/DOMAIN, so this
-    # only materializes when the user hardcodes it in the editable file).
     gogs_domain="localhost"
+    gogs_protocol="http"
+    gogs_ssh_domain="localhost"
 else
     gogs_external_url="EXTERNAL_URL = ${external_url}"
     bashio::log.info "Using a custom external URL: ${external_url}"
+    # Derive the protocol (http/https) used for the web session/cookies.
+    case "${external_url}" in
+        https://*) gogs_protocol="https" ;;
+        *)         gogs_protocol="http" ;;
+    esac
     # Derive the domain from the external URL, i.e. the host (and port) without
     # the scheme and without any trailing path/slash, e.g.
     #   https://git.example.com/       -> git.example.com
@@ -55,6 +59,10 @@ else
     gogs_domain="${external_url#http://}"
     gogs_domain="${gogs_domain#https://}"
     gogs_domain="${gogs_domain%%/*}"
+
+    # SSH clone URLs use the same public host as the web UI. SSH is exposed on
+    # port 22 (SSH_PORT/SSH_LISTEN_PORT), so git@<SSH_DOMAIN>:22/... is shown.
+    gogs_ssh_domain="${gogs_domain}"
 fi
 
 # The instance / brand name shown in the web UI. It is a UI option with a
@@ -81,6 +89,8 @@ echo -n "${gogs_log_level}" > /var/run/s6/container_environment/GOGS_LOG_LEVEL
 echo -n "${instance_name}" > /var/run/s6/container_environment/GOGS_INSTANCE_NAME
 echo -n "${gogs_external_url}" > /var/run/s6/container_environment/GOGS_EXTERNAL_URL
 echo -n "${gogs_domain}" > /var/run/s6/container_environment/GOGS_DOMAIN
+echo -n "${gogs_protocol}" > /var/run/s6/container_environment/GOGS_PROTOCOL
+echo -n "${gogs_ssh_domain}" > /var/run/s6/container_environment/GOGS_SSH_DOMAIN
 
 # Ensure the Gogs custom directory (GOGS_CUSTOM=/etc/gogs) and the persistent
 # data directory exist. Gogs reads its configuration from the custom dir's
