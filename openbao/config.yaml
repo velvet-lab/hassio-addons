@@ -1,6 +1,6 @@
 ---
 name: OpenBao (experimental)
-version: 2.6.2
+version: 0.1.0
 stage: experimental
 slug: openbao
 description: >-

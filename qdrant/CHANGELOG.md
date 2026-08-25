@@ -1,29 +1,23 @@
-## 1.19.0
+## 0.1.0
 
 ### Add-on
 
+- Switch the add-on to semantic versioning (semver): the add-on version no longer tracks the bundled Qdrant version and now starts at `0.1.0`. The bundled product version is documented in this changelog and in `DOCS.md`.
 - Initial release of the Qdrant add-on
-- Install Qdrant from the official binary distribution (same release tarball layout on both architectures):
-  - amd64: `qdrant-x86_64-unknown-linux-musl.tar.gz`
-  - arm64: `qdrant-aarch64-unknown-linux-musl.tar.gz`
+- Install Qdrant from the official binary distribution (same release tarball layout on both architectures)
 - Add HTTP (6333) and gRPC (6334) API ports
-- Bundle the Qdrant Web UI (dashboard) at `/opt/qdrant/static` and serve it via `service.static_content_dir`
+- Bundle the Qdrant Web UI (dashboard) and serve it via `service.static_content_dir`
 - Add `api_key` (required) and `read_only_api_key` (optional) options to protect the Qdrant API and Web UI
 - Provide an editable default Qdrant configuration at `/homeassistant/addons/qdrant/production.yaml`
-- Add `log_level` option that is applied to the Qdrant configuration (mapped from syslog-style to Qdrant's log levels)
-- Fix aarch64 installation: the release tarball is a bare `qdrant` binary at its root, so `--strip-components=1` was removed (it extracted nothing and left a dangling `/usr/bin/qdrant` symlink)
-- Fix configuration loading: Qdrant resolves its config relative to the working directory and never reads a bare `production.yaml` from the binary folder. The add-on now passes `--config-path /etc/qdrant/production.yaml` so the rendered (and user-editable) config is actually loaded.
-- Align option names with Qdrant: `admin_password` is now `api_key` (required) and a separate optional `read_only_api_key` is exposed; both are rendered into the Qdrant config from the encrypted add-on options (never into the editable source file).
+- Add a `log_level` option that is applied to the Qdrant configuration
+- Add a `.devcontainer/` folder for local development against the add-on image
 
 ### Qdrant
 
-- Include TurboQuant 4-bit as a primary vector storage datatype
-- Unify memory usage strategy for collection components
-- Various performance and reliability improvements
+- Bundled Qdrant version: **1.19.0**
+- For detailed release notes, see the official [Qdrant changelog](https://github.com/qdrant/qdrant/releases).
 
 ---
-
 > [!NOTE]
-> The add-on version follows the [Qdrant version](https://github.com/qdrant/qdrant).
-> For detailed release notes, see the
-> [official Qdrant changelog](https://github.com/qdrant/qdrant/releases).
+> The add-on uses semantic versioning and is independent of the bundled Qdrant version.
+> This release bundles Qdrant 1.19.0.

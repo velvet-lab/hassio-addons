@@ -1,5 +1,7 @@
 # Home Assistant Community Add-on: SearXNG
 
+This add-on bundles **SearXNG 2026.8.21**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+
 ## Installation
 
 The installation of this add-on is straightforward and not different in comparison to installing any other Home Assistant add-on.

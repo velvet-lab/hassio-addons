@@ -1,5 +1,7 @@
 # Home Assistant Community Add-on: OpenBao
 
+This add-on bundles **OpenBao 2.6.2**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+
 ## Installation
 
 The installation of this add-on is pretty straightforward and not different in comparison to installing any other Home Assistant add-on.

@@ -1,7 +1,8 @@
-## 1.27.2
+## 0.1.0
 
 ### Add-on
 
+- Switch the add-on to semantic versioning (semver): the add-on version no longer tracks the bundled Gitea version and now starts at `0.1.0`. The bundled product version is documented in this changelog and in `DOCS.md`.
 - Initial release of the Gitea add-on
 - Bundle the Gitea pre-built Linux binary (`linux-amd64` / `linux-arm64`)
 - Use a built-in SQLite database, so no external database service is required
@@ -23,10 +24,11 @@
 
 ### Gitea
 
-- Gitea is a painless, self-hosted Git service written in Go (a community fork of Gogs). Bundled version 1.27.2.
+- Bundled Gitea version: **1.27.2**
+- Gitea is a painless, self-hosted Git service written in Go (a community fork of Gogs).
 - For detailed release notes, see the official [Gitea changelog](https://blog.gitea.com/).
 
 ---
 > [!NOTE]
-> The add-on version follows the Gitea version.
-> For detailed release notes, see the official changelog.
+> The add-on uses semantic versioning and is independent of the bundled Gitea version.
+> This release bundles Gitea 1.27.2.

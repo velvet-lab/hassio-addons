@@ -1,5 +1,7 @@
 # Home Assistant Add-on: Qdrant
 
+This add-on bundles **Qdrant 1.19.0**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+
 Qdrant is a high-performance, open source vector search engine and database. It provides a production-ready service with a convenient API to store, search, and manage points - vectors with an additional payload.
 
 ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)

@@ -1,5 +1,7 @@
 # Home Assistant Add-on: New API
 
+This add-on bundles **New API 1.0.0-rc.25**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+
 New API is a next-generation LLM gateway and AI asset management system.
 
 ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)

@@ -1,5 +1,7 @@
 # Home Assistant Add-on: OpenBao
 
+This add-on bundles **OpenBao 2.6.2**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+
 OpenBao is an open source, community-driven fork of HashiCorp Vault. It is a software solution to manage, store, and distribute sensitive data including secrets, certificates, and keys.
 
 ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)

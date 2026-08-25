@@ -1,5 +1,7 @@
 # Home Assistant Add-on: SearXNG
 
+This add-on bundles **SearXNG 2026.8.21**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+
 SearXNG is a free metasearch engine. It aggregates results from up to 269 search services without tracking or profiling its users.
 
 ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)

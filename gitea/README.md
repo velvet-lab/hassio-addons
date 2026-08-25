@@ -6,6 +6,8 @@ Gitea is a painless, self-hosted Git service written in Go.
 
 ## About
 
+This add-on bundles **Gitea 1.27.2**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+
 Gitea is a lightweight, self-hosted Git service written in Go. It makes it easy to set up your own, private GitHub-like Git repository with issue tracking, pull requests, wiki, packages and a built-in web editor. This add-on bundles the Gitea pre-built binary together with a SQLite database, so no external service is required. Optionally, Gitea can use a MySQL/MariaDB database and a Redis server (e.g. the bundled Valkey add-on) for its sessions and cache.
 
 ## Known Issues

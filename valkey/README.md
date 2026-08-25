@@ -1,5 +1,7 @@
 # Home Assistant Add-on: Valkey
 
+This add-on bundles **Valkey 9.1.1**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+
 Valkey is a high-performance, open source in-memory data store that is a fork of Redis. It is a drop-in replacement for Redis, offering the same RESP protocol, data structures, and command set.
 
 ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)
