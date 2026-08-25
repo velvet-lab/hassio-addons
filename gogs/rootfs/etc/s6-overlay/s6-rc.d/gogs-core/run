@@ -21,7 +21,7 @@ bashio::log.level "$(bashio::config 'log_level' 'info')"
 # finds it automatically, so no --config flag is needed.
 bashio::log.debug "Render Gogs configuration"
 mkdir -p "${config_dest}/conf"
-envsubst < "${config_source}/gogs.ini" > "${config_dest}/conf/app.ini"
+envsubst < "${config_source}/app.ini" > "${config_dest}/conf/app.ini"
 chmod 644 "${config_dest}/conf/app.ini"
 
 bashio::log.info "Start Gogs ..."

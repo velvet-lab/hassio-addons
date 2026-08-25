@@ -48,6 +48,24 @@ This produces a 64-character hexadecimal key (256 bits). Home Assistant stores i
 
 The brand name shown in the Gogs web interface (page title / header). The default is `Gogs`; you can set any name for your installation (e.g. your company or team name). It is rendered into `BRAND_NAME` in the editable `gogs.ini`.
 
+### Option: `admin_user`
+
+The **required** username of the initial administrator account. Gogs' web setup page is disabled (`INSTALL_LOCK`), so the add-on creates this account automatically on first start via `gogs admin create-user --admin`. The account is only created when it does not already exist; on later starts the option is ignored.
+
+### Option: `admin_email`
+
+The **required** email address of the initial administrator account.
+
+### Option: `admin_password`
+
+The **required** password of the initial administrator account. Provide a strong, random value — for example:
+
+```
+openssl rand -base64 24
+```
+
+Home Assistant stores it encrypted. This password is only used when the admin account is first created; changing the option later does **not** change an existing account's password.
+
 ### Option: `redis_host`
 
 The address of the Redis server used for Gogs sessions and cache. When you run the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system, use its add-on hostname.
@@ -104,11 +122,11 @@ The SMTP password used for authentication. Home Assistant stores it encrypted. R
 
 The Gogs server configuration is managed as a file on your Home Assistant configuration folder:
 
-`/homeassistant/addons/gogs/gogs.ini`
+`/homeassistant/addons/gogs/app.ini`
 
 On first start the add-on copies a default configuration there, which you can edit directly (for example with Visual Studio Code). Gogs uses the INI format; see the [Gogs configuration documentation](https://gogs.io/docs/use/configuration.html) for all available options.
 
-At every start this file is rendered (placeholders of the form `${VAR}` are expanded from the add-on's environment) and placed into Gogs' *custom* configuration directory at `/etc/gogs/conf/app.ini`. Gogs finds that file automatically because the add-on sets the `GOGS_CUSTOM` environment variable to `/etc/gogs` — it is the actual `app.ini` that the running Gogs instance reads.
+At every start this file is rendered (placeholders of the form `${VAR}` are expanded from the add-on's environment) and placed into Gogs' *custom* configuration directory at `/etc/gogs/conf/app.ini`. Gogs finds that file automatically because the add-on sets the `GOGS_CUSTOM` environment variable to `/etc/gogs` — it is the actual `app.ini` that the running Gogs instance reads. The file is named `app.ini` to match what Gogs itself expects (`custom/conf/app.ini`).
 
 The web server listens on `0.0.0.0` on its default port `3000`. The port shown in the add-on configuration is only the *exposed* port that Home Assistant forwards to the add-on; it does not change where Gogs itself listens.
 
@@ -158,6 +176,7 @@ All paths in the editable `gogs.ini` that point at this data folder are rendered
 
 ## First steps
 
-- Set the required `secret_key` option and restart the add-on.
-- Open the Gogs web interface on port `3000` and complete the install wizard to create the administrator account.
+- Set the required `secret_key` option, plus the `admin_user` / `admin_email` / `admin_password` options, and restart the add-on.
+- The add-on creates the administrator account automatically on first start (and disables the Gogs web setup page).
+- Open the Gogs web interface on port `3000` and log in with the admin credentials.
 - Use the web interface to create repositories; clone/push works over HTTP and HTTPS using the `EXTERNAL_URL`.

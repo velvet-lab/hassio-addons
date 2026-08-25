@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v27-custom"
+readonly build_marker="gogs-build-v28-custom"
 
 root=/data
 app_name="gogs"
@@ -14,7 +14,7 @@ data_root="$gogs_root/data"
 homeassistant_root="/homeassistant"
 config_source="$homeassistant_root/addons/${app_name}"
 config_dest="/etc/${app_name}"
-user_config="$config_source/gogs.ini"
+user_config="$config_source/app.ini"
 
 default_log_level="info"
 
@@ -300,7 +300,7 @@ echo -n "${email_password}" > /var/run/s6/container_environment/GOGS_EMAIL_PASSW
 # user deletes the file it is recreated from the bundled template.
 if ! bashio::fs.file_exists "${user_config}"; then
     bashio::log.info "Creating default Gogs configuration for the user"
-    cp /etc/default/gogs.ini.template "${user_config}"
+    cp /etc/default/app.ini "${user_config}"
     chmod 644 "${user_config}"
 fi
 

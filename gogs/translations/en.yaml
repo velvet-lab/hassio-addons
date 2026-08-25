@@ -8,6 +8,15 @@ configuration:
   secret_key:
     name: Secret Key
     description: Set the secret key used to encrypt cookies and 2FA codes
+  admin_user:
+    name: Admin Username
+    description: Username of the initial administrator account, created automatically on first start
+  admin_email:
+    name: Admin Email
+    description: Email address of the initial administrator account
+  admin_password:
+    name: Admin Password
+    description: Password of the initial administrator account (stored encrypted by Home Assistant)
   use_mysql:
     name: Use MySQL
     description: Enable or disable MySQL database. If enabled, Gogs will use the MariaDB add-on. Take care that you install and configure it first.

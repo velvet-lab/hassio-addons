@@ -31,11 +31,16 @@ options:
   log_level: info
   instance_name: "Gogs"
   secret_key: null
+  admin_user: null
+  admin_email: null
+  admin_password: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   instance_name: "str?"
   secret_key: password
-  use_mysql: bool?
+  admin_user: str
+  admin_email: str
+  admin_password: password
   external_url: "str?"
   redis_host: "str?"
   redis_port: "port?"
@@ -45,3 +50,4 @@ schema:
   email_from: "str?"
   email_user: "str?"
   email_password: "password?"
+  use_mysql: bool?
