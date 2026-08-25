@@ -14,6 +14,7 @@ Gitea is a lightweight, self-hosted Git service written in Go. It makes it easy 
 
 - **Reverse proxy (HTTPS):** Gitea always listens on plain HTTP behind the Home Assistant reverse proxy (`PROTOCOL = http`), which terminates TLS. Only `ROOT_URL` carries the `https://` scheme; `SSH_DOMAIN` is derived from it so SSH clone URLs stay correct.
 - **First user becomes admin:** self-registration is enabled and the very first account to sign up automatically becomes the administrator (`DISABLE_REGISTRATION = false`). The Gitea web installer is locked (`INSTALL_LOCK = true`) so it cannot overwrite the add-on-managed `app.ini`.
+- **Runs as `root`:** like the sibling add-ons, the add-on runs the `s6` stack as `root`. Gitea refuses to start as `root` unless explicitly acknowledged, so the rendered `app.ini` sets `I_AM_BEING_UNSAFE_RUNNING_AS_ROOT = true` (Gitea's documented escape hatch). The `RUN_USER` stays `root` to satisfy Gitea's run-user check.
 
 ## Support
 

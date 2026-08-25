@@ -128,6 +128,8 @@ The `ROOT_URL` and `DOMAIN` settings control the public URL used for login redir
 
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
 
+**Note:** The add-on runs the Home Assistant `s6` stack as `root`. Gitea normally refuses to start as `root`, so the rendered `app.ini` sets `I_AM_BEING_UNSAFE_RUNNING_AS_ROOT = true` in the `[DEFAULT]` section to acknowledge this explicitly (Gitea's documented escape hatch). This is intentional for the add-on environment; do not remove that key or Gitea will fail to start.
+
 ## Git LFS
 
 Git LFS storage is active: the add-on bundles the `git-lfs` client and registers it system-wide (`git lfs install --system`) at start, and Gitea serves the Git LFS endpoints. Large files tracked with Git LFS are stored on the server under `/data/gitea/data/lfs`.
