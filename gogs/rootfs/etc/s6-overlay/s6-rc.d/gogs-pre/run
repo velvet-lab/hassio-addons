@@ -255,39 +255,38 @@ echo -n "${session_config}" > /var/run/s6/container_environment/GOGS_SESSION_CON
 echo -n "${cache_adapter}" > /var/run/s6/container_environment/GOGS_CACHE_ADAPTER
 echo -n "${cache_host}" > /var/run/s6/container_environment/GOGS_CACHE_HOST
 
-# Optional SMTP mail configuration. The mailer is enabled as soon as the
-# email_host option is set (email_from / email_user / email_password are then
-# expected too). All four are optional; when email_host is empty, the mailer
-# stays disabled. Because Home Assistant encrypts option values, the password
-# is a UI option (password?) and never stored in the editable app.ini source.
+# SMTP mail configuration. All four options are REQUIRED: user registration
+# mails and notifications need a working mailer, so the add-on aborts startup
+# if any of them is empty. Home Assistant stores the password encrypted.
 email_host=$(bashio::config 'email_host' '')
-[[ "${email_host}" == "null" ]] && email_host=""
 email_from=$(bashio::config 'email_from' '')
-[[ "${email_from}" == "null" ]] && email_from=""
 email_user=$(bashio::config 'email_user' '')
-[[ "${email_user}" == "null" ]] && email_user=""
 email_password=$(bashio::config 'email_password' '')
+[[ "${email_host}" == "null" ]] && email_host=""
+[[ "${email_from}" == "null" ]] && email_from=""
+[[ "${email_user}" == "null" ]] && email_user=""
 [[ "${email_password}" == "null" ]] && email_password=""
 
-if bashio::var.has_value "${email_host}"; then
-    gogs_email_enabled="true"
-    bashio::log.info "Gogs email is enabled (${email_host})"
-    if ! bashio::var.has_value "${email_from}"; then
-        bashio::log.error "The 'email_from' option is required when email is configured."
-        exit 1
-    fi
-    if ! bashio::var.has_value "${email_user}"; then
-        bashio::log.error "The 'email_user' option is required when email is configured."
-        exit 1
-    fi
-    if ! bashio::var.has_value "${email_password}"; then
-        bashio::log.error "The 'email_password' option is required when email is configured."
-        exit 1
-    fi
-else
-    gogs_email_enabled="false"
-    bashio::log.debug "Email is disabled; not configuring the SMTP mailer"
+if ! bashio::var.has_value "${email_host}"; then
+    bashio::log.error "The 'email_host' option is required but empty."
+    bashio::log.error "Set an SMTP server and restart the add-on."
+    exit 1
 fi
+if ! bashio::var.has_value "${email_from}"; then
+    bashio::log.error "The 'email_from' option is required but empty."
+    exit 1
+fi
+if ! bashio::var.has_value "${email_user}"; then
+    bashio::log.error "The 'email_user' option is required but empty."
+    exit 1
+fi
+if ! bashio::var.has_value "${email_password}"; then
+    bashio::log.error "The 'email_password' option is required but empty."
+    exit 1
+fi
+
+gogs_email_enabled="true"
+bashio::log.info "Gogs email is enabled (${email_host})"
 
 echo -n "${gogs_email_enabled}" > /var/run/s6/container_environment/GOGS_EMAIL_ENABLED
 echo -n "${email_host}" > /var/run/s6/container_environment/GOGS_EMAIL_HOST

@@ -8,15 +8,6 @@ configuration:
   secret_key:
     name: Secret Key
     description: Set the secret key used to encrypt cookies and 2FA codes
-  admin_user:
-    name: Admin Username
-    description: Username of the initial administrator account, created automatically on first start
-  admin_email:
-    name: Admin Email
-    description: Email address of the initial administrator account
-  admin_password:
-    name: Admin Password
-    description: Password of the initial administrator account (stored encrypted by Home Assistant)
   use_mysql:
     name: Use MySQL
     description: Enable or disable MySQL database. If enabled, Gogs will use the MariaDB add-on. Take care that you install and configure it first.
@@ -37,16 +28,16 @@ configuration:
     description: Number of the Redis database to use (default 0). Pick a unique number per app (e.g. Gogs vs SearXNG) to avoid collisions
   email_host:
     name: Email Host
-    description: SMTP server address and port (e.g. smtp.example.com:587). Set this to enable the Gogs mailer.
+    description: "SMTP server address and port (e.g. smtp.example.com:587). Required: Gogs needs a mailer for registration and notification mails."
   email_from:
     name: Email From
-    description: Sender address used in outgoing mails (may include a display name)
+    description: Sender address used in outgoing mails (may include a display name). Required.
   email_user:
     name: Email User
-    description: SMTP username used for authentication
+    description: SMTP username used for authentication. Required.
   email_password:
     name: Email Password
-    description: SMTP password used for authentication
+    description: SMTP password used for authentication. Required. Stored encrypted by Home Assistant.
 
 network:
   3000/tcp: Port for the Gogs web interface and Git HTTP endpoints

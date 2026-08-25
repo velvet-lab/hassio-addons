@@ -7,7 +7,7 @@ The installation of this add-on is pretty straightforward and not different in c
 1.  Start the "Gogs" add-on.
 2.  Check the logs of "Gogs" to see if everything went well.
 
-After starting the add-on, Gogs is available on port `3000` of your Home Assistant instance. The first visit shows the Gogs install wizard, which lets you create the administrator account. Whoever signs up while there are no other users becomes the admin.
+After starting the add-on, Gogs is available on port `3000` of your Home Assistant instance. The Gogs web setup wizard is disabled (`INSTALL_LOCK`); instead, the first user who **registers** automatically becomes the administrator.
 
 ## Configuration
 
@@ -48,24 +48,6 @@ This produces a 64-character hexadecimal key (256 bits). Home Assistant stores i
 
 The brand name shown in the Gogs web interface (page title / header). The default is `Gogs`; you can set any name for your installation (e.g. your company or team name). It is rendered into `BRAND_NAME` in the editable `app.ini`.
 
-### Option: `admin_user`
-
-The **required** username of the initial administrator account. Gogs' web setup page is disabled (`INSTALL_LOCK`), so the add-on creates this account automatically on first start via `gogs admin create-user --admin`. The account is only created when it does not already exist; on later starts the option is ignored.
-
-### Option: `admin_email`
-
-The **required** email address of the initial administrator account.
-
-### Option: `admin_password`
-
-The **required** password of the initial administrator account. Provide a strong, random value — for example:
-
-```
-openssl rand -base64 24
-```
-
-Home Assistant stores it encrypted. This password is only used when the admin account is first created; changing the option later does **not** change an existing account's password.
-
 ### Option: `redis_host`
 
 The address of the Redis server used for Gogs sessions and cache. When you run the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) in the same system, use its add-on hostname.
@@ -102,19 +84,19 @@ The number of the Redis database to use (default `0`, prefilled in the UI). Give
 
 ### Option: `email_host`
 
-The SMTP server address and port, e.g. `smtp.example.com:587`. Setting this value **enables** the Gogs mailer (registration/account emails, issue notifications, password reset). Leave it empty to keep the mailer disabled. When `email_host` is set, `email_from`, `email_user` and `email_password` are **required**.
+The SMTP server address and port, e.g. `smtp.example.com:587`. **Required** — Gogs needs a working mailer for registration and notification mails.
 
 ### Option: `email_from`
 
-The sender address used in outgoing mails. May include a display name, e.g. `Gogs <gogs@example.com>`. Required once `email_host` is set.
+The sender address used in outgoing mails. May include a display name, e.g. `Gogs <gogs@example.com>`. **Required**.
 
 ### Option: `email_user`
 
-The SMTP username used for authentication (usually the full email address). Required once `email_host` is set.
+The SMTP username used for authentication (usually the full email address). **Required**.
 
 ### Option: `email_password`
 
-The SMTP password used for authentication. Home Assistant stores it encrypted. Required once `email_host` is set.
+The SMTP password used for authentication. **Required**. Home Assistant stores it encrypted.
 
 > Advanced SMTP settings (e.g. `SUBJECT_PREFIX`, `HELO_HOSTNAME`, `SKIP_VERIFY`, `USE_CERTIFICATE`, `CERT_FILE`, `KEY_FILE`, `USE_PLAIN_TEXT`, `ADD_PLAIN_TEXT_ALT`) can be edited in the `[email]` section of the editable `app.ini` (see below).
 
@@ -176,7 +158,6 @@ All paths in the editable `app.ini` that point at this data folder are rendered 
 
 ## First steps
 
-- Set the required `secret_key` option, plus the `admin_user` / `admin_email` / `admin_password` options, and restart the add-on.
-- The add-on creates the administrator account automatically on first start (and disables the Gogs web setup page).
-- Open the Gogs web interface on port `3000` and log in with the admin credentials.
+- Set the required options (`secret_key` plus the SMTP mail options `email_host` / `email_from` / `email_user` / `email_password`) and restart the add-on.
+- Open the Gogs web interface on port `3000` and **register the first account** — Gogs automatically makes the very first registered user an administrator.
 - Use the web interface to create repositories; clone/push works over HTTP and HTTPS using the `EXTERNAL_URL`.
