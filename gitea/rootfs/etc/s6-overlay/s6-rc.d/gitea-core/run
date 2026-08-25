@@ -1,0 +1,29 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Config locations come from the container environment (set by gitea-pre). They
+# are REQUIRED: abort if they are missing instead of falling back to a default.
+# shellcheck disable=SC2153  # APP_CONFIG_* / GITEA_CUSTOM are container-env vars set by with-contenv
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (gitea-pre did not run)}"
+config_dest="${GITEA_CUSTOM:?GITEA_CUSTOM is not set (gitea-pre did not run)}"
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
+# Render the final Gitea configuration here in the long-run service, where
+# with-contenv has injected the s6 container environment (including
+# GITEA_SECRET_KEY / GITEA_INTERNAL_TOKEN written by gitea-pre), so envsubst
+# can expand the placeholders.
+#
+# Gitea loads its configuration from "<GITEA_CUSTOM>/conf/app.ini": the
+# GITEA_CUSTOM env var (set in the Dockerfile and exported by gitea-pre) points
+# at the volatile config folder, and the file must be placed in a conf/
+# subdirectory. Gitea then finds it automatically, so no --config flag is needed.
+bashio::log.debug "Render Gitea configuration"
+mkdir -p "${config_dest}/conf"
+envsubst < "${config_source}/app.ini" > "${config_dest}/conf/app.ini"
+chmod 644 "${config_dest}/conf/app.ini"
+
+bashio::log.info "Start Gitea ..."
+exec gitea web
