@@ -28,7 +28,7 @@
 - Make the SMTP mail options (`email_host` / `email_from` / `email_user` / `email_password`) **required** — Gogs needs a working mailer to send registration and notification emails, and nothing else can self-register.
 - Rename the user-editable config file to `app.ini` (matching Gogs' own `custom/conf/app.ini`) and drop the `.template` suffix from the bundled default template in `/etc/default`.
 - Stop writing the resolved MySQL password to `/homeassistant/secrets.yaml` (key `gogs_db_password`) — since Gogs is initialized directly (no web installer), the password no longer needs to be exposed there.
-- Set `[server] PROTOCOL` dynamically from the `external_url` option (`http`/`https`) instead of a hardcoded `http`, so session/CSRF cookies are consistent when Gogs is served through an HTTPS reverse proxy (fixes `Bad Request: no CSRF token present` on form posts such as leaving an organization). Set `[server] SSH_DOMAIN` to the same public host so SSH clone URLs (`git@<host>:22/...`) match the web address.
+- Keep `[server] PROTOCOL` at `http` (Gogs listens on plain HTTP behind the HA reverse proxy, which terminates TLS) and derive `[server] SSH_DOMAIN` from the `external_url` option so SSH clone URLs (`git@<host>:22/...`) match the public web address.
 ### Gogs
 
 - Address multiple security vulnerabilities, including reverse proxy impersonation, SSRF via webhooks and repository migration, stored XSS, unauthorized access to private repository attachments, privilege escalation, and remote command execution via pull request rebase merges
