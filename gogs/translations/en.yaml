@@ -26,6 +26,19 @@ configuration:
   redis_db:
     name: Redis Database
     description: Number of the Redis database to use (default 0). Pick a unique number per app (e.g. Gogs vs SearXNG) to avoid collisions
+  email_host:
+    name: Email Host
+    description: SMTP server address and port (e.g. smtp.example.com:587). Set this to enable the Gogs mailer.
+  email_from:
+    name: Email From
+    description: Sender address used in outgoing mails (may include a display name)
+  email_user:
+    name: Email User
+    description: SMTP username used for authentication
+  email_password:
+    name: Email Password
+    description: SMTP password used for authentication
 
 network:
   3000/tcp: Port for the Gogs web interface and Git HTTP endpoints
+  22/tcp: Port for the builtin SSH server (Git over SSH)

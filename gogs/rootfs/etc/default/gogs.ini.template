@@ -27,6 +27,10 @@ RUN_USER = root
 ; configured URL verbatim. When unset, the line is commented out so Gogs falls
 ; back to its built-in default (built from PROTOCOL, DOMAIN and HTTP_PORT).
 ${GOGS_EXTERNAL_URL}
+; The public-facing domain name for the application. It is derived from the
+; external_url add-on option (the host/port without http(s):// and without any
+; path), or falls back to "localhost" when external_url is unset.
+DOMAIN = ${GOGS_DOMAIN}
 ; The protocol that is used to serve direct traffic to the application.
 ; Currently supports "http", "https", "fcgi" and "unix".
 PROTOCOL = http
@@ -34,6 +38,11 @@ PROTOCOL = http
 HTTP_ADDR = 0.0.0.0
 ; The port number to be listened by the application.
 HTTP_PORT = 3000
+; The application data directory. Gogs keeps its builtin SSH server host keys
+; under "<APP_DATA_PATH>/ssh" (e.g. /data/gogs/data/ssh/gogs.rsa). Pointing it
+; at the persistent data folder keeps the host keys stable across restarts, so
+; clients do not get a "host key changed" warning on every restart.
+APP_DATA_PATH = ${GOGS_DATA_PATH}
 
 ; Whether to disable using CDN for static files regardless.
 OFFLINE_MODE = true
@@ -41,9 +50,9 @@ OFFLINE_MODE = true
 ENABLE_GZIP = true
 
 ; Whether to disable SSH access to the application entirely.
-DISABLE_SSH = true
+DISABLE_SSH = false
 ; Whether to start a builtin SSH server.
-START_SSH_SERVER = false
+START_SSH_SERVER = true
 
 [repository]
 ; The root path for storing managed repositories, default is "~/gogs-repositories"
@@ -72,8 +81,22 @@ PASSWORD = ${GOGS_DB_PASSWORD}
 SECRET_KEY = ${GOGS_SECRET_KEY}
 
 [email]
-; Whether to enable the email service.
-ENABLED = false
+; Whether to enable the email service. Controlled by the add-on email_host
+; option (the mailer is enabled automatically when email_host is set).
+ENABLED = ${GOGS_EMAIL_ENABLED}
+; SMTP server address and port, e.g. smtp.example.com:587. Comes from the
+; add-on email_host option.
+HOST = ${GOGS_EMAIL_HOST}
+; The sender address used in outgoing mails (may include a display name).
+; Comes from the add-on email_from option.
+FROM = ${GOGS_EMAIL_FROM}
+; The SMTP username (usually the full email address). From the add-on.
+USER = ${GOGS_EMAIL_USER}
+; The SMTP password. From the add-on option (stored encrypted by HA).
+PASSWORD = ${GOGS_EMAIL_PASSWORD}
+; Additional SMTP options can be edited here as needed, see the full reference:
+;   SUBJECT_PREFIX, HELO_HOSTNAME, SKIP_VERIFY, USE_CERTIFICATE, CERT_FILE,
+;   KEY_FILE, USE_PLAIN_TEXT, ADD_PLAIN_TEXT_ALT
 
 [session]
 # Sessions are kept on disk by default. When a Redis connection is configured

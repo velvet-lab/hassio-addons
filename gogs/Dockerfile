@@ -54,6 +54,7 @@ RUN set -x \
         git-lfs \
         jq \
         mariadb-client \
+        openssh-client \
     && mkdir -p /app/gogs /tmp/gogs-pkg && \
     if [ "${BUILD_ARCH}" = "aarch64" ]; then \
         curl --proto "=https" --tlsv1.2 -sSfL \

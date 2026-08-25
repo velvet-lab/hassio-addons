@@ -26,12 +26,11 @@ backup_exclude:
 watchdog: tcp://[HOST]:[PORT:3000]
 ports:
   3000/tcp: 3000
+  22/tcp: 22
 options:
   log_level: info
   instance_name: "Gogs"
   secret_key: null
-  redis_port: 6379
-  redis_db: 0
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   instance_name: "str?"
@@ -42,3 +41,7 @@ schema:
   redis_port: "port?"
   redis_password: "password?"
   redis_db: "int?"
+  email_host: "str?"
+  email_from: "str?"
+  email_user: "str?"
+  email_password: "password?"

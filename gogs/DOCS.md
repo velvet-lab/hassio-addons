@@ -82,6 +82,24 @@ The number of the Redis database to use (default `0`, prefilled in the UI). Give
 > [!NOTE]
 > Redis is used here only for Gogs **sessions and cache**, not for the Git/issue data, which stays in the configured database (SQLite by default, or MySQL when `use_mysql` is enabled).
 
+### Option: `email_host`
+
+The SMTP server address and port, e.g. `smtp.example.com:587`. Setting this value **enables** the Gogs mailer (registration/account emails, issue notifications, password reset). Leave it empty to keep the mailer disabled. When `email_host` is set, `email_from`, `email_user` and `email_password` are **required**.
+
+### Option: `email_from`
+
+The sender address used in outgoing mails. May include a display name, e.g. `Gogs <gogs@example.com>`. Required once `email_host` is set.
+
+### Option: `email_user`
+
+The SMTP username used for authentication (usually the full email address). Required once `email_host` is set.
+
+### Option: `email_password`
+
+The SMTP password used for authentication. Home Assistant stores it encrypted. Required once `email_host` is set.
+
+> Advanced SMTP settings (e.g. `SUBJECT_PREFIX`, `HELO_HOSTNAME`, `SKIP_VERIFY`, `USE_CERTIFICATE`, `CERT_FILE`, `KEY_FILE`, `USE_PLAIN_TEXT`, `ADD_PLAIN_TEXT_ALT`) can be edited in the `[email]` section of the editable `gogs.ini` (see below).
+
 ## Configuration
 
 The Gogs server configuration is managed as a file on your Home Assistant configuration folder:
@@ -94,7 +112,7 @@ At every start this file is rendered (placeholders of the form `${VAR}` are expa
 
 The web server listens on `0.0.0.0` on its default port `3000`. The port shown in the add-on configuration is only the *exposed* port that Home Assistant forwards to the add-on; it does not change where Gogs itself listens.
 
-The `EXTERNAL_URL` and `DOMAIN` settings control the public URL used for login redirects and clone URLs. If you access the add-on from a different host than the one running Home Assistant (for example through a reverse proxy), set the `external_url` add-on option instead — it overrides `EXTERNAL_URL` here. You can also adjust `EXTERNAL_URL`/`DOMAIN` directly in this file; note that a non-empty `external_url` option always takes precedence over the values in this file.
+The `EXTERNAL_URL` and `DOMAIN` settings control the public URL used for login redirects and clone URLs. If you access the add-on from a different host than the one running Home Assistant (for example through a reverse proxy), set the `external_url` add-on option instead — it overrides `EXTERNAL_URL` here, and `DOMAIN` is derived from it automatically (the host/port without the `http(s)://` scheme and without any path, e.g. `https://git.example.com/` → `git.example.com`). When `external_url` is unset, `DOMAIN` falls back to `localhost`. You can also adjust `EXTERNAL_URL`/`DOMAIN` directly in this file; note that a non-empty `external_url` option always takes precedence over the values in this file.
 
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
 
@@ -103,6 +121,20 @@ The `EXTERNAL_URL` and `DOMAIN` settings control the public URL used for login r
 Git LFS is active: the add-on bundles the `git-lfs` client and registers it system-wide (`git lfs install --system`) at start, and Gogs serves the Git LFS endpoints automatically. Large files tracked with Git LFS are stored on the server under `/data/gogs/data/lfs-objects` (temporary upload data under `data/tmp/lfs-objects`), as configured in the `[lfs]` section of `gogs.ini`.
 
 To use Git LFS in your repositories, install the Git LFS client on your machine (`sudo apt install git-lfs`, then `git lfs install`), track the large file patterns with `git lfs track` and commit the resulting `.gitattributes`. See the [Git LFS documentation](https://gogs.io/advancing/git-lfs) for details.
+
+## Git over SSH
+
+Git over SSH is **disabled by default** (`DISABLE_SSH = true` / `START_SSH_SERVER = false` in the editable `gogs.ini`). To enable it, edit `/homeassistant/addons/gogs/gogs.ini` and set:
+
+```ini
+[server]
+DISABLE_SSH = false
+START_SSH_SERVER = true
+```
+
+then restart the add-on. The builtin SSH server listens on its default port `22`, which is exposed by the add-on (see the `22/tcp` port mapping). `SSH_PORT` / `SSH_LISTEN_PORT` default to `22`; only change them if you also adjust the port mapping accordingly. Gogs uses its **builtin Go SSH server** (not a system `sshd`), which needs the `ssh-keygen` tool for host-key generation and key parsing — the add-on image now bundles `openssh-client` to provide it.
+
+The SSH host keys are stored persistently under `/data/gogs/data/ssh/` (see `APP_DATA_PATH` in `gogs.ini`), so they stay stable across restarts and your clients do not get a "host key changed" warning. When you add users' public keys in the Gogs web UI, they can clone with `git clone ssh://git@<host>:22/<user>/<repo>.git`.
 
 ## Data folder
 
@@ -114,6 +146,7 @@ The add-on stores the Gogs data in the `/data/gogs` folder:
 - `data/attachments` — file attachments uploaded to issues, comments and releases.
 - `data/avatars` and `data/repo-avatars` — custom user and repository avatars.
 - `data/lfs-objects` — objects stored with Git LFS (with temporary upload data under `data/tmp/`).
+- `data/ssh` — SSH host keys for the builtin SSH server (only when Git over SSH is enabled).
 
 All paths in the editable `gogs.ini` that point at this data folder are rendered absolute, so uploads, avatars and LFS objects survive restarts. Please ensure `/data/gogs` is included in your backups.
 

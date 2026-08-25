@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="gogs-build-v24-custom"
+readonly build_marker="gogs-build-v27-custom"
 
 root=/data
 app_name="gogs"
@@ -41,9 +41,20 @@ esac
 external_url=$(bashio::config 'external_url' '')
 if ! bashio::var.has_value "${external_url}" || [[ "${external_url}" == "null" ]]; then
     gogs_external_url="# EXTERNAL_URL ="
+    # Without an external_url the domain defaults to "localhost" (Gogs' own
+    # built-in default is derived from EXTERNAL_URL/PROTOCOL/DOMAIN, so this
+    # only materializes when the user hardcodes it in the editable file).
+    gogs_domain="localhost"
 else
     gogs_external_url="EXTERNAL_URL = ${external_url}"
     bashio::log.info "Using a custom external URL: ${external_url}"
+    # Derive the domain from the external URL, i.e. the host (and port) without
+    # the scheme and without any trailing path/slash, e.g.
+    #   https://git.example.com/       -> git.example.com
+    #   https://git.example.com:8443/# -> git.example.com:8443
+    gogs_domain="${external_url#http://}"
+    gogs_domain="${gogs_domain#https://}"
+    gogs_domain="${gogs_domain%%/*}"
 fi
 
 # The instance / brand name shown in the web UI. It is a UI option with a
@@ -69,6 +80,7 @@ echo -n "${config_dest}" > /var/run/s6/container_environment/GOGS_CUSTOM
 echo -n "${gogs_log_level}" > /var/run/s6/container_environment/GOGS_LOG_LEVEL
 echo -n "${instance_name}" > /var/run/s6/container_environment/GOGS_INSTANCE_NAME
 echo -n "${gogs_external_url}" > /var/run/s6/container_environment/GOGS_EXTERNAL_URL
+echo -n "${gogs_domain}" > /var/run/s6/container_environment/GOGS_DOMAIN
 
 # Ensure the Gogs custom directory (GOGS_CUSTOM=/etc/gogs) and the persistent
 # data directory exist. Gogs reads its configuration from the custom dir's
@@ -86,7 +98,8 @@ for folder in "${config_source}" "${config_dest}" "${data_root}" \
     "${data_root}/lfs-objects" \
     "${data_root}/tmp" \
     "${data_root}/tmp/lfs-objects" \
-    "${data_root}/sessions"; do
+    "${data_root}/sessions" \
+    "${data_root}/ssh"; do
     if ! bashio::fs.directory_exists "${folder}"; then
         bashio::log.debug "Creating folder ${folder}"
         mkdir -p "${folder}"
@@ -241,6 +254,46 @@ echo -n "${session_provider}" > /var/run/s6/container_environment/GOGS_SESSION_P
 echo -n "${session_config}" > /var/run/s6/container_environment/GOGS_SESSION_CONFIG
 echo -n "${cache_adapter}" > /var/run/s6/container_environment/GOGS_CACHE_ADAPTER
 echo -n "${cache_host}" > /var/run/s6/container_environment/GOGS_CACHE_HOST
+
+# Optional SMTP mail configuration. The mailer is enabled as soon as the
+# email_host option is set (email_from / email_user / email_password are then
+# expected too). All four are optional; when email_host is empty, the mailer
+# stays disabled. Because Home Assistant encrypts option values, the password
+# is a UI option (password?) and never stored in the editable gogs.ini source.
+email_host=$(bashio::config 'email_host' '')
+[[ "${email_host}" == "null" ]] && email_host=""
+email_from=$(bashio::config 'email_from' '')
+[[ "${email_from}" == "null" ]] && email_from=""
+email_user=$(bashio::config 'email_user' '')
+[[ "${email_user}" == "null" ]] && email_user=""
+email_password=$(bashio::config 'email_password' '')
+[[ "${email_password}" == "null" ]] && email_password=""
+
+if bashio::var.has_value "${email_host}"; then
+    gogs_email_enabled="true"
+    bashio::log.info "Gogs email is enabled (${email_host})"
+    if ! bashio::var.has_value "${email_from}"; then
+        bashio::log.error "The 'email_from' option is required when email is configured."
+        exit 1
+    fi
+    if ! bashio::var.has_value "${email_user}"; then
+        bashio::log.error "The 'email_user' option is required when email is configured."
+        exit 1
+    fi
+    if ! bashio::var.has_value "${email_password}"; then
+        bashio::log.error "The 'email_password' option is required when email is configured."
+        exit 1
+    fi
+else
+    gogs_email_enabled="false"
+    bashio::log.debug "Email is disabled; not configuring the SMTP mailer"
+fi
+
+echo -n "${gogs_email_enabled}" > /var/run/s6/container_environment/GOGS_EMAIL_ENABLED
+echo -n "${email_host}" > /var/run/s6/container_environment/GOGS_EMAIL_HOST
+echo -n "${email_from}" > /var/run/s6/container_environment/GOGS_EMAIL_FROM
+echo -n "${email_user}" > /var/run/s6/container_environment/GOGS_EMAIL_USER
+echo -n "${email_password}" > /var/run/s6/container_environment/GOGS_EMAIL_PASSWORD
 
 # On first start copy the default configuration to the user-accessible folder
 # under /homeassistant, where the user can edit it (e.g. with VS Code). If the
