@@ -29,6 +29,9 @@
 - Rename the user-editable config file to `app.ini` (matching Gogs' own `custom/conf/app.ini`) and drop the `.template` suffix from the bundled default template in `/etc/default`.
 - Stop writing the resolved MySQL password to `/homeassistant/secrets.yaml` (key `gogs_db_password`) — since Gogs is initialized directly (no web installer), the password no longer needs to be exposed there.
 - Keep `[server] PROTOCOL` at `http` (Gogs listens on plain HTTP behind the HA reverse proxy, which terminates TLS) and derive `[server] SSH_DOMAIN` from the `external_url` option so SSH clone URLs (`git@<host>:22/...`) match the public web address.
+
+> [!WARNING]
+> **Known issue (upstream Gogs 0.14.3):** organization/team *leave* / *join* / *remove* buttons fail with `Bad Request: no CSRF token present`. Not fixable via add-on config; resolved upstream in Gogs 0.15.0 ([#8300](https://github.com/gogs/gogs/pull/8300) removes CSRF). See the **Known Issues** section in `README.md`. On the 0.15.0 bump, verify it is fixed and remove this notice.
 ### Gogs
 
 - Address multiple security vulnerabilities, including reverse proxy impersonation, SSRF via webhooks and repository migration, stored XSS, unauthorized access to private repository attachments, privilege escalation, and remote command execution via pull request rebase merges

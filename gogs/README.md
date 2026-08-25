@@ -8,6 +8,23 @@ Gogs is a painless, self-hosted Git service written in Go.
 
 Gogs (Git Original Guts System) is a lightweight, self-hosted Git service written in Go. It makes it easy to set up your own, private GitHub-like Git repository with issue tracking, pull requests, wiki and a built-in web editor. This add-on bundles the Gogs pre-built binary together with a SQLite database, so no external service is required. Optionally, Gogs can use a Redis server (e.g. the bundled Valkey add-on) for its sessions and cache.
 
+## Known Issues
+
+> [!WARNING]
+> **Organization/team member actions fail with `Bad Request: no CSRF token present` (Gogs 0.14.3, upstream).**
+>
+> The organization/team *leave*, *join* and *remove* buttons in the web UI are `inline-form` POSTs that do not carry a CSRF token, which Gogs 0.14.3 rejects. This is an **upstream Gogs bug** and cannot be fixed via add-on configuration (Gogs has no `DISABLE_CSRF` option; the security advisory [#8321](https://github.com/gogs/gogs/pull/8321) intentionally hardened these routes).
+>
+> **Upstream fix:** Gogs `main` (0.15.0+) removes CSRF protection entirely ([#8300](https://github.com/gogs/gogs/pull/8300)). Until then, affected members can be removed directly via the database.
+>
+> When upgrading this add-on to Gogs **0.15.0+**, remember to:
+> - bump `ARG GOGS_VERSION` + the release URLs in `Dockerfile`,
+> - bump `version` in `config.yaml` and add a `CHANGELOG.md` entry,
+> - remove/relax these two bullets once the issue is confirmed fixed in the bundled Gogs version.
+
+- **Reverse proxy (HTTPS):** Gogs always listens on plain HTTP behind the Home Assistant reverse proxy (`PROTOCOL = http`), which terminates TLS. Do **not** set `PROTOCOL = https` — Gogs would then try to serve TLS itself and fail with `open custom/https/cert.pem: no such file or directory`. Only `EXTERNAL_URL` carries the `https://` scheme; `SSH_DOMAIN` is derived from it so SSH clone URLs stay correct.
+- **First user becomes admin:** self-registration is enabled and the very first account to sign up automatically becomes the administrator (`DISABLE_REGISTRATION = false`). The Gogs web installer is locked (`INSTALL_LOCK = true`) so it cannot overwrite the add-on-managed `app.ini`.
+
 ## Support
 
 Got questions? You have several options to get them answered:
