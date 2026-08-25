@@ -1,3 +1,19 @@
+## 0.1.1
+
+### Add-on
+
+- Fix the AppArmor profile for the Gitea add-on (`apparmor.txt`): the profile was incomplete and ended before the closing `}`, so the supervisor could not load it (`Can't load profile ... exit status 1`) and the add-on failed to install. The file now contains the full ruleset (Gitea/Git/`/data/gitea` access rules plus the docker `ptrace`/`signal` peers) with valid AppArmor syntax.
+
+### Gitea
+
+- Bundled Gitea version: **1.27.2**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Gitea version.
+> This release bundles Gitea 1.27.2.
+
 ## 0.1.0
 
 ### Add-on
