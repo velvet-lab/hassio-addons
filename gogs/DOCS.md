@@ -77,7 +77,7 @@ Redis is **optional** and disabled by default. It becomes active as soon as `red
 Use MySQL/MariaDB as database backend instead of the default SQLite. Set to `true` to use MySQL/MariaDB, or `false` to use SQLite. By default, SQLite is used. If you enable this option, make sure you have a MariaDB add-on installed and configured properly.
 
 > [!NOTE]
-> The MariaDB add-on connection is resolved automatically — you do not enter a host, port or credentials here. On first start Gogs initializes its `gogs` database (utf8mb4) from the bundled Gogs setup script; existing databases are left untouched on subsequent starts. The resolved database password is stored in your central secrets file `/homeassistant/secrets.yaml` under the key `gogs_db_password` so you can look it up, e.g. when the Gogs install page asks for the database settings.
+> The MariaDB add-on connection is resolved automatically — you do not enter a host, port or credentials here. On first start Gogs initializes its `gogs` database (utf8mb4) from the bundled Gogs setup script; existing databases are left untouched on subsequent starts.
 
 ### Option: `external_url`
 
