@@ -1,0 +1,53 @@
+---
+name: Gitea
+version: 0.1.2
+stage: experimental
+slug: gitea
+description: >-
+  Gitea is a painless, self-hosted Git service written in Go
+url: https://github.com/velvet-lab/hassio-addons/tree/main/gitea
+arch:
+  - amd64
+  - aarch64
+host_network: false
+startup: application
+hassio_role: default
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
+services:
+  - mysql:want
+backup: hot
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:3000]
+ports:
+  3000/tcp: 3000
+  22/tcp: 22
+options:
+  log_level: info
+  instance_name: "Gitea"
+  secret_key: null
+  internal_token: null
+  email_host: null
+  email_from: null
+  email_user: null
+  email_password: null
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  instance_name: "str?"
+  secret_key: password
+  internal_token: password
+  email_host: str
+  email_from: str
+  email_user: str
+  email_password: password
+  external_url: "str?"
+  use_mysql: bool?
+  redis_host: "str?"
+  redis_port: "port?"
+  redis_password: "password?"
+  redis_db: "int?"

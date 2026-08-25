@@ -1,5 +1,7 @@
 # Home Assistant Add-on: RustFS
 
+This add-on bundles **RustFS 1.0.0-rc.3**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+
 A High-performance enterprise-grade distributed file system and S3 compatible object storage.
 
 ![GitHub Sponsor](https://img.shields.io/github/sponsors/danlorb?label=Sponsor&logo=githubsponsors) ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)

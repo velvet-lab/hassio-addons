@@ -1,5 +1,7 @@
 # Home Assistant Add-on: Gogs
 
+This add-on bundles **Gogs 0.14.3**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+
 Gogs is a painless, self-hosted Git service written in Go.
 
 ![Supports amd64 Architecture](https://img.shields.io/badge/amd64-yes-green.svg) ![Supports aarch64 Architecture](https://img.shields.io/badge/aarch64-yes-green.svg)

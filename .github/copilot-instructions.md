@@ -17,27 +17,34 @@ This repository provides Home Assistant add-ons under `velvet-lab/hassio-addons`
 
 ### Add-on versioning
 
-- The `version` in `config.yaml` is the **product version** of the bundled service where the add-on tracks an upstream product (Davis follows the Davis server version, MongoDB runs as 7.0.x). Versions must be bumped whenever the bundled product changes, otherwise Home Assistant will not offer an update.
-- For add-ons that track an upstream product, the `CHANGELOG.md` uses this structure per release:
+- The `version` in `config.yaml` is the **add-on version** and follows **semantic versioning (semver)**, starting at `0.1.0`. It is **independent** of the bundled product's version. Keep the add-on version stable unless the add-on itself (Dockerfile, s6, AppArmor, config options) changes; bump it per semver rules (patch/minor/major). This lets Home Assistant's update mechanism pick up add-on fixes without requiring a reinstall.
+- **Automatically bump the add-on version on every change to an add-on.** Whenever you modify an add-on (Dockerfile, s6 scripts, AppArmor, config options, templates, build files, etc.), increment the `version` in `config.yaml` and add a matching `CHANGELOG.md` entry. Decide the bump type yourself based on the nature of the change:
+  - **patch** (`0.1.0` → `0.1.1`): bug fixes, small corrections, dependency/build tweaks without user-facing change.
+  - **minor** (`0.1.1` → `0.2.0`): new feature, new config option, or a user-facing enhancement.
+  - **major** (`0.2.0` → `1.0.0`): breaking change, incompatible config/schema change, or a significant rework.
+  - Only documentation-only edits (README/DOCS/translations wording with no add-on code/config change) do **not** require a version bump.
+- The bundled **product version** is **not** reflected in the add-on version; it is recorded in the documentation and the changelog instead (e.g. in `DOCS.md`/`README.md` and the changelog's `### <Product>` section).
+- The `CHANGELOG.md` uses this structure per release:
 
   ```
-  ## <product-version>
+  ## <add-on-semver-version>
 
   ### Add-on
   - ...
 
   ### <Product>
+  - Bundled <product> version: **<product-version>**
   - short summary of product changes ...
 
   ---
   > [!NOTE]
-  > The add-on version follows the <product> version.
-  > For detailed release notes, see the official changelog.
+  > The add-on uses semantic versioning and is independent of the bundled <product> version.
+  > This release bundles <product> <product-version>.
   ```
 
 - Add-on-specific changes (Dockerfile, s6, AppArmor, config options) go under `### Add-on`.
-- Product changes are kept as a short summary only; link to the official product changelog instead of duplicating it.
-- `docs/`/`DOCS.md` add-on documentation should stay accurate when options or ports change.
+- Product changes are kept as a short summary only (plus the bundled version); link to the official product changelog instead of duplicating it.
+- `docs/`/`DOCS.md` add-on documentation should stay accurate when options or ports change, and should state the bundled product version near the top.
 
 ### Keep changelogs current
 

@@ -1,0 +1,342 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Static, unique build marker. Bump this value on every code change so we can
+# verify from the log whether the container image was actually rebuilt and is
+# not a stale cache. If the marker is NOT visible in the log, the image is old.
+readonly build_marker="gitea-build-v1-config"
+
+root=/data
+app_name="gitea"
+gitea_root="$root/${app_name}"
+data_root="$gitea_root/data"
+homeassistant_root="/homeassistant"
+config_source="$homeassistant_root/addons/${app_name}"
+config_dest="/etc/${app_name}"
+user_config="$config_source/app.ini"
+
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "${log_level}"
+
+# Map the add-on log_level onto the Gitea [log] LEVEL. Gitea supports Trace,
+# Debug, Info, Warn, Error, Critical, Fatal and None; the add-on's notice value
+# has no direct counterpart and falls back to Info.
+case "${log_level}" in
+    trace|debug) gitea_log_level="Trace" ;;
+    info|notice) gitea_log_level="Info" ;;
+    warning) gitea_log_level="Warn" ;;
+    error) gitea_log_level="Error" ;;
+    fatal) gitea_log_level="Fatal" ;;
+    *) gitea_log_level="Trace" ;;
+esac
+
+# Optional public-facing URL for reverse-proxy setups. When the user sets the
+# external_url option, the variable carries the full 'ROOT_URL = <value>' line
+# so Gitea overrides its default. When unset, it carries a commented-out
+# '# ROOT_URL =' line so Gitea falls back to its built-in default URL.
+# Note: for an unset optional option bashio::config returns the literal string
+# "null", so we treat empty and "null" as unset.
+external_url=$(bashio::config 'external_url' '')
+if ! bashio::var.has_value "${external_url}" || [[ "${external_url}" == "null" ]]; then
+    gitea_external_url="# ROOT_URL ="
+    gitea_domain="localhost"
+    gitea_ssh_domain="localhost"
+else
+    gitea_external_url="ROOT_URL = ${external_url}"
+    bashio::log.info "Using a custom external URL: ${external_url}"
+    # Derive the domain from the external URL, i.e. the host (and port) without
+    # the scheme and without any trailing path/slash, e.g.
+    #   https://git.example.com/       -> git.example.com
+    #   https://git.example.com:8443/# -> git.example.com:8443
+    gitea_domain="${external_url#http://}"
+    gitea_domain="${gitea_domain#https://}"
+    gitea_domain="${gitea_domain%%/*}"
+
+    # SSH clone URLs use the same public host as the web UI. SSH is exposed on
+    # port 22 (SSH_PORT/SSH_LISTEN_PORT), so git@<SSH_DOMAIN>:22/... is shown.
+    gitea_ssh_domain="${gitea_domain}"
+fi
+
+# The instance / brand name shown in the web UI. It is a UI option with a
+# default; it is optional in the HA schema only so the user may clear it and
+# fall back to the default.
+instance_name=$(bashio::config 'instance_name' 'Gitea')
+if ! bashio::var.has_value "${instance_name}" || [[ "${instance_name}" == "null" ]]; then
+    instance_name="Gitea"
+fi
+bashio::log.info "Gitea build marker: ${build_marker}"
+bashio::log.info "Prepare Gitea configuration"
+
+# Expose the app identity and config locations via the s6 container
+# environment (one file per variable). The core service reads them via
+# with-contenv to render and load the configuration.
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+# GITEA_CUSTOM tells Gitea where its custom dir (holding conf/app.ini) lives.
+# We point it at the volatile config folder; the core service renders app.ini
+# there. with-contenv turns this file into the GITEA_CUSTOM env var for longruns.
+echo -n "${config_dest}" > /var/run/s6/container_environment/GITEA_CUSTOM
+# GITEA_WORK_DIR tells Gitea its working directory; already baked into the image
+# via ENV, but writing it here keeps it explicit and consistent.
+echo -n "${gitea_root}" > /var/run/s6/container_environment/GITEA_WORK_DIR
+echo -n "${gitea_log_level}" > /var/run/s6/container_environment/GITEA_LOG_LEVEL
+echo -n "${instance_name}" > /var/run/s6/container_environment/GITEA_INSTANCE_NAME
+echo -n "${gitea_external_url}" > /var/run/s6/container_environment/GITEA_EXTERNAL_URL
+echo -n "${gitea_domain}" > /var/run/s6/container_environment/GITEA_DOMAIN
+echo -n "${gitea_ssh_domain}" > /var/run/s6/container_environment/GITEA_SSH_DOMAIN
+
+# Ensure the Gitea custom directory (GITEA_CUSTOM=/etc/gitea) and the persistent
+# data directory exist. Gitea reads its configuration from the custom dir's
+# conf/app.ini (rendered by the core service) and keeps data/ under
+# /data/gitea. The user-editable source lives under APP_CONFIG_SOURCE.
+bashio::log.debug "Create folders"
+# Persistent data subdirectories referenced by the app.ini template. Gitea
+# resolves relative data/ paths against its WORK DIR (GITEA_WORK_DIR), so the
+# template points them at ${GITEA_DATA_PATH} (= /data/gitea/data). Pre-create
+# them here so they exist before the first start.
+for folder in "${config_source}" "${config_dest}" "${gitea_root}" \
+    "${gitea_root}/repositories" \
+    "${data_root}" \
+    "${data_root}/attachments" \
+    "${data_root}/avatars" \
+    "${data_root}/repo-avatars" \
+    "${data_root}/lfs" \
+    "${data_root}/sessions" \
+    "${data_root}/ssh" \
+    "${data_root}/tmp"; do
+    if ! bashio::fs.directory_exists "${folder}"; then
+        bashio::log.debug "Creating folder ${folder}"
+        mkdir -p "${folder}"
+        chmod 755 "${folder}"
+    fi
+done
+
+# Gitea refuses to start while SECRET_KEY or INTERNAL_TOKEN use a placeholder.
+# Both are REQUIRED add-on options (Home Assistant stores them encrypted).
+# Instead of generating a secret on first start, abort startup if the user has
+# not provided one — a generated key would diverge from the value in the user's
+# configuration and break sessions/cookies after a restart.
+if ! bashio::var.has_value "$(bashio::config 'secret_key')"; then
+    bashio::log.error "The 'secret_key' option is required but empty."
+    bashio::log.error "Set a strong random value, e.g. generated with:"
+    bashio::log.error "    openssl rand -hex 32"
+    bashio::log.error "and restart the add-on."
+    exit 1
+fi
+if ! bashio::var.has_value "$(bashio::config 'internal_token')"; then
+    bashio::log.error "The 'internal_token' option is required but empty."
+    bashio::log.error "Set a strong random value, e.g. generated with:"
+    bashio::log.error "    openssl rand -hex 32"
+    bashio::log.error "and restart the add-on."
+    exit 1
+fi
+
+bashio::log.debug "Using the secret_key and internal_token from the add-on configuration"
+# Write them into the s6 container environment (one file per variable) so the
+# longrun service picks them up via with-contenv. with-contenv loads these files
+# only at script start, so the actual ${...} expansion happens in gitea-core/run
+# (not here) where GITEA_SECRET_KEY / GITEA_INTERNAL_TOKEN are already env vars.
+GITEA_SECRET_KEY="$(bashio::config 'secret_key')"
+echo -n "${GITEA_SECRET_KEY}" > /var/run/s6/container_environment/GITEA_SECRET_KEY
+GITEA_INTERNAL_TOKEN="$(bashio::config 'internal_token')"
+echo -n "${GITEA_INTERNAL_TOKEN}" > /var/run/s6/container_environment/GITEA_INTERNAL_TOKEN
+
+# Export data directory paths for template rendering
+echo -n "${data_root}" > /var/run/s6/container_environment/GITEA_DATA_PATH
+echo -n "${gitea_root}/repositories" > /var/run/s6/container_environment/GITEA_REPO_ROOT
+
+# Database backend. By default Gitea uses the built-in SQLite file stored under
+# the persistent data directory. When the use_mysql option is enabled, Gitea
+# instead uses the MySQL/MariaDB service provided by another add-on. All values
+# are exported as one file per variable so the core service can render them
+# into the [database] section of app.ini.
+db_type="sqlite3"
+db_path="${data_root}/gitea.db"
+db_host=""
+db_name="gitea"
+db_user=""
+db_password=""
+
+use_mysql=$(bashio::config 'use_mysql' false)
+
+if bashio::var.true "${use_mysql}"; then
+    db_type="mysql"
+
+    db_hostname=$(bashio::services "mysql" "host")
+    db_host_ipv4=$(dig +short A "${db_hostname}" | head -1)
+    db_port=$(bashio::services "mysql" "port")
+    db_password=$(bashio::services "mysql" "password")
+    db_user=$(bashio::services "mysql" "username")
+
+    # Gitea expects the MySQL host as host:port and the matching database name.
+    db_host="${db_host_ipv4}:${db_port}"
+
+    bashio::log.debug "Connecting to MariaDB at ${db_host_ipv4}:${db_port} with user ${db_user}"
+
+    # Initialize the 'gitea' database. Create it if it does not exist yet with
+    # the utf8mb4 charset; existing databases are left untouched on subsequent
+    # starts (Gitea runs its own schema migrations on startup).
+    if mariadb -u "${db_user}" -p"${db_password}" -h "${db_host_ipv4}" -P "${db_port}" --skip-ssl \
+        -e "SHOW DATABASES LIKE 'gitea';" 2>/dev/null | grep -qx "gitea"; then
+        bashio::log.debug "The 'gitea' database already exists; skipping initialization"
+    else
+        bashio::log.info "Creating the 'gitea' database"
+        mariadb -u "${db_user}" -p"${db_password}" -h "${db_host_ipv4}" -P "${db_port}" --skip-ssl \
+            -e "CREATE DATABASE IF NOT EXISTS \`gitea\` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+    fi
+
+    bashio::log.warning "Gitea is using the MariaDB add-on for its database"
+    bashio::log.warning "Please ensure this is included in your backups"
+    bashio::log.warning "Uninstalling the MariaDB add-on will remove any data"
+else
+    bashio::log.debug "Using the built-in SQLite database"
+fi
+
+echo -n "${db_type}" > /var/run/s6/container_environment/GITEA_DB_TYPE
+echo -n "${db_path}" > /var/run/s6/container_environment/GITEA_DB_PATH
+echo -n "${db_host}" > /var/run/s6/container_environment/GITEA_DB_HOST
+echo -n "${db_name}" > /var/run/s6/container_environment/GITEA_DB_NAME
+echo -n "${db_user}" > /var/run/s6/container_environment/GITEA_DB_USER
+echo -n "${db_password}" > /var/run/s6/container_environment/GITEA_DB_PASSWORD
+
+# Optional Redis-backed session + cache store. Redis is configured through the
+# add-on options redis_host / redis_port / redis_password. As soon as any one
+# of them is set, all three are required; when all are left empty, Redis is
+# disabled (file-based sessions and in-memory cache).
+session_provider="file"
+session_config="${data_root}/sessions"
+cache_adapter="memory"
+cache_host=""
+
+redis_host=$(bashio::config 'redis_host')
+redis_password=$(bashio::config 'redis_password')
+# redis_port / redis_db are prefilled with defaults in the UI options, so they
+# always have a value. They are NOT indicators for Redis being used — only
+# redis_host or redis_password are.
+redis_port=$(bashio::config 'redis_port' '6379')
+redis_db=$(bashio::config 'redis_db' '0')
+
+# bashio returns the literal string "null" when an optional schema option is
+# unset (not an empty value). Normalize host/password (the indicators) and the
+# prefilled values to their defaults.
+[[ "${redis_host}" == "null" ]] && redis_host=""
+[[ "${redis_password}" == "null" ]] && redis_password=""
+[[ "${redis_port}" == "null" ]] && redis_port="6379"
+[[ "${redis_db}" == "null" ]] && redis_db="0"
+
+# Redis is considered active when redis_host OR redis_password is set. The
+# prefilled redis_port / redis_db are no indicator on their own. Once active,
+# both redis_host and redis_password are required.
+if bashio::var.has_value "${redis_host}" \
+    || bashio::var.has_value "${redis_password}"; then
+    if ! bashio::var.has_value "${redis_host}"; then
+        bashio::log.error "The 'redis_host' option is required when Redis is configured."
+        bashio::log.error "Set 'redis_host' and 'redis_password' (or leave both empty to disable Redis)."
+        exit 1
+    fi
+    if ! bashio::var.has_value "${redis_password}"; then
+        bashio::log.error "The 'redis_password' option is required when Redis is configured."
+        bashio::log.error "Set 'redis_host' and 'redis_password' (or leave both empty to disable Redis)."
+        exit 1
+    fi
+
+    # Session provider connection string (go-macaron session redis format).
+    session_provider="redis"
+    session_config="network=tcp,addr=${redis_host}:${redis_port},password=${redis_password},db=${redis_db},pool_size=100,idle_timeout=180"
+
+    # Cache adapter connection string (Gitea redis:// format). The db number is
+    # taken from redis_db so each app (e.g. Gitea vs SearXNG) can use its own
+    # database and avoid collisions.
+    cache_adapter="redis"
+    cache_host="redis://:${redis_password}@${redis_host}:${redis_port}/${redis_db}?pool_size=100&idle_timeout=180s"
+
+    bashio::log.info "Gitea will use a Redis server for sessions and cache (${redis_host}:${redis_port}, db ${redis_db})"
+else
+    bashio::log.debug "Redis is disabled; using file-based sessions and in-memory cache"
+fi
+
+echo -n "${session_provider}" > /var/run/s6/container_environment/GITEA_SESSION_PROVIDER
+echo -n "${session_config}" > /var/run/s6/container_environment/GITEA_SESSION_CONFIG
+echo -n "${cache_adapter}" > /var/run/s6/container_environment/GITEA_CACHE_ADAPTER
+echo -n "${cache_host}" > /var/run/s6/container_environment/GITEA_CACHE_HOST
+
+# SMTP mail configuration. All four options are REQUIRED: user registration
+# mails and notifications need a working mailer, so the add-on aborts startup
+# if any of them is empty. Home Assistant stores the password encrypted.
+email_host=$(bashio::config 'email_host' '')
+email_from=$(bashio::config 'email_from' '')
+email_user=$(bashio::config 'email_user' '')
+email_password=$(bashio::config 'email_password' '')
+[[ "${email_host}" == "null" ]] && email_host=""
+[[ "${email_from}" == "null" ]] && email_from=""
+[[ "${email_user}" == "null" ]] && email_user=""
+[[ "${email_password}" == "null" ]] && email_password=""
+
+if ! bashio::var.has_value "${email_host}"; then
+    bashio::log.error "The 'email_host' option is required but empty."
+    bashio::log.error "Set an SMTP server and restart the add-on."
+    exit 1
+fi
+if ! bashio::var.has_value "${email_from}"; then
+    bashio::log.error "The 'email_from' option is required but empty."
+    exit 1
+fi
+if ! bashio::var.has_value "${email_user}"; then
+    bashio::log.error "The 'email_user' option is required but empty."
+    exit 1
+fi
+if ! bashio::var.has_value "${email_password}"; then
+    bashio::log.error "The 'email_password' option is required but empty."
+    exit 1
+fi
+
+# Split the "smtp.example.com:587" into the SMTP_ADDR and SMTP_PORT values that
+# Gitea's [mailer] section expects.
+email_hostname="${email_host%:*}"
+email_port="${email_host##*:}"
+if [[ "${email_port}" == "${email_hostname}" ]]; then
+    # No port given; default to 587 (StartTLS).
+    email_port="587"
+fi
+
+gitea_email_enabled="true"
+bashio::log.info "Gitea email is enabled (${email_hostname}:${email_port})"
+
+echo -n "${gitea_email_enabled}" > /var/run/s6/container_environment/GITEA_EMAIL_ENABLED
+echo -n "${email_hostname}" > /var/run/s6/container_environment/GITEA_EMAIL_HOST
+echo -n "${email_port}" > /var/run/s6/container_environment/GITEA_EMAIL_PORT
+echo -n "${email_from}" > /var/run/s6/container_environment/GITEA_EMAIL_FROM
+echo -n "${email_user}" > /var/run/s6/container_environment/GITEA_EMAIL_USER
+echo -n "${email_password}" > /var/run/s6/container_environment/GITEA_EMAIL_PASSWORD
+
+# On first start copy the default configuration to the user-accessible folder
+# under /homeassistant, where the user can edit it (e.g. with VS Code). If the
+# user deletes the file it is recreated from the bundled template.
+if ! bashio::fs.file_exists "${user_config}"; then
+    bashio::log.info "Creating default Gitea configuration for the user"
+    cp /etc/default/app.ini "${user_config}"
+    chmod 644 "${user_config}"
+fi
+
+# Initialize Git LFS. The Gitea server serves LFS objects out of the box, but
+# the `git-lfs` client must register its smudge/clean filters so server-side Git
+# operations recognize LFS pointers. --system writes to /etc/gitconfig, so it
+# applies regardless of the HOME of the running user. Best-effort: if it fails
+# (e.g. older git-lfs), log a warning but do not abort startup.
+bashio::log.debug "Initialize Git LFS"
+if ! git lfs install --system 2>/dev/null; then
+    bashio::log.warning "Could not run 'git lfs install --system'; Git LFS may not be fully configured."
+fi
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"
+
+# s6 oneshot services MUST end with exit 0, otherwise s6 treats them as
+# "unable to start service ... command exited N" and aborts the whole container
+# bring-up (rc.init: fatal: stopping the container).
+exit 0
