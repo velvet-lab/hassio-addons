@@ -1,7 +1,7 @@
 ---
 name: Gitea
 version: 0.1.2
-stage: experimental
+stage: stable
 slug: gitea
 description: >-
   Gitea is a painless, self-hosted Git service written in Go

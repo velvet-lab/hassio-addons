@@ -1,7 +1,7 @@
 ---
-name: SearXNG (experimental)
+name: SearXNG
 version: 0.1.0
-stage: experimental
+stage: stable
 slug: searxng
 description: >-
   SearXNG is a free, self-hosted metasearch engine that aggregates results
