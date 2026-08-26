@@ -33,10 +33,30 @@ Please note that each level automatically includes log messages from a more seve
 The `session_secret` option is **required**: New API uses it to sign authentication sessions and cookies. Provide a strong, random value, for example with:
 
 ```
-openssl rand -hex 32
+openssl rand -hex 64
 ```
 
-This produces a 64-character hexadecimal key (256 bits). Home Assistant stores it encrypted. It must match the `SESSION_SECRET` value in the New API configuration file described below.
+This produces a 128-character hexadecimal key (512 bits). Home Assistant stores it encrypted. It must match the `SESSION_SECRET` value in the New API configuration file described below.
+
+### Option: `crypto_secret`
+
+The `crypto_secret` option is **required**: New API uses it for HMAC signing of cache keys. In multi-node deployments where nodes share Redis, all nodes must use the same `crypto_secret`. When left unset in New API's own configuration, it defaults to `SESSION_SECRET`, but this add-on requires an explicit value for clarity.
+
+Generate a strong random value, for example with:
+
+```
+openssl rand -hex 64
+```
+
+This produces a 128-character hexadecimal key (512 bits). Home Assistant stores it encrypted.
+
+### Option: `tz`
+
+The timezone used for log timestamps (optional). Defaults to `Etc/UTC` when unset. Examples: `Europe/Berlin`, `America/New_York`, `Asia/Shanghai`. See [Wikipedia: List of tz database time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) for valid values.
+
+### Option: `frontend_base_url`
+
+The frontend base URL (optional) for slave nodes or redirects. In multi-node deployments, slave nodes redirect unmatched routes to this address. Example: `https://newapi.example.com`. Leave empty for single-node deployments.
 
 ### Option: `use_mysql`
 
@@ -76,15 +96,23 @@ On first start the add-on copies a default configuration there, which you can ed
 
 The web server listens on `0.0.0.0` on its default port `3000`. The port shown in the add-on configuration is only the *exposed* port that Home Assistant forwards to the add-on; it does not change where New API itself listens.
 
-The `SQL_DSN` and `REDIS_CONN_STRING` variables are rendered from the add-on options above — enabling `use_mysql` fills `SQL_DSN` with the MariaDB connection string, and setting the Redis options fills `REDIS_CONN_STRING`. You can instead set `SQL_DSN` manually in this file (for example to use PostgreSQL or an external MySQL server).
+The `TZ`, `SESSION_SECRET`, `CRYPTO_SECRET`, `FRONTEND_BASE_URL`, `SQL_DSN` and `REDIS_CONN_STRING` variables are rendered from the add-on options above. Enabling `use_mysql` fills `SQL_DSN` with the MariaDB connection string, and setting the Redis options fills `REDIS_CONN_STRING`. You can instead set `SQL_DSN` manually in this file (for example to use PostgreSQL or an external MySQL server).
 
 **Note:** Remember to restart the add-on after changing this file for the new configuration to take effect.
+
+## Application Structure
+
+The New API application runs from `/app` (Linux-like) with symbolic links:
+- `/app/new-api` → `/usr/bin/new-api` (the binary)
+- `/app/.env` → `/etc/newapi/.env` (the rendered config)
+
+The configuration is rendered from `/homeassistant/addons/newapi/newapi.env` to `/etc/newapi/.env` on every start. The SQLite database and logs are stored under `/data/newapi`.
 
 ## Data folder
 
 The add-on stores the New API data in the `/data/newapi` folder: the SQLite database and log files. Please ensure this is included in your backup.
 
-## Backups & Permissions
+## Backups & Permissionsand `crypto_secret` options (generate with `openssl rand -hex 64`)
 
 - **Data backup:** Include `/data/newapi` in your regular backups to preserve the database and logs.
 - **Secret files:** Protect any secret material (for example `SESSION_SECRET` if persisted) with `chmod 600` and restrict access.

@@ -1,6 +1,9 @@
 {
     "log_level": "debug",
-    "session_secret": "dev-session-secret-change-me",
+    "session_secret": "dev-session-secret-change-me-generate-with-openssl-rand-hex-64",
+    "crypto_secret": "dev-crypto-secret-change-me-generate-with-openssl-rand-hex-64",
+    "tz": "Etc/UTC",
+    "frontend_base_url": "",
     "use_mysql": false,
     "redis_password": ""
 }
