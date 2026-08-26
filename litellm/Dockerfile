@@ -53,7 +53,7 @@ RUN set -x \
         tzdata \
     && python3 -m venv /opt/litellm \
     && /opt/litellm/bin/pip install --no-cache-dir --upgrade pip \
-    && /opt/litellm/bin/pip install --no-cache-dir "litellm[proxy]==$(echo ${LITELLM_VERSION} | sed 's/^v//')" \
+    && /opt/litellm/bin/pip install --no-cache-dir "litellm[proxy]==$(echo ${LITELLM_VERSION} | sed 's/^v//; s/-stable$//')" \
     && /opt/litellm/bin/pip install --no-cache-dir pymysql \
     && ln -sf /opt/litellm/bin/litellm /usr/local/bin/litellm \
     && mkdir -p /app /etc/litellm /homeassistant/addons/litellm \
