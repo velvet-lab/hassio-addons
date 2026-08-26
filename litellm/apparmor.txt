@@ -58,6 +58,8 @@ profile litellm flags=(attach_disconnected,mediate_deleted) {
   /opt/litellm/** r,
   /opt/litellm/bin/** ix,
   /usr/local/bin/litellm ix,
+  /usr/local/lib/python3.*/site-packages/** mr,
+  /usr/lib/python3.*/site-packages/** mr,
 
   # Runtime config and templates
   /etc/default/** r,
@@ -76,16 +78,4 @@ profile litellm flags=(attach_disconnected,mediate_deleted) {
   # docker daemon confinement requires explict allow rule for signal
   signal (receive) set=(kill,term) peer=/usr/bin/docker,
 }
-  /usr/local/bin/litellm ix,
-  /usr/local/lib/python3.*/site-packages/** mr,
-  /usr/lib/python3.*/site-packages/** mr,
-
-  # Suppress ptrace denials
-  deny ptrace,
-
-  # Networking (outbound to LLM providers)
-  network inet stream,
-  network inet6 stream,
-  network inet dgram,
-  network inet6 dgram,
 }
