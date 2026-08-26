@@ -6,6 +6,11 @@
 # ==============================================================================
 set -e
 
+# Initialize bashio logging level before using any bashio::log.* function to
+# avoid 'unbound variable' in bashio/log.sh (log functions reference unset
+# internal variables otherwise) and, under set -e, killing the whole oneshot.
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
 readonly app_name="litellm"
 readonly root="/data"
 readonly homeassistant_root="/homeassistant"

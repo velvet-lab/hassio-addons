@@ -7,6 +7,12 @@
 # ==============================================================================
 set -e
 
+# Initialize bashio logging level before using any bashio::log.* function.
+# Without this, bashio's log.sh references unset internal variables which
+# raises 'unbound variable' and, under set -e, kills the run script (which
+# s6 then restarts endlessly).
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
 # Read environment variables set by litellm-pre (with :? for required check)
 # shellcheck disable=SC2153
 app_name="${APP_NAME:?APP_NAME is not set (litellm-pre did not run)}"
