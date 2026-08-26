@@ -5,12 +5,10 @@
 # LiteLLM core service
 # Starts the LiteLLM proxy server with dashboard
 # ==============================================================================
-set -e
 
-# Initialize bashio logging level before using any bashio::log.* function.
-# Without this, bashio's log.sh references unset internal variables which
-# raises 'unbound variable' and, under set -e, kills the run script (which
-# s6 then restarts endlessly).
+# Initialize bashio logging level before using any bashio::log.* function to
+# avoid 'unbound variable' in bashio/log.sh (log functions reference unset
+# internal variables otherwise), matching the pattern used by other add-ons.
 bashio::log.level "$(bashio::config 'log_level' 'info')"
 
 # Read environment variables set by litellm-pre (with :? for required check)

@@ -1,6 +1,6 @@
 ---
 name: LiteLLM (experimental)
-version: 0.2.3
+version: 0.2.4
 stage: experimental
 slug: litellm
 description: >-
