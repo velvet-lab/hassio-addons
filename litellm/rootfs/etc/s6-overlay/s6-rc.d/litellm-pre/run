@@ -1,0 +1,89 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# LiteLLM pre-initialization
+# Checks configuration, creates directories, renders config file
+# ==============================================================================
+set -e
+
+readonly app_name="litellm"
+readonly root="/data"
+readonly homeassistant_root="/homeassistant"
+readonly data_root="${root}/${app_name}"
+readonly config_source="${homeassistant_root}/addons/${app_name}"
+readonly config_dest="/etc/${app_name}"
+readonly build_marker="litellm-build-v1"
+
+bashio::log.info "Starting ${app_name} pre-initialization (${build_marker})"
+
+# Check required master_key option
+if ! bashio::var.has_value "$(bashio::config 'master_key')"; then
+    bashio::log.error "The 'master_key' option is required but empty."
+    bashio::log.error "Generate a strong random key (e.g. 'openssl rand -hex 32' for 64 hex chars / 256-bit)."
+    bashio::log.error "Set it in the add-on configuration and restart."
+    exit 1
+fi
+
+# Create directories
+bashio::log.info "Creating directories..."
+mkdir -p "${data_root}"
+mkdir -p "${config_source}"
+mkdir -p "${config_dest}"
+
+# Copy bundled template to user-editable location on first start
+if [[ ! -f "${config_source}/config.yaml" ]]; then
+    bashio::log.info "First start detected - copying bundled config template to ${config_source}/"
+    cp /etc/default/config.yaml "${config_source}/config.yaml"
+    chmod 644 "${config_source}/config.yaml"
+fi
+
+# Export environment variables for the container environment (s6)
+# These are used by litellm-core and available to envsubst
+bashio::log.info "Exporting environment variables..."
+
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+
+# LiteLLM configuration
+master_key=$(bashio::config 'master_key')
+echo -n "${master_key}" > /var/run/s6/container_environment/LITELLM_MASTER_KEY
+
+log_level=$(bashio::config 'log_level' 'info')
+echo -n "${log_level}" > /var/run/s6/container_environment/LOG_LEVEL
+
+# UI enable (default: true)
+if bashio::config.has_value 'ui_enable'; then
+    ui_enable=$(bashio::config 'ui_enable')
+else
+    ui_enable="true"
+fi
+echo -n "${ui_enable}" > /var/run/s6/container_environment/UI_ENABLE
+
+# Database URL (optional, defaults to SQLite)
+if bashio::config.has_value 'database_url'; then
+    database_url=$(bashio::config 'database_url')
+    echo -n "${database_url}" > /var/run/s6/container_environment/DATABASE_URL
+    bashio::log.info "Using external database"
+else
+    # Use SQLite (default)
+    database_url="sqlite:///${data_root}/database.db"
+    echo -n "${database_url}" > /var/run/s6/container_environment/DATABASE_URL
+    bashio::log.info "Using SQLite database at ${data_root}/database.db"
+fi
+
+# Redis URL (optional)
+if bashio::config.has_value 'redis_url'; then
+    redis_url=$(bashio::config 'redis_url')
+    echo -n "${redis_url}" > /var/run/s6/container_environment/REDIS_URL
+    bashio::log.info "Redis connection configured"
+fi
+
+# Store model in DB (optional, default: false, uses config.yaml)
+if bashio::config.has_value 'store_model_in_db'; then
+    store_model_in_db=$(bashio::config 'store_model_in_db')
+    echo -n "${store_model_in_db}" > /var/run/s6/container_environment/STORE_MODEL_IN_DB
+fi
+
+bashio::log.info "${app_name} pre-initialization complete"
+exit 0

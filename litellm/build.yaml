@@ -1,0 +1,11 @@
+---
+build_from:
+  amd64: ghcr.io/home-assistant/amd64-base-debian:trixie
+  aarch64: ghcr.io/home-assistant/aarch64-base-debian:trixie
+labels:
+  org.opencontainers.image.title: LiteLLM AI Gateway
+  org.opencontainers.image.description: Open source AI Gateway for 100+ LLM providers
+  org.opencontainers.image.source: https://github.com/velvet-lab/hassio-addons/tree/main/litellm
+  org.opencontainers.image.licenses: MIT
+args:
+  LITELLM_VERSION: v1.98.0-stable

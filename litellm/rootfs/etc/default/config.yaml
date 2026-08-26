@@ -1,0 +1,92 @@
+# LiteLLM Proxy Configuration
+# This file is user-editable and located at /homeassistant/addons/litellm/config.yaml
+# Documentation: https://docs.litellm.ai/docs/proxy/configs
+#
+# Rendered variables (available via ${VAR} syntax):
+# - LITELLM_MASTER_KEY: Master key for proxy authentication (required)
+# - DATABASE_URL: Database connection string
+# - REDIS_URL: Redis connection string (optional)
+# - LOG_LEVEL: Log level (trace/debug/info/warning/error)
+#
+# You can define your own environment variables in the add-on options and reference them here.
+
+# Model list - define your LLM models here
+# Each model can route to different providers (OpenAI, Anthropic, Azure, Bedrock, etc.)
+model_list:
+  # Example: OpenAI GPT-4
+  - model_name: gpt-4
+    litellm_params:
+      model: openai/gpt-4
+      # api_key: ${OPENAI_API_KEY}  # Set via environment or here
+
+  # Example: Anthropic Claude
+  - model_name: claude-3-opus
+    litellm_params:
+      model: anthropic/claude-3-opus-20240229
+      # api_key: ${ANTHROPIC_API_KEY}  # Set via environment or here
+
+  # Example: Azure OpenAI
+  # - model_name: gpt-4-azure
+  #   litellm_params:
+  #     model: azure/gpt-4
+  #     api_base: ${AZURE_API_BASE}
+  #     api_key: ${AZURE_API_KEY}
+  #     api_version: "2024-02-15-preview"
+
+  # Example: AWS Bedrock
+  # - model_name: claude-bedrock
+  #   litellm_params:
+  #     model: bedrock/anthropic.claude-3-opus-20240229-v1:0
+  #     aws_access_key_id: ${AWS_ACCESS_KEY_ID}
+  #     aws_secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+  #     aws_region_name: us-east-1
+
+  # Example: Ollama (local)
+  # - model_name: llama3
+  #   litellm_params:
+  #     model: ollama/llama3
+  #     api_base: http://localhost:11434
+
+# LiteLLM settings
+litellm_settings:
+  # Enable/disable features
+  drop_params: true  # Drop unsupported params instead of failing
+  set_verbose: false  # Verbose logging (overrides LOG_LEVEL)
+  
+  # Caching (requires Redis)
+  # cache: true
+  # cache_params:
+  #   type: redis
+  #   ttl: 600
+
+  # Success/failure callbacks for observability
+  # success_callback: ["langfuse", "helicone"]
+  # failure_callback: ["langfuse"]
+
+# General settings
+general_settings:
+  master_key: ${LITELLM_MASTER_KEY}  # Required - set via add-on options
+  database_url: ${DATABASE_URL}  # SQLite or Postgres
+  
+  # Alerting (requires email setup)
+  # alerting: ["email"]
+  # alerting_threshold: 100  # Alert on budget threshold
+  
+  # Store model config in database instead of file (optional)
+  # store_model_in_db: false
+
+# Router settings (load balancing, fallbacks)
+# router_settings:
+#   routing_strategy: simple-shuffle  # simple-shuffle, least-busy, usage-based-routing
+#   num_retries: 3
+#   timeout: 600
+#   fallbacks:
+#     - model: gpt-4
+#       fallback: claude-3-opus
+
+# Environment variables (optional - set API keys here or via add-on options)
+# environment_variables:
+#   OPENAI_API_KEY: sk-...
+#   ANTHROPIC_API_KEY: sk-ant-...
+#   AWS_ACCESS_KEY_ID: AKIA...
+#   AWS_SECRET_ACCESS_KEY: ...

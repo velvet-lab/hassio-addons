@@ -1,0 +1,63 @@
+#include <tunables/global>
+
+profile litellm flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # Capabilities
+  capability chown,
+  capability dac_override,
+  capability dac_read_search,
+  capability fowner,
+  capability fsetid,
+  capability kill,
+  capability net_bind_service,
+  capability setgid,
+  capability setuid,
+  capability sys_admin,
+  capability sys_chroot,
+  capability sys_ptrace,
+  capability sys_resource,
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /usr/lib/aarch64-linux-gnu/** mr,
+  /usr/lib/x86_64-linux-gnu/** mr,
+  /command/** ix,
+  /run/{s6,s6-rc*,service}/** rw,
+  /package/** ix,
+  /etc/s6-overlay/** rw,
+  /etc/s6-overlay/s6-rc.d/** rwix,
+  /run/s6/** rwix,
+  /var/run/** rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+  /tmp/** rw,
+
+  # Data access
+  /data/** rw,
+
+  # Access to homeassistant config
+  /homeassistant/** r,
+  /homeassistant/addons/litellm/** rw,
+
+  # Runtime config and templates
+  /etc/default/** r,
+  /etc/litellm/** rw,
+
+  # LiteLLM binary and runtime
+  /usr/local/bin/litellm ix,
+  /usr/local/lib/python3.*/site-packages/** mr,
+  /usr/lib/python3.*/site-packages/** mr,
+
+  # Suppress ptrace denials
+  deny ptrace,
+
+  # Networking (outbound to LLM providers)
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+}

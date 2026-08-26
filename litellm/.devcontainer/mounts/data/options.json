@@ -1,0 +1,4 @@
+{
+  "log_level": "info",
+  "master_key": "dev-master-key-replace-me-in-production"
+}

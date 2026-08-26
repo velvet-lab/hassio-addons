@@ -1,0 +1,78 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# shellcheck disable=SC2153
+# ==============================================================================
+# LiteLLM core service
+# Starts the LiteLLM proxy server with dashboard
+# ==============================================================================
+set -e
+
+# Read environment variables set by litellm-pre (with :? for required check)
+# shellcheck disable=SC2153
+app_name="${APP_NAME:?APP_NAME is not set (litellm-pre did not run)}"
+# shellcheck disable=SC2153
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (litellm-pre did not run)}"
+# shellcheck disable=SC2153
+config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (litellm-pre did not run)}"
+
+bashio::log.info "Starting ${app_name} core service..."
+
+# Render config files from user-editable source to runtime destination with envsubst
+# This happens every start (users may have added their own ${VAR} references)
+bashio::log.info "Rendering configuration files from ${config_source} to ${config_dest}..."
+for file in "${config_source}"/*; do
+    if [[ -f "${file}" ]]; then
+        name=$(basename "${file}")
+        bashio::log.debug "Rendering ${name}..."
+        envsubst < "${file}" > "${config_dest}/${name}"
+        chmod 644 "${config_dest}/${name}"
+    fi
+done
+
+# Determine log level for LiteLLM
+log_level="${LOG_LEVEL:-info}"
+case "${log_level}" in
+    trace|debug)
+        litellm_log_level="DEBUG"
+        ;;
+    info|notice)
+        litellm_log_level="INFO"
+        ;;
+    warning)
+        litellm_log_level="WARNING"
+        ;;
+    error|fatal)
+        litellm_log_level="ERROR"
+        ;;
+    *)
+        litellm_log_level="INFO"
+        ;;
+esac
+
+bashio::log.info "LiteLLM log level: ${litellm_log_level}"
+bashio::log.info "Dashboard UI: ${UI_ENABLE:-true}"
+bashio::log.info "Config: ${config_dest}/config.yaml"
+
+# Build command args
+cmd_args=(
+    "--config" "${config_dest}/config.yaml"
+    "--port" "4000"
+    "--host" "0.0.0.0"
+)
+
+# Add debug flag if needed
+if [[ "${litellm_log_level}" == "DEBUG" ]]; then
+    cmd_args+=("--detailed_debug")
+fi
+
+# Disable UI if configured
+if [[ "${UI_ENABLE}" == "false" ]]; then
+    cmd_args+=("--disable_ui")
+fi
+
+# Start LiteLLM proxy server
+bashio::log.info "Starting LiteLLM proxy server on port 4000..."
+bashio::log.debug "Command: litellm ${cmd_args[*]}"
+
+cd /app
+exec litellm "${cmd_args[@]}"

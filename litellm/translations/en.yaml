@@ -1,0 +1,36 @@
+---
+configuration:
+  log_level:
+    name: Log Level
+    description: >-
+      Set the logging verbosity. Debug and trace levels provide detailed
+      diagnostic information.
+  master_key:
+    name: Master Key
+    description: >-
+      Master key for proxy authentication (required). Generate a strong random
+      key with 'openssl rand -hex 32' (64 hex chars / 256-bit). This key
+      authenticates all requests to the proxy and is stored encrypted by
+      Home Assistant.
+  ui_enable:
+    name: Enable Dashboard UI
+    description: >-
+      Enable or disable the built-in web dashboard. The dashboard provides
+      monitoring, management, and configuration tools. Access at
+      http://homeassistant.local:4000 (default: enabled).
+  database_url:
+    name: Database URL
+    description: >-
+      External database connection string (optional). If not set, uses SQLite
+      at /data/litellm/database.db. Example:
+      postgresql://user:password@localhost:5432/litellm
+  redis_url:
+    name: Redis URL
+    description: >-
+      Redis connection string for caching and rate limiting (optional).
+      Example: redis://localhost:6379
+  store_model_in_db:
+    name: Store Model Config in Database
+    description: >-
+      Store model configuration in the database instead of the config.yaml
+      file. Useful for dynamic model management via the API (default: false).
