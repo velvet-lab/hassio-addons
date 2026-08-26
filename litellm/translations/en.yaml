@@ -18,17 +18,33 @@ configuration:
       Enable or disable the built-in web dashboard. The dashboard provides
       monitoring, management, and configuration tools. Access at
       http://homeassistant.local:4000 (default: enabled).
-  database_url:
-    name: Database URL
+  use_mysql:
+    name: Use MySQL/MariaDB
     description: >-
-      External database connection string (optional). If not set, uses SQLite
-      at /data/litellm/database.db. Example:
-      postgresql://user:password@localhost:5432/litellm
-  redis_url:
-    name: Redis URL
+      Use MySQL/MariaDB from another add-on (e.g. the official MariaDB add-on)
+      instead of SQLite. Requires the MariaDB add-on to be installed and
+      running. The database 'litellm' is created automatically (default:
+      false).
+  redis_host:
+    name: Redis Host
     description: >-
-      Redis connection string for caching and rate limiting (optional).
-      Example: redis://localhost:6379
+      Redis/Valkey server hostname or IP address (optional). Leave empty to
+      disable Redis caching and rate limiting. When set, redis_password is
+      also required.
+  redis_port:
+    name: Redis Port
+    description: >-
+      Redis/Valkey server port (default: 6379).
+  redis_password:
+    name: Redis Password
+    description: >-
+      Redis/Valkey authentication password (optional). Required when redis_host
+      is set.
+  redis_db:
+    name: Redis Database
+    description: >-
+      Redis/Valkey database number (default: 0). Use different numbers for
+      different applications to avoid key collisions.
   store_model_in_db:
     name: Store Model Config in Database
     description: >-

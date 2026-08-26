@@ -39,11 +39,17 @@ LiteLLM is an open source AI Gateway that provides a unified interface to 100+ L
 - **log_level**: Set logging verbosity (default: `info`)
   - Options: `trace`, `debug`, `info`, `notice`, `warning`, `error`, `fatal`
 - **ui_enable**: Enable/disable the dashboard UI (default: `true`)
-- **database_url**: External database connection string (optional)
-  - If not set, uses SQLite at `/data/litellm/database.db`
-  - Example: `postgresql://user:password@localhost:5432/litellm`
-- **redis_url**: Redis connection string (optional, for caching/rate limiting)
-  - Example: `redis://localhost:6379`
+- **use_mysql**: Use MySQL/MariaDB from another add-on (default: `false`)
+  - Requires the MariaDB add-on (or compatible) to be installed and running
+  - When enabled, LiteLLM uses the shared MariaDB service instead of SQLite
+  - The database `litellm` is created automatically
+- **redis_host**: Redis/Valkey server hostname (optional)
+  - Leave empty to disable Redis (no caching/rate limiting)
+  - When set, `redis_password` is also required
+- **redis_port**: Redis/Valkey server port (default: `6379`)
+- **redis_password**: Redis/Valkey authentication password (optional)
+  - Required when `redis_host` is set
+- **redis_db**: Redis/Valkey database number (default: `0`)
 - **store_model_in_db**: Store model config in database instead of file (default: `false`)
 
 ### Example Configuration
@@ -52,7 +58,44 @@ LiteLLM is an open source AI Gateway that provides a unified interface to 100+ L
 log_level: info
 master_key: "your-generated-master-key-here"
 ui_enable: true
+use_mysql: false
 ```
+
+### Using MySQL/MariaDB
+
+To use a shared MySQL/MariaDB database instead of SQLite:
+
+1. Install the [official MariaDB add-on](https://github.com/home-assistant/addons/tree/master/mariadb) or compatible
+2. Start the MariaDB add-on
+3. Set `use_mysql: true` in the LiteLLM configuration
+4. Restart the LiteLLM add-on
+
+The database `litellm` will be created automatically.
+
+### Using Redis/Valkey for Caching
+
+To enable caching and rate limiting with Redis:
+
+1. Install the [Valkey add-on](https://github.com/velvet-lab/hassio-addons/tree/main/valkey) or any Redis-compatible server
+2. Start the Valkey add-on and note its connection details
+3. Configure LiteLLM with Redis connection:
+   ```yaml
+   log_level: info
+   master_key: "your-key"
+   redis_host: "192.168.1.100"  # Valkey add-on IP
+   redis_port: 6379
+   redis_password: "your-valkey-password"
+   redis_db: 0
+   ```
+4. Configure caching in `/homeassistant/addons/litellm/config.yaml`:
+   ```yaml
+   litellm_settings:
+     cache: true
+     cache_params:
+       type: redis
+       ttl: 600
+   ```
+5. Restart the LiteLLM add-on
 
 ## Usage
 
@@ -163,7 +206,9 @@ See the [full provider list](https://docs.litellm.ai/docs/providers) for details
 ## Storage
 
 - `/data/litellm/`: Database and persistent storage
-  - `database.db`: SQLite database (if not using external database)
+  - `database.db`: SQLite database (when not using MySQL)
+- `/homeassistant/addons/litellm/`: User-editable configuration
+  - `config.yaml`: LiteLLM proxy configuration (model list, routing, etc.)
 
 ## Links
 

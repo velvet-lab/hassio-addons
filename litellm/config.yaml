@@ -1,6 +1,6 @@
 ---
 name: LiteLLM (experimental)
-version: 0.1.0
+version: 0.2.0
 stage: experimental
 slug: litellm
 description: >-
@@ -19,6 +19,8 @@ apparmor: true
 map:
   - type: homeassistant_config
     read_only: false
+services:
+  - mysql:want
 backup: hot
 backup_exclude:
   - /data/app.err
@@ -34,6 +36,9 @@ schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   master_key: password
   ui_enable: bool?
-  database_url: "str?"
-  redis_url: "str?"
+  use_mysql: bool?
   store_model_in_db: bool?
+  redis_host: "str?"
+  redis_port: "port?"
+  redis_password: "password?"
+  redis_db: "int?"

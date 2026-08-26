@@ -34,7 +34,9 @@ WORKDIR /tmp
 # Install LiteLLM via pip. LiteLLM is a Python package that provides the proxy
 # server and SDK. We install the [proxy] extra which includes the web UI and
 # all proxy dependencies. Dependencies: python3, pip, ca-certificates for HTTPS,
-# gettext-base for envsubst to render config, and curl for health checks.
+# gettext-base for envsubst to render config, curl for health checks, dnsutils
+# (dig) for service host resolution, and mariadb-client for MySQL connectivity.
+# PyMySQL is added for SQLAlchemy MySQL support.
 # Note: LiteLLM requires Python 3.10+, which is available in Debian Trixie.
 RUN set -x \
     && apt-get update \
@@ -42,7 +44,9 @@ RUN set -x \
     && apt-get install -qy --no-install-recommends \
         ca-certificates \
         curl \
+        dnsutils \
         gettext-base \
+        mariadb-client \
         python3 \
         python3-pip \
         python3-venv \
@@ -50,6 +54,7 @@ RUN set -x \
     && python3 -m venv /opt/litellm \
     && /opt/litellm/bin/pip install --no-cache-dir --upgrade pip \
     && /opt/litellm/bin/pip install --no-cache-dir "litellm[proxy]==$(echo ${LITELLM_VERSION} | sed 's/^v//')" \
+    && /opt/litellm/bin/pip install --no-cache-dir pymysql \
     && ln -sf /opt/litellm/bin/litellm /usr/local/bin/litellm \
     && mkdir -p /app /etc/litellm /homeassistant/addons/litellm \
     && chmod 755 /app /etc/litellm \

@@ -60,11 +60,34 @@ else
 fi
 echo -n "${ui_enable}" > /var/run/s6/container_environment/UI_ENABLE
 
-# Database URL (optional, defaults to SQLite)
-if bashio::config.has_value 'database_url'; then
-    database_url=$(bashio::config 'database_url')
-    echo -n "${database_url}" > /var/run/s6/container_environment/DATABASE_URL
-    bashio::log.info "Using external database"
+# Database backend. By default LiteLLM uses SQLite. When the use_mysql option
+# is enabled, LiteLLM instead uses the MySQL/MariaDB service provided by
+# another add-on (e.g. the official MariaDB add-on).
+use_mysql=$(bashio::config 'use_mysql' false)
+
+if bashio::var.true "${use_mysql}"; then
+    if bashio::services.available 'mysql'; then
+        db_host=$(bashio::services 'mysql' 'host')
+        db_host_ipv4=$(dig +short A "${db_host}" | head -1)
+        db_port=$(bashio::services 'mysql' 'port')
+        db_password=$(bashio::services 'mysql' 'password')
+        db_user=$(bashio::services 'mysql' 'username')
+
+        # Create database if it doesn't exist
+        bashio::log.info "Connecting to MariaDB at ${db_host_ipv4}:${db_port} with user ${db_user}"
+        if ! mariadb -h "${db_host_ipv4}" -P "${db_port}" -u "${db_user}" -p"${db_password}" \
+            -e "CREATE DATABASE IF NOT EXISTS litellm CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null; then
+            bashio::log.warning "Could not create database 'litellm' (may already exist or insufficient permissions)"
+        fi
+
+        # Build MySQL connection string: mysql+pymysql://user:pass@host:port/database
+        database_url="mysql+pymysql://${db_user}:${db_password}@${db_host_ipv4}:${db_port}/litellm"
+        echo -n "${database_url}" > /var/run/s6/container_environment/DATABASE_URL
+        bashio::log.info "Using MySQL database 'litellm' at ${db_host_ipv4}:${db_port}"
+    else
+        bashio::log.error "MySQL service not available. Install and start the MariaDB add-on or disable 'use_mysql'."
+        exit 1
+    fi
 else
     # Use SQLite (default)
     database_url="sqlite:///${data_root}/database.db"
@@ -72,11 +95,51 @@ else
     bashio::log.info "Using SQLite database at ${data_root}/database.db"
 fi
 
-# Redis URL (optional)
-if bashio::config.has_value 'redis_url'; then
-    redis_url=$(bashio::config 'redis_url')
+# Optional Redis/Valkey connection for caching and rate limiting. Redis is
+# configured through the add-on options redis_host / redis_port / redis_password.
+# As soon as any one of them is set, all three are required; when all are left
+# empty, Redis is disabled.
+redis_host=$(bashio::config 'redis_host')
+redis_password=$(bashio::config 'redis_password')
+# redis_port / redis_db are prefilled with defaults in the UI options, so they
+# always have a value. They are NOT indicators for Redis being used — only
+# redis_host or redis_password are.
+redis_port=$(bashio::config 'redis_port' '6379')
+redis_db=$(bashio::config 'redis_db' '0')
+
+# bashio returns the literal string "null" when an optional schema option is
+# unset (not an empty value). Normalize host/password (the indicators) and the
+# prefilled values to their defaults.
+[[ "${redis_host}" == "null" ]] && redis_host=""
+[[ "${redis_password}" == "null" ]] && redis_password=""
+[[ "${redis_port}" == "null" ]] && redis_port="6379"
+[[ "${redis_db}" == "null" ]] && redis_db="0"
+
+# Redis is considered active when redis_host OR redis_password is set. The
+# prefilled redis_port / redis_db are no indicator on their own. Once active,
+# both redis_host and redis_password are required.
+if bashio::var.has_value "${redis_host}" \
+    || bashio::var.has_value "${redis_password}"; then
+    if ! bashio::var.has_value "${redis_host}"; then
+        bashio::log.error "The 'redis_host' option is required when Redis is configured."
+        bashio::log.error "Set 'redis_host' and 'redis_password' (or leave both empty to disable Redis)."
+        exit 1
+    fi
+    if ! bashio::var.has_value "${redis_password}"; then
+        bashio::log.error "The 'redis_password' option is required when Redis is configured."
+        bashio::log.error "Set 'redis_host' and 'redis_password' (or leave both empty to disable Redis)."
+        exit 1
+    fi
+
+    # Build Redis URL: redis://:password@host:port/db
+    # LiteLLM uses the redis:// scheme. The db number is taken from redis_db so
+    # each app can use its own database and avoid collisions.
+    redis_url="redis://:${redis_password}@${redis_host}:${redis_port}/${redis_db}"
+
     echo -n "${redis_url}" > /var/run/s6/container_environment/REDIS_URL
-    bashio::log.info "Redis connection configured"
+    bashio::log.info "LiteLLM will use Redis at ${redis_host}:${redis_port} (db ${redis_db})"
+else
+    bashio::log.info "No Redis configured; caching and rate limiting disabled"
 fi
 
 # Store model in DB (optional, default: false, uses config.yaml)
