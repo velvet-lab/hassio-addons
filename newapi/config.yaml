@@ -1,6 +1,6 @@
 ---
 name: New API (experimental)
-version: 0.1.0
+version: 0.2.0
 stage: experimental
 slug: newapi
 description: >-
@@ -30,9 +30,13 @@ ports:
 options:
   log_level: info
   session_secret: null
+  crypto_secret: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   session_secret: password
+  crypto_secret: password
+  tz: "str?"
+  frontend_base_url: "str?"
   use_mysql: bool?
   redis_host: "str?"
   redis_port: "port?"

@@ -15,9 +15,9 @@ ARG BUILD_REPOSITORY
 # the build works even when BUILD_VERSION (the add-on version) is not passed.
 ARG NEWAPI_VERSION=1.0.0-rc.25
 
-# New API reads its settings from a .env file in the current working directory
-# (godotenv.Load(".env")) and stores the SQLite database relative to it.
-WORKDIR /data/newapi
+# New API runs from /app (Linux-like) with symbolic links for the binary and
+# the runtime configuration file (.env).
+WORKDIR /app
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -39,6 +39,8 @@ WORKDIR /tmp
 # provides timezone data, and gettext-base provides envsubst to render .env.
 # dnsutils (dig) and mariadb-client are used when the add-on connects to the
 # MariaDB add-on (resolve the service host and create the database).
+# The binary is installed to /usr/bin/new-api; the longrun service creates
+# a symbolic link to /app/new-api at runtime.
 RUN set -x \
     && apt-get update \
     && apt-get upgrade -qy \
@@ -59,6 +61,8 @@ RUN set -x \
             -o /usr/bin/new-api; \
     fi \
     && chmod 755 /usr/bin/new-api \
+    && mkdir -p /app \
+    && chmod 755 /app \
     && apt-get clean \
     && rm -rf \
         /etc/logrotate.d \

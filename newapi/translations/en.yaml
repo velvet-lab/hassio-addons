@@ -4,7 +4,16 @@ configuration:
     description: Choose the Log Level
   session_secret:
     name: Session Secret
-    description: Set the secret used to sign authentication sessions
+    description: Set the secret used to sign authentication sessions (required, e.g. openssl rand -hex 64)
+  crypto_secret:
+    name: Crypto Secret
+    description: Set the HMAC secret for cache keys; required in multi-node deployments (e.g. openssl rand -hex 64)
+  tz:
+    name: Timezone
+    description: Timezone for log timestamps (optional, e.g. Europe/Berlin)
+  frontend_base_url:
+    name: Frontend Base URL
+    description: Frontend base URL for slave nodes / redirects (optional, e.g. https://newapi.example.com)
   use_mysql:
     name: Use MySQL / MariaDB
     description: Use the MySQL/MariaDB add-on as the database instead of the built-in SQLite database

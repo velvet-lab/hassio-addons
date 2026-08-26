@@ -15,14 +15,27 @@ bashio::log.info "Start New API ..."
 
 # Render the final .env file from the user-edited configuration here in the
 # long-run service, where with-contenv has loaded the s6 container environment
-# (including SESSION_SECRET written by newapi-pre) so envsubst can expand any
-# ${VAR} placeholders with the full variable set.
+# (including SESSION_SECRET, CRYPTO_SECRET, TZ, etc. written by newapi-pre) so
+# envsubst can expand any ${VAR} placeholders with the full variable set.
 bashio::log.debug "Render New API configuration"
 mkdir -p "${config_dest}"
 envsubst < "${config_source}/newapi.env" > "${config_dest}/.env"
 chmod 644 "${config_dest}/.env"
 
+# Create the /app directory and symbolic links (Linux-like structure):
+# - /app/new-api → /usr/bin/new-api (the binary)
+# - /app/.env → /etc/newapi/.env (the rendered config)
+# The app runs from /app and finds both the binary and config via symlinks.
+bashio::log.debug "Create /app directory and symbolic links"
+mkdir -p /app
+if [[ ! -L /app/new-api ]]; then
+    ln -sf /usr/bin/new-api /app/new-api
+fi
+if [[ ! -L /app/.env ]]; then
+    ln -sf "${config_dest}/.env" /app/.env
+fi
+
 # New API reads its .env file (and creates the SQLite database) relative to the
-# current working directory, so we run it from the render destination.
-cd "${config_dest}" || exit 1
-exec /usr/bin/new-api
+# current working directory, so we run it from /app where the symlinks are.
+cd /app || exit 1
+exec ./new-api
