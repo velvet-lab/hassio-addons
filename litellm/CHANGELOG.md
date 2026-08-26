@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Add-on
 - Fixed pip installation: Strip `-stable` suffix from LiteLLM version tag in Dockerfile
 - Build now correctly installs `litellm[proxy]==1.98.0` instead of invalid `1.98.0-stable`
+- Fixed AppArmor profile: Use broader permissions to allow s6-overlay init system to start
+- AppArmor now allows `capability`, `file`, `signal`, `mount` operations (matches Qdrant/OpenBao pattern)
 
 ### LiteLLM
 - Bundled LiteLLM version: **v1.98.0-stable** (unchanged)
