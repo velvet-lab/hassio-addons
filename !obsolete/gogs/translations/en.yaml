@@ -1,0 +1,44 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: Choose the Log Level
+  instance_name:
+    name: Instance Name
+    description: Set the brand name shown in the Gogs web interface
+  secret_key:
+    name: Secret Key
+    description: Set the secret key used to encrypt cookies and 2FA codes
+  use_mysql:
+    name: Use MySQL
+    description: Enable or disable MySQL database. If enabled, Gogs will use the MariaDB add-on. Take care that you install and configure it first.
+  external_url:
+    name: External URL
+    description: The public-facing URL of Gogs, e.g. https://git.example.com/. Set this when Gogs is served through a reverse proxy.
+  redis_host:
+    name: Redis Host
+    description: Address of the Redis server used for sessions and cache
+  redis_port:
+    name: Redis Port
+    description: Port of the Redis server (default 6379)
+  redis_password:
+    name: Redis Password
+    description: Password of the Redis server
+  redis_db:
+    name: Redis Database
+    description: Number of the Redis database to use (default 0). Pick a unique number per app (e.g. Gogs vs SearXNG) to avoid collisions
+  email_host:
+    name: Email Host
+    description: "SMTP server address and port (e.g. smtp.example.com:587). Required: Gogs needs a mailer for registration and notification mails."
+  email_from:
+    name: Email From
+    description: Sender address used in outgoing mails (may include a display name). Required.
+  email_user:
+    name: Email User
+    description: SMTP username used for authentication. Required.
+  email_password:
+    name: Email Password
+    description: SMTP password used for authentication. Required. Stored encrypted by Home Assistant.
+
+network:
+  3000/tcp: Port for the Gogs web interface and Git HTTP endpoints
+  22/tcp: Port for the builtin SSH server (Git over SSH)
