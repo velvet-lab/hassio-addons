@@ -33,9 +33,9 @@ A modern, simple, feature-packed, fully translatable CalDAV, CardDav and WebDav 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### Gogs (Experimental)
+### Gitea (Experimental)
 
-Gogs is a painless self-hosted Git service written in Go. A lightweight, private GitHub-like Git repository with issue tracking, pull requests, wiki and a built-in web editor.
+Gitea is a painless self-hosted Git service written in Go. A lightweight, private GitHub-like Git repository with issue tracking, pull requests, wiki, packages and a built-in web editor.
 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
@@ -54,30 +54,7 @@ Qdrant is a high-performance, open source vector search engine and database. An 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### MongoDB Community Edition (Deprecated)
-
-A really simple implementation of MongoDB without TLS and Auth.
-
-**Remarks:** Currently only MongoDB up to version 7.x runs on Raspberry Pi 5 and higher. Version 8.x has issues with tsmalloc.
-
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
-![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
-
-### New API
-
-New API is a next-generation LLM gateway and AI asset management system. A unified AI model hub for aggregation and distribution that cross-converts OpenAI, Claude, Gemini and many other models.
-
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
-![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
-
-### Qdrant
-
-Qdrant is a high-performance, open source vector search engine and database. An AI-native vector and semantic search service built for storing, searching and managing vectors.
-
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
-![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
-
-### RustFS
+### RustFS (Experimental)
 
 High-performance enterprise-grade distributed file system and S3 compatible object storage solution written in Rust.
 
