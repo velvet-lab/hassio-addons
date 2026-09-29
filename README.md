@@ -56,13 +56,6 @@ A really simple implementation of MongoDb without TLS and Auth.
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### New API (Experimental)
-
-New API is a next-generation LLM gateway and AI asset management system. A unified AI model hub for aggregation and distribution that cross-converts OpenAI, Claude, Gemini and many other models.
-
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
-![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
-
 ### OpenBao (Experimental)
 
 OpenBao is an open source secret management tool for storing and distributing secrets, certificates and keys.
