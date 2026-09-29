@@ -33,9 +33,9 @@ A modern, simple, feature-packed, fully translatable CalDAV, CardDav and WebDav 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### Gogs (Experimental)
+### Gitea (Experimental)
 
-Gogs is a painless self-hosted Git service written in Go. A lightweight, private GitHub-like Git repository with issue tracking, pull requests, wiki and a built-in web editor.
+Gitea is a painless self-hosted Git service written in Go. A lightweight, private GitHub-like Git repository with issue tracking, pull requests, wiki, packages and a built-in web editor.
 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
