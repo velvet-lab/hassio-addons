@@ -40,15 +40,6 @@ Gogs is a painless self-hosted Git service written in Go. A lightweight, private
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### MongoDb Community Edition (Deprecated)
-
-A really simple implementation of MongoDb without TLS and Auth.
-
-**Remarks:** Currently only MongoDb up to version 7.x runs on Raspberry Pi 5 and higher. Version 8.x has issues with tsmalloc.
-
-![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
-![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
-
 ### OpenBao (Experimental)
 
 OpenBao is an open source secret management tool for storing and distributing secrets, certificates and keys.
