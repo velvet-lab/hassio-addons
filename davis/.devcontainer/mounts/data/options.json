@@ -1,0 +1,17 @@
+{
+    "app_timezone": "Europe/Berlin",
+    "birthday_reminder_offset": "",
+    "caldav_enabled": true,
+    "carddav_enabled": true,
+    "webdav_enabled": true,
+    "home_enabled": true,
+    "public_calendars_enabled": true,
+    "admin_login": "admin",
+    "admin_password": "admin",
+    "invite_from_address": "",
+    "mail_host": "",
+    "mail_port":"",
+    "mail_username": "",
+    "mail_password": "",
+    "log_level": "debug"
+}

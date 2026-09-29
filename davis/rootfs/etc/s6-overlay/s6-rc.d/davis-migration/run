@@ -1,0 +1,38 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# The config locations are provided by davis-pre via the s6 container
+# environment (with-contenv loads them at script start, so they are available
+# here directly). The resolved option values (APP_TIMEZONE, ADMIN_PASSWORD,
+# DATABASE_URL, ...) are in the container environment too, so envsubst can
+# expand every ${VAR} in the user's configuration file.
+# The config locations are REQUIRED (set by davis-pre): abort if missing
+# instead of falling back to a default.
+# shellcheck disable=SC2153  # APP_CONFIG_* are container-env vars set by with-contenv
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (davis-pre did not run)}"
+config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (davis-pre did not run)}"
+app_root="/opt/davis"
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
+bashio::log.info "Start Davis migration ..."
+
+# Render the final Davis configuration from the user-edited source file into
+# the volatile destination folder. A symlink at /opt/davis/.env.local lets the
+# bundled Davis PHP app read it from its expected location.
+bashio::log.debug "Render Davis configuration"
+mkdir -p "${config_dest}"
+envsubst < "${config_source}/davis.env" > "${config_dest}/.env.local"
+chmod 644 "${config_dest}/.env.local"
+ln -sf "${config_dest}/.env.local" "${app_root}/.env.local"
+
+# Run the database migrations against the rendered configuration.
+cd "${app_root}" || exit 1
+bin/console doctrine:migrations:migrate --no-interaction
+
+# s6 oneshot services MUST end with exit 0, otherwise s6 treats them as
+# "unable to start service ... command exited N" and aborts the whole
+# container bring-up (rc.init: fatal: stopping the container).
+exit 0
