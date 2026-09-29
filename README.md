@@ -33,35 +33,35 @@ A modern, simple, feature-packed, fully translatable CalDAV, CardDav and WebDav 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### Gitea (Experimental)
+### Gitea
 
 Gitea is a painless self-hosted Git service written in Go. A lightweight, private GitHub-like Git repository with issue tracking, pull requests, wiki, packages and a built-in web editor.
 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### OpenBao (Experimental)
+### OpenBao
 
 OpenBao is an open source secret management tool for storing and distributing secrets, certificates and keys.
 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### Qdrant (Experimental)
+### Qdrant
 
 Qdrant is a high-performance, open source vector search engine and database. An AI-native vector and semantic search service built for storing, searching and managing vectors.
 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### RustFS (Experimental)
+### RustFS
 
 High-performance enterprise-grade distributed file system and S3 compatible object storage solution written in Rust.
 
 ![amd64](https://img.shields.io/badge/amd64-yes-green.svg)
 ![aarch64](https://img.shields.io/badge/aarch64-yes-green.svg)
 
-### SearXNG (Experimental)
+### SearXNG
 
 SearXNG is a free, self-hosted metasearch engine. It aggregates results from many search services without tracking or profiling its users. Search without being tracked.
 
