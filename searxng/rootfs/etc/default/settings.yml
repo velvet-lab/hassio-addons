@@ -111,6 +111,9 @@ engines:
   - name: google videos
     disabled: true
     inactive: true
+  - name: qwant
+    disabled: true
+    inactive: true
   - name: qwant news
     disabled: true
     inactive: true
