@@ -1,5 +1,5 @@
 ---
-name: Gitea
+name: Gitea (experimental)
 version: 0.1.2
 stage: experimental
 slug: gitea
