@@ -1,3 +1,19 @@
+## 0.1.1
+
+### Add-on
+
+- Copy every bundled default configuration file from `/etc/default/` into the user-editable config folder and render it into `/etc/searxng` on startup. This includes the new `favicons.toml` file.
+
+### SearXNG
+
+- Bundled SearXNG version: **2026.8.21**
+- No bundled SearXNG version change in this add-on release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled SearXNG version.
+> This release bundles SearXNG 2026.8.21.
+
 ## 0.1.0
 
 ### Add-on

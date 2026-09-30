@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="searxng-build-v24-config"
+readonly build_marker="searxng-build-v25-favicons"
 
 root=/data
 app_name="searxng"
@@ -14,7 +14,6 @@ homeassistant_root="/homeassistant"
 config_source="$homeassistant_root/addons/${app_name}"
 config_dest="/etc/${app_name}"
 settings_file="${config_dest}/settings.yml"
-user_config="$config_source/settings.yml"
 
 default_log_level="info"
 
@@ -40,27 +39,22 @@ for d in "${config_source}" "${config_dest}" "${data_root}"; do
     fi
 done
 
-# On first start copy the default configuration to the user-accessible folder
+# Copy every bundled default configuration file to the user-accessible folder
 # under /homeassistant, where the user can edit it (e.g. with VS Code). If the
-# user deletes the file it is recreated from the bundled template.
-if ! bashio::fs.file_exists "${user_config}"; then
-    bashio::log.info "Creating default SearXNG configuration for the user"
-    cp /etc/default/settings.yml "${user_config}"
-    chmod 644 "${user_config}"
-fi
+# user deletes a file it is recreated from the bundled default on the next
+# start. The core service then renders every file from APP_CONFIG_SOURCE into
+# APP_CONFIG_DEST, so newly added defaults (for example favicons.toml) are
+# picked up automatically without having to hardcode each filename here.
+for default_file in /etc/default/*; do
+    name=$(basename "${default_file}")
+    user_file="${config_source}/${name}"
 
-# Provide the user-editable limiter configuration. First copy the bundled
-# default to the user-visible folder (like settings.yml) so it is easy to edit
-# in e.g. VS Code. On every start the core service renders every file from
-# APP_CONFIG_SOURCE (settings.yml and limiter.toml) into APP_CONFIG_DEST;
-# SearXNG logs a "missing config file: limiter.toml" warning if the runtime
-# copy is absent (it is read even when the limiter itself is disabled).
-limiter_user="${config_source}/limiter.toml"
-if ! bashio::fs.file_exists "${limiter_user}"; then
-    bashio::log.info "Creating default SearXNG limiter configuration for the user"
-    cp /etc/default/limiter.toml "${limiter_user}"
-    chmod 644 "${limiter_user}"
-fi
+    if ! bashio::fs.file_exists "${user_file}"; then
+        bashio::log.info "Creating default SearXNG configuration for the user: ${name}"
+        cp "${default_file}" "${user_file}"
+        chmod 644 "${user_file}"
+    fi
+done
 
 # Resolve the Redis connection to use for the limiter / bot protection.
 # Redis is OPTIONAL: it is configured through the add-on options

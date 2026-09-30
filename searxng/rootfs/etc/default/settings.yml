@@ -46,6 +46,7 @@ valkey:
 search:
   safe_search: 0
   autocomplete: "duckduckgo"
+  favicon_resolver: "duckduckgo"
   default_lang: "de"
 
   # HTML für den Browser, JSON falls du Open WebUI oder Scripts anbindest
@@ -77,9 +78,94 @@ engines:
   - name: wikidata
     disabled: true
     inactive: true
+  - name: brave
+    disabled: true
+    inactive: true
+  - name: brave.images
+    disabled: true
+    inactive: true
+  - name: brave.videos
+    disabled: true
+    inactive: true
+  - name: brave.news
+    disabled: true
+    inactive: true
+  - name: lingva
+    disabled: true
+    inactive: true
+  - name: dictzone
+    disabled: true
+    inactive: true
+  - name: mymemory translated
+    disabled: true
+    inactive: true
+  - name: google
+    disabled: true
+    inactive: true
+  - name: google images
+    disabled: true
+    inactive: true
+  - name: google news
+    disabled: true
+    inactive: true
+  - name: google videos
+    disabled: true
+    inactive: true
+  - name: qwant news
+    disabled: true
+    inactive: true
+  - name: qwant images
+    disabled: true
+    inactive: true
+  - name: qwant videos
+    disabled: true
+    inactive: true
+  - name: hoogle
+    disabled: true
+    inactive: true
+  - name: pypi
+    disabled: true
+    inactive: true
+  - name: arch linux wiki
+    disabled: true
+    inactive: true
+  - name: gentoo
+    disabled: true
+    inactive: true
 
 ui:
   static_use_hash: true
   default_theme: simple
   theme_args:
     simple_style: auto
+
+plugins:
+  searx.plugins.calculator.SXNGPlugin:
+    active: true
+
+  searx.plugins.infinite_scroll.SXNGPlugin:
+    active: true
+
+  searx.plugins.hash_plugin.SXNGPlugin:
+    active: true
+
+  searx.plugins.self_info.SXNGPlugin:
+    active: true
+
+  searx.plugins.tracker_url_remover.SXNGPlugin:
+    active: true
+
+  searx.plugins.unit_converter.SXNGPlugin:
+    active: true
+
+  searx.plugins.ahmia_filter.SXNGPlugin:
+    active: false
+
+  searx.plugins.hostnames.SXNGPlugin:
+    active: true
+
+  searx.plugins.oa_doi_rewrite.SXNGPlugin:
+    active: true
+
+  searx.plugins.tor_check.SXNGPlugin:
+    active: true
