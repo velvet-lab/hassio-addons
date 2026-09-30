@@ -88,6 +88,12 @@ The bot-detection / limiter configuration lives in:
 
 Like `settings.yml`, it is created on first start and is user-editable. On every start it is copied into the runtime config folder, so a restart is required after you edit it. For the reference of all options, see the [SearXNG limiter documentation](https://docs.searxng.org/admin/searx.limiter.html).
 
+The favicon cache configuration lives in:
+
+`/homeassistant/addons/searxng/favicons.toml`
+
+Like the other configuration files, it is created on first start, can be edited directly, and is rendered into `/etc/searxng/favicons.toml` on every add-on start.
+
 If you upgraded from an earlier version that shipped an empty-section `settings.yml` (which made SearXNG fail with `Invalid settings.yml`), delete `/homeassistant/addons/searxng/settings.yml` once and restart the add-on — it is re-created from the corrected template.
 
 The `secret_key` is provided via the add-on `secret_key` option (Home Assistant stores it encrypted) and must be stable across restarts so sessions and cookies stay valid.
