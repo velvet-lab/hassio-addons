@@ -12,7 +12,7 @@ ARG BUILD_REPOSITORY
 
 # The release download URLs are built from a dedicated RUSTFS_VERSION arg (not
 # BUILD_VERSION), because the devcontainer build does not pass BUILD_VERSION.
-ARG RUSTFS_VERSION=1.0.0-rc.3
+ARG RUSTFS_VERSION=1.0.1
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive

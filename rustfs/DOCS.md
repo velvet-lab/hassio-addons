@@ -1,6 +1,6 @@
 # Home Assistant Community Add-on: RustFS
 
-This add-on bundles **RustFS 1.0.0-rc.3**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
+This add-on bundles **RustFS 1.0.1**. The add-on version is independent of the bundled application version and follows semantic versioning (see the [CHANGELOG](CHANGELOG.md)).
 
 ## Installation
 

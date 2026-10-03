@@ -13,7 +13,7 @@ ARG BUILD_REPOSITORY
 # Version of the prebuilt Valkey binary artifact to download. This matches the
 # bundled Valkey version and is used for the release URL, so the build works
 # even when BUILD_VERSION (the add-on version) is not passed explicitly.
-ARG VALKEY_VERSION=9.1.1
+ARG VALKEY_VERSION=9.1.2
 
 # Set some Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive

@@ -1,3 +1,20 @@
+## 0.2.0
+
+### Add-on
+
+- Update the bundled RustFS binary to the stable 1.0.1 release (was 1.0.0-rc.3)
+
+### RustFS
+
+- Bundled RustFS version: **1.0.1**
+- Stable release with numerous fixes and improvements over the 1.0.0-rc.3 release candidate, including S3 protocol hardening (presigned/header-signed SigV4 request validation, oversize PUT rejection, idempotent multipart completion), replication and heal convergence fixes, storage/ecstore reliability improvements, and a configurable console URL prefix.
+- For detailed release notes, see the [official RustFS changelog](https://github.com/rustfs/rustfs/blob/main/CHANGELOG.md).
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled RustFS version.
+> This release bundles RustFS 1.0.1.
+
 ## 0.1.0
 
 ### Add-on
