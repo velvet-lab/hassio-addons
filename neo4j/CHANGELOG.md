@@ -1,3 +1,19 @@
+## 0.3.0
+
+### Add-on
+
+- Remove the `db_timezone` add-on option from `config.yaml`.
+- Set `dbms.db.timezone` to a fixed `SYSTEM` value in the Neo4j configuration template.
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
 ## 0.2.5
 
 ### Add-on

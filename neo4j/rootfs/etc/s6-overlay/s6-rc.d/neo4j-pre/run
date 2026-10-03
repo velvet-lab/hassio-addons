@@ -26,7 +26,6 @@ echo -n "${run_dir}" > /var/run/s6/container_environment/NEO4J_RUN_DIR
 
 # Export additional Neo4j runtime options from add-on config so they are
 # available to envsubst and to the running Neo4j process.
-echo -n "${NEO4J_DB_TIMEZONE:-$(bashio::config 'db_timezone' 'SYSTEM')}" > /var/run/s6/container_environment/NEO4J_dbms_db_timezone
 echo -n "$(bashio::config.true 'usage_report_enabled' && echo true || echo false)" > /var/run/s6/container_environment/NEO4J_dbms_usage__report_enabled
 
 # Ports are managed by the Supervisor network mapping. Keep internal listen

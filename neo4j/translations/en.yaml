@@ -5,9 +5,6 @@ configuration:
   initial_password:
     name: Initial Password
     description: Set the initial `neo4j` password (required)
-  db_timezone:
-    name: DB Timezone
-    description: Timezone for the Neo4j server
   usage_report_enabled:
     name: Usage reporting
     description: Enable sending usage reports to Neo4j
