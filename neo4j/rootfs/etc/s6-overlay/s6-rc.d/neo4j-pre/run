@@ -29,25 +29,44 @@ echo -n "${run_dir}" > /var/run/s6/container_environment/NEO4J_RUN_DIR
 echo -n "${NEO4J_DB_TIMEZONE:-$(bashio::config 'db_timezone' 'SYSTEM')}" > /var/run/s6/container_environment/NEO4J_dbms_db_timezone
 echo -n "$(bashio::config.true 'usage_report_enabled' && echo true || echo false)" > /var/run/s6/container_environment/NEO4J_dbms_usage__report_enabled
 
-# Ports are managed by the Supervisor network mapping. Use fixed internal
-# listen ports and expose 'enabled' flags that the config template reads.
-echo -n "true" > /var/run/s6/container_environment/NEO4J_server_http_enabled
-echo -n "false" > /var/run/s6/container_environment/NEO4J_server_https_enabled
-echo -n "false" > /var/run/s6/container_environment/NEO4J_server_bolt_enabled
+# Ports are managed by the Supervisor network mapping. Keep internal listen
+# ports fixed and derive connector enabled flags from exposed add-on ports.
+if bashio::var.has_value "$(bashio::addon.port '7474/tcp')"; then
+    echo -n "true" > /var/run/s6/container_environment/NEO4J_server_http_enabled
+else
+    echo -n "false" > /var/run/s6/container_environment/NEO4J_server_http_enabled
+fi
+
+if bashio::var.has_value "$(bashio::addon.port '7473/tcp')"; then
+    echo -n "true" > /var/run/s6/container_environment/NEO4J_server_https_enabled
+else
+    echo -n "false" > /var/run/s6/container_environment/NEO4J_server_https_enabled
+fi
+
+if bashio::var.has_value "$(bashio::addon.port '7687/tcp')"; then
+    echo -n "true" > /var/run/s6/container_environment/NEO4J_server_bolt_enabled
+else
+    echo -n "false" > /var/run/s6/container_environment/NEO4J_server_bolt_enabled
+fi
 
 echo -n "$(bashio::config 'dbms_security_procedures_unrestricted' 'apoc.*')" > /var/run/s6/container_environment/NEO4J_dbms_security_procedures_unrestricted
 
 # APOC plugin: download at runtime if requested
 if bashio::config.true 'apoc_enabled'; then
-    bashio::log.info "APOC enabled — attempting to download matching APOC release (${NEO4J_VERSION})"
-    apoc_file="apoc-${NEO4J_VERSION}-core.jar"
-    apoc_url="https://github.com/neo4j/apoc/releases/download/${NEO4J_VERSION}/${apoc_file}"
-    mkdir -p /opt/neo4j/plugins
-    if curl -fSL "${apoc_url}" -o "/opt/neo4j/plugins/${apoc_file}"; then
-        chmod 644 "/opt/neo4j/plugins/${apoc_file}"
-        bashio::log.info "APOC downloaded: ${apoc_file}"
+    neo4j_version="${NEO4J_VERSION:-}"
+    if ! bashio::var.has_value "${neo4j_version}"; then
+        bashio::log.warning "APOC enabled, but NEO4J_VERSION is not set. Skipping APOC download."
     else
-        bashio::log.warning "APOC download failed: ${apoc_url}"
+        bashio::log.info "APOC enabled - attempting to download matching APOC release (${neo4j_version})"
+        apoc_file="apoc-${neo4j_version}-core.jar"
+        apoc_url="https://github.com/neo4j/apoc/releases/download/${neo4j_version}/${apoc_file}"
+        mkdir -p /opt/neo4j/plugins
+        if curl -fSL "${apoc_url}" -o "/opt/neo4j/plugins/${apoc_file}"; then
+            chmod 644 "/opt/neo4j/plugins/${apoc_file}"
+            bashio::log.info "APOC downloaded: ${apoc_file}"
+        else
+            bashio::log.warning "APOC download failed: ${apoc_url}"
+        fi
     fi
 fi
 

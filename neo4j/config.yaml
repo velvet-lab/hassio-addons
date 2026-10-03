@@ -1,6 +1,6 @@
 ---
 name: Neo4j (experimental)
-version: 0.2.4
+version: 0.2.5
 stage: experimental
 slug: neo4j
 description: >-
@@ -23,7 +23,9 @@ backup_exclude:
   - /data/app.err
 watchdog: tcp://[HOST]:[PORT:7474]
 ports:
-   7474/tcp: 7474
+  7474/tcp: 7474
+  7473/tcp: null
+  7687/tcp: null
 options:
   log_level: info
   initial_password: null

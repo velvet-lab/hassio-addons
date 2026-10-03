@@ -1,3 +1,19 @@
+## 0.2.5
+
+### Add-on
+
+- Expose Neo4j HTTPS (`7473/tcp`) and Bolt (`7687/tcp`) as optional add-on ports in `config.yaml` (disabled by default).
+- Derive `server.http.enabled`, `server.https.enabled`, and `server.bolt.enabled` from whether the corresponding add-on port is exposed.
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
 ## 0.2.3
 
 ### Add-on

@@ -13,6 +13,15 @@ Bundled Neo4j version: **2026.09.0** (community edition).
   first start only; afterwards change it via the Neo4j UI or Cypher.
 - `log_level`: controls the add-on log verbosity.
 
+## Network ports
+
+- `7474/tcp` (HTTP API) is exposed by default.
+- `7473/tcp` (HTTPS) is optional and disabled by default.
+- `7687/tcp` (Bolt protocol) is optional and disabled by default.
+
+When `7473/tcp` or `7687/tcp` is not exposed in the add-on network settings,
+the corresponding Neo4j connector is disabled automatically.
+
 ## Memory settings
 
 The default `neo4j.conf` is tuned for a Raspberry Pi 5 with 16 GB RAM:
