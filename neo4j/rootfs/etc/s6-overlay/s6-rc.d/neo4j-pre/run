@@ -10,10 +10,9 @@ config_dest="/etc/${app_name}"
 data_dir="$root/${app_name}/data"
 logs_dir="$root/${app_name}/logs"
 import_dir="$root/${app_name}/import"
+run_dir="$root/${app_name}/run"
+metrics_dir="$root/${app_name}/metrics"
 
-default_edition="community"
-
-edition=$(bashio::config 'edition' "$default_edition")
 bashio::log.level "$(bashio::config 'log_level' 'info' || echo info)"
 
 bashio::log.info "Prepare Neo4j configuration"
@@ -24,9 +23,11 @@ echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
 echo -n "${data_dir}" > /var/run/s6/container_environment/NEO4J_DATA_DIR
 echo -n "${logs_dir}" > /var/run/s6/container_environment/NEO4J_LOGS_DIR
 echo -n "${import_dir}" > /var/run/s6/container_environment/NEO4J_IMPORT_DIR
+echo -n "${run_dir}" > /var/run/s6/container_environment/NEO4J_RUN_DIR
+echo -n "${metrics_dir}" > /var/run/s6/container_environment/NEO4J_METRICS_DIR
 
 bashio::log.debug "Create folders"
-for folder in "${config_source}" "${config_dest}" "${data_dir}" "${logs_dir}" "${import_dir}"; do
+for folder in "${config_source}" "${config_dest}" "${data_dir}" "${logs_dir}" "${import_dir}" "${run_dir}" "${metrics_dir}"; do
     if ! bashio::fs.directory_exists "${folder}"; then
         bashio::log.debug "Creating folder ${folder}"
         mkdir -p "${folder}"
@@ -35,11 +36,22 @@ for folder in "${config_source}" "${config_dest}" "${data_dir}" "${logs_dir}" "$
 done
 
 # On first start copy the default configuration to the user-accessible
+# folder (APP_CONFIG_SOURCE) under /homeassistant, where the user can edit it
+# (e.g. with VS Code). If the user deletes the file it is recreated from the
+# bundled template.
 if ! bashio::fs.file_exists "${config_source}/neo4j.conf"; then
     bashio::log.info "Creating default Neo4j configuration for the user"
     cp /etc/default/neo4j.conf "${config_source}/neo4j.conf"
     chmod 644 "${config_source}/neo4j.conf"
 fi
+
+# Render the final configuration by substituting any remaining placeholders
+# from the user-edited file into the volatile APP_CONFIG_DEST (/etc/neo4j).
+# This happens in pre (not core) because the initial-password step below reads
+# the rendered configuration (documented exception).
+bashio::log.debug "Render Neo4j configuration"
+envsubst < "${config_source}/neo4j.conf" > "${config_dest}/neo4j.conf"
+chmod 644 "${config_dest}/neo4j.conf"
 
 # initial password is REQUIRED
 initial_password=$(bashio::config 'initial_password')
@@ -49,12 +61,19 @@ if ! bashio::var.has_value "${initial_password}"; then
     exit 1
 fi
 
-# If the neo4j-admin tool exists, set the initial password on first start
-if [ -x /opt/neo4j/bin/neo4j-admin ]; then
-    if [ ! -f "${data_dir}/initial_password_set" ]; then
-        bashio::log.info "Set initial Neo4j password"
-        /opt/neo4j/bin/neo4j-admin set-initial-password "${initial_password}" || true
+# Set the initial password on first start only. The marker file lives in the
+# data directory, so it is removed together with the data when the user
+# resets the database. The command only works before the first startup, so a
+# failure (e.g. already-initialized database) is logged but not fatal.
+if [ -x /opt/neo4j/bin/neo4j-admin ] && [ ! -f "${data_dir}/initial_password_set" ]; then
+    bashio::log.info "Set initial Neo4j password"
+    if /opt/neo4j/bin/neo4j-admin dbms set-initial-password \
+        --additional-config="${config_dest}/neo4j.conf" \
+        "${initial_password}"; then
         touch "${data_dir}/initial_password_set"
+    else
+        bashio::log.warning "Could not set the initial password."
+        bashio::log.warning "If the database was already initialized, change the password via the Neo4j UI or Cypher."
     fi
 fi
 

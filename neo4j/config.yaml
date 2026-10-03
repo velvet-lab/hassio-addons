@@ -1,6 +1,6 @@
 ---
 name: Neo4j (experimental)
-version: 0.1.0
+version: 0.2.0
 stage: experimental
 slug: neo4j
 description: >-
@@ -27,8 +27,8 @@ ports:
   7473/tcp: 7473
   7687/tcp: 7687
 options:
-  edition: community
+  log_level: info
   initial_password: null
 schema:
-  edition: list(community|enterprise)?
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
   initial_password: password

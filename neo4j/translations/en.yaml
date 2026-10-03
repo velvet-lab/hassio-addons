@@ -1,7 +1,7 @@
 configuration:
-  edition:
-    name: Edition
-    description: Choose the Neo4j edition to run (community/enterprise)
+  log_level:
+    name: Log level
+    description: Controls the add-on log verbosity
   initial_password:
     name: Initial Password
     description: Set the initial `neo4j` password (required)

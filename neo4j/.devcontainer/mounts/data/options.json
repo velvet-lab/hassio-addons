@@ -1,4 +1,4 @@
 {
-  "edition": "community",
+  "log_level": "info",
   "initial_password": "changeme"
 }

@@ -2,20 +2,14 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
-config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (neo4j-pre did not run)}"
+# Config location comes from the container environment (set by neo4j-pre).
+# It is REQUIRED: abort if missing instead of falling back to a default.
+# shellcheck disable=SC2153  # APP_CONFIG_DEST is a container-env var set by with-contenv
 config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (neo4j-pre did not run)}"
 
 bashio::log.info "Start Neo4j ..."
 
-bashio::log.debug "Render configuration files"
-mkdir -p "${config_dest}"
-for file in "${config_source}"/*; do
-    name=$(basename "${file}")
-    envsubst < "${file}" > "${config_dest}/${name}"
-    chmod 644 "${config_dest}/${name}"
-done
-
 cd /opt/neo4j || exit 1
 
 bashio::log.debug "Neo4j build marker: neo4j-build-v1"
-exec /opt/neo4j/bin/neo4j console --home /opt/neo4j --config ${config_dest}/neo4j.conf
+exec /opt/neo4j/bin/neo4j console --home /opt/neo4j --config "${config_dest}/neo4j.conf"
