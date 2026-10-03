@@ -1,7 +1,7 @@
 ---
-name: Aspire Dashboard (experimental)
+name: Aspire Dashboard
 version: 0.1.2
-stage: experimental
+stage: stable
 slug: aspire
 description: >-
   Aspire Dashboard is a standalone observability dashboard for OpenTelemetry logs, traces, and metrics
