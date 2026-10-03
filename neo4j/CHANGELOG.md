@@ -1,3 +1,18 @@
+## 0.3.3
+
+### Add-on
+
+- Normalize line endings for `rootfs` scripts after the `neo4j-init` refactor, ensuring LF-only formatting for Linux/s6 execution.
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
 ## 0.3.2
 
 ### Add-on
