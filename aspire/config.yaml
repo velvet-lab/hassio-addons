@@ -1,0 +1,40 @@
+---
+name: Aspire Dashboard (experimental)
+version: 0.1.0
+stage: experimental
+slug: aspire
+description: >-
+  Aspire Dashboard is a standalone observability dashboard for OpenTelemetry logs, traces, and metrics
+url: https://github.com/velvet-lab/hassio-addons/tree/main/aspire
+arch:
+  - amd64
+  - aarch64
+host_network: false
+startup: services
+hassio_role: default
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
+backup: hot
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:18888]
+ports:
+  18888/tcp: 18888
+  18889/tcp: 18889
+  18890/tcp: 18890
+  18891/tcp: 18891
+options:
+  log_level: info
+  application_name: home-assistant
+  persistence_mode: Resume
+  browser_token: null
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  application_name: str?
+  persistence_mode: list(None|Run|Resume)?
+  browser_token: password
+  otlp_api_key: "password?"

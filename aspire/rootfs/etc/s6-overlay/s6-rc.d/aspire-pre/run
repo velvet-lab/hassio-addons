@@ -1,0 +1,89 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Static, unique build marker. Bump this value on every code change so we can
+# verify from the log whether the container image was actually rebuilt and is
+# not a stale cache. If the marker is NOT visible in the log, the image is old.
+readonly build_marker="aspire-build-v1-config"
+
+root=/data
+app_name="aspire"
+homeassistant_root="/homeassistant"
+config_source="${homeassistant_root}/addons/${app_name}"
+config_dest="/etc/${app_name}"
+data_directory="${root}/${app_name}/dashboard-data"
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "${log_level}"
+
+bashio::log.info "Aspire Dashboard build marker: ${build_marker}"
+bashio::log.info "Prepare Aspire Dashboard configuration"
+
+# Expose app identity and config locations via one-file-per-variable in the
+# s6 container environment.
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+
+# Fixed internal endpoints. Exposed Home Assistant ports are only mappings.
+echo -n "http://+:18888" > /var/run/s6/container_environment/ASPNETCORE_URLS
+echo -n "http://+:18889" > /var/run/s6/container_environment/DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
+echo -n "http://+:18890" > /var/run/s6/container_environment/DOTNET_DASHBOARD_OTLP_HTTP_ENDPOINT_URL
+echo -n "http://+:18891" > /var/run/s6/container_environment/ASPIRE_DASHBOARD_MCP_ENDPOINT_URL
+
+echo -n "${data_directory}" > /var/run/s6/container_environment/ASPIRE_DASHBOARD_DATA_DIRECTORY
+echo -n "${config_dest}/appsettings.json" > /var/run/s6/container_environment/ASPIRE_DASHBOARD_CONFIG_FILE_PATH
+
+application_name=$(bashio::config 'application_name' 'home-assistant')
+echo -n "${application_name}" > /var/run/s6/container_environment/ASPIRE_APPLICATION_NAME
+echo -n "${application_name}" > /var/run/s6/container_environment/ASPIRE_DASHBOARD_APPLICATION_NAME
+
+persistence_mode=$(bashio::config 'persistence_mode' 'Resume')
+echo -n "${persistence_mode}" > /var/run/s6/container_environment/ASPIRE_DASHBOARD_PERSISTENCE_MODE
+
+# Frontend auth is configured to BrowserToken from add-on options.
+browser_token=$(bashio::config 'browser_token')
+if ! bashio::var.has_value "${browser_token}"; then
+    bashio::log.error "The 'browser_token' option is required but empty."
+    bashio::log.error "Set a strong browser token and restart the add-on."
+    exit 1
+fi
+echo -n "BrowserToken" > /var/run/s6/container_environment/DASHBOARD__FRONTEND__AUTHMODE
+echo -n "${browser_token}" > /var/run/s6/container_environment/DASHBOARD__FRONTEND__BROWSERTOKEN
+
+# Optional OTLP API key: when set, enforce ApiKey auth; otherwise keep OTLP
+# unsecured for local/trusted-network scenarios.
+otlp_api_key=$(bashio::config 'otlp_api_key')
+if bashio::var.has_value "${otlp_api_key}"; then
+    echo -n "ApiKey" > /var/run/s6/container_environment/DASHBOARD__OTLP__AUTHMODE
+    echo -n "${otlp_api_key}" > /var/run/s6/container_environment/DASHBOARD__OTLP__PRIMARYAPIKEY
+    bashio::log.info "OTLP endpoint authentication: ApiKey"
+else
+    echo -n "Unsecured" > /var/run/s6/container_environment/DASHBOARD__OTLP__AUTHMODE
+    bashio::log.info "OTLP endpoint authentication: Unsecured"
+fi
+
+bashio::log.debug "Create folders"
+for folder in "${config_source}" "${config_dest}" "${data_directory}"; do
+    if ! bashio::fs.directory_exists "${folder}"; then
+        bashio::log.debug "Creating folder ${folder}"
+        mkdir -p "${folder}"
+        chmod 755 "${folder}"
+    fi
+done
+
+# Copy editable config template to /homeassistant on first start.
+if ! bashio::fs.file_exists "${config_source}/appsettings.json"; then
+    bashio::log.info "Creating default Aspire Dashboard configuration for the user"
+    cp /etc/default/appsettings.json "${config_source}/appsettings.json"
+    chmod 644 "${config_source}/appsettings.json"
+fi
+
+bashio::log.debug "Redirect log output"
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err"
+
+# s6 oneshot services MUST exit 0 on success.
+exit 0
