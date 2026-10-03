@@ -144,6 +144,10 @@ For services that expose a server configuration file (OpenBao `.hcl`, Qdrant `pr
 
  - Verify `CRLF=0` for shell scripts before committing; CI or manual checks should fail commits that introduce CRLF in `rootfs/`.
 
+ - **Mandatory workflow on Windows after editing `rootfs/` or `.devcontainer/`:** run `.github/write-lf.ps1` on the changed add-on folder before committing (for example `powershell -NoProfile -ExecutionPolicy Bypass -File .github/write-lf.ps1 .\neo4j\rootfs`). Do not rely on editor defaults.
+
+ - **Review expectation:** if a PR touches `rootfs/` scripts/templates, verify in your local output that all touched files are reported as `ok (already LF)` or `LF: ... (N CRLF removed)`, then proceed.
+
 ### Devcontainer
 
 Every add-on ships a `.devcontainer/` folder for local development against the actual add-on image:

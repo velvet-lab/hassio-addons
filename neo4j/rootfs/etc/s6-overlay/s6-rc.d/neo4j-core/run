@@ -1,0 +1,32 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Config location comes from the container environment (set by neo4j-pre).
+# It is REQUIRED: abort if missing instead of falling back to a default.
+# shellcheck disable=SC2153  # APP_CONFIG_* are container-env vars set by with-contenv
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (neo4j-pre did not run)}"
+config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (neo4j-pre did not run)}"
+
+bashio::log.info "Start Neo4j ..."
+
+# Render every user-edited file from APP_CONFIG_SOURCE into APP_CONFIG_DEST on
+# every start so placeholders added by users are always expanded with the full
+# container environment.
+bashio::log.debug "Render configuration files"
+mkdir -p "${config_dest}"
+for file in "${config_source}"/*; do
+	name=$(basename "${file}")
+	envsubst < "${file}" > "${config_dest}/${name}"
+	chmod 644 "${config_dest}/${name}"
+done
+
+cd /opt/neo4j || exit 1
+
+bashio::log.debug "Neo4j build marker: neo4j-build-v3-bolt-required"
+
+# `neo4j console` has no --home/--config flags; it locates the configuration
+# via NEO4J_CONF (directory containing neo4j.conf) and NEO4J_HOME.
+export NEO4J_HOME=/opt/neo4j
+export NEO4J_CONF="${config_dest}"
+exec /opt/neo4j/bin/neo4j console

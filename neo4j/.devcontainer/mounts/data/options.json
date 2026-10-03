@@ -1,0 +1,6 @@
+{
+  "log_level": "info",
+  "usage_report_enabled": false,
+  "apoc_enabled": true,
+  "dbms_security_procedures_unrestricted": "apoc.*"
+}

@@ -1,0 +1,99 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+root=/data
+app_name="neo4j"
+homeassistant_root="/homeassistant"
+config_source="$homeassistant_root/addons/${app_name}"
+config_dest="/etc/${app_name}"
+data_dir="$root/${app_name}/data"
+logs_dir="$root/${app_name}/logs"
+import_dir="$root/${app_name}/import"
+run_dir="$root/${app_name}/run"
+
+bashio::log.level "$(bashio::config 'log_level' 'info' || echo info)"
+
+bashio::log.info "Prepare Neo4j configuration"
+
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+echo -n "${data_dir}" > /var/run/s6/container_environment/NEO4J_DATA_DIR
+echo -n "${logs_dir}" > /var/run/s6/container_environment/NEO4J_LOGS_DIR
+echo -n "${import_dir}" > /var/run/s6/container_environment/NEO4J_IMPORT_DIR
+echo -n "${run_dir}" > /var/run/s6/container_environment/NEO4J_RUN_DIR
+
+usage_report_enabled="$(bashio::config.true 'usage_report_enabled' && echo true || echo false)"
+
+# Export additional Neo4j runtime options from add-on config into the s6
+# container environment (consumed by neo4j-core).
+echo -n "${usage_report_enabled}" > /var/run/s6/container_environment/NEO4J_dbms_usage__report_enabled
+
+# Ports are managed by the Supervisor network mapping. Keep internal listen
+# ports fixed and derive connector enabled flags from exposed add-on ports.
+if bashio::var.has_value "$(bashio::addon.port '7474/tcp')"; then
+    http_enabled="true"
+else
+    http_enabled="false"
+fi
+echo -n "${http_enabled}" > /var/run/s6/container_environment/NEO4J_server_http_enabled
+
+if bashio::var.has_value "$(bashio::addon.port '7473/tcp')"; then
+    https_enabled="true"
+else
+    https_enabled="false"
+fi
+echo -n "${https_enabled}" > /var/run/s6/container_environment/NEO4J_server_https_enabled
+
+# Bolt is required for Neo4j Browser/Admin access and Cypher connections.
+bolt_enabled="true"
+echo -n "${bolt_enabled}" > /var/run/s6/container_environment/NEO4J_server_bolt_enabled
+
+procedures_unrestricted="$(bashio::config 'dbms_security_procedures_unrestricted' 'apoc.*')"
+echo -n "${procedures_unrestricted}" > /var/run/s6/container_environment/NEO4J_dbms_security_procedures_unrestricted
+
+# APOC plugin: download at runtime if requested
+if bashio::config.true 'apoc_enabled'; then
+    neo4j_version="${NEO4J_VERSION:-}"
+    if ! bashio::var.has_value "${neo4j_version}"; then
+        bashio::log.warning "APOC enabled, but NEO4J_VERSION is not set. Skipping APOC download."
+    else
+        bashio::log.info "APOC enabled - attempting to download matching APOC release (${neo4j_version})"
+        apoc_file="apoc-${neo4j_version}-core.jar"
+        apoc_url="https://github.com/neo4j/apoc/releases/download/${neo4j_version}/${apoc_file}"
+        mkdir -p /opt/neo4j/plugins
+        if curl -fSL "${apoc_url}" -o "/opt/neo4j/plugins/${apoc_file}"; then
+            chmod 644 "/opt/neo4j/plugins/${apoc_file}"
+            bashio::log.info "APOC downloaded: ${apoc_file}"
+        else
+            bashio::log.warning "APOC download failed: ${apoc_url}"
+        fi
+    fi
+fi
+
+bashio::log.debug "Create folders"
+for folder in "${config_source}" "${config_dest}" "${data_dir}" "${logs_dir}" "${import_dir}" "${run_dir}"; do
+    if ! bashio::fs.directory_exists "${folder}"; then
+        bashio::log.debug "Creating folder ${folder}"
+        mkdir -p "${folder}"
+        chmod 755 "${folder}"
+    fi
+done
+
+# On first start copy the default configuration to the user-accessible
+# folder (APP_CONFIG_SOURCE) under /homeassistant, where the user can edit it
+# (e.g. with VS Code). If the user deletes the file it is recreated from the
+# bundled template.
+if ! bashio::fs.file_exists "${config_source}/neo4j.conf"; then
+    bashio::log.info "Creating default Neo4j configuration for the user"
+    cp /etc/default/neo4j.conf "${config_source}/neo4j.conf"
+    chmod 644 "${config_source}/neo4j.conf"
+fi
+
+# Redirect log output
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err" || true
+
+# oneshot must exit 0
+exit 0
