@@ -1,3 +1,38 @@
+## 0.1.2
+
+### Add-on
+
+- Simplify `persistence_mode` to standalone-focused values: `Temporary` and `Persistent`
+- Remove `Run` from add-on options, because the standalone add-on only needs temporary or resumed persistence
+- Change default persistence mode to `Temporary`
+- Map add-on modes internally to Aspire Dashboard persistence values (`Temporary` -> `None`, `Persistent` -> `Resume`)
+
+### Aspire Dashboard
+
+- Bundled Aspire Dashboard version: **13.6.0**
+- For detailed release notes, see the official [Aspire release notes](https://github.com/dotnet/aspire/releases).
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Aspire Dashboard version.
+> This release bundles Aspire Dashboard 13.6.0.
+
+## 0.1.1
+
+### Add-on
+
+- Fix startup crash on Home Assistant base images by installing ICU libraries required by .NET/Aspire Dashboard globalization support
+
+### Aspire Dashboard
+
+- Bundled Aspire Dashboard version: **13.6.0**
+- For detailed release notes, see the official [Aspire release notes](https://github.com/dotnet/aspire/releases).
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Aspire Dashboard version.
+> This release bundles Aspire Dashboard 13.6.0.
+
 ## 0.1.0
 
 ### Add-on

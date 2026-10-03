@@ -7,7 +7,7 @@ configuration:
     description: Logical app name used for cookie and data partitioning
   persistence_mode:
     name: Persistence Mode
-    description: Choose how telemetry data is persisted across restarts
+    description: Choose Temporary or Persistent telemetry storage behavior
   browser_token:
     name: Browser Token
     description: Token used for dashboard frontend login authentication

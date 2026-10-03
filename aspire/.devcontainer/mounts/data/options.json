@@ -1,7 +1,7 @@
 {
     "log_level": "debug",
     "application_name": "home-assistant",
-    "persistence_mode": "Resume",
+    "persistence_mode": "Temporary",
     "browser_token": "dev-browser-token",
     "otlp_api_key": ""
 }

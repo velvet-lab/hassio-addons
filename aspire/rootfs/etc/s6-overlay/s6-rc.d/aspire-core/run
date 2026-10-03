@@ -23,5 +23,5 @@ for file in "${config_source}"/*; do
     chmod 644 "${config_dest}/${name}"
 done
 
-bashio::log.debug "Aspire Dashboard build marker: aspire-build-v1-config"
+bashio::log.debug "Aspire Dashboard build marker: aspire-build-v2-icu"
 exec /app/Aspire.Dashboard

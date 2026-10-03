@@ -35,6 +35,7 @@ RUN set -x \
     && apt-get install -qy --no-install-recommends \
         ca-certificates \
         gettext-base \
+        libicu-dev \
     && apt-get clean \
     && rm -rf \
         /etc/logrotate.d \

@@ -1,6 +1,6 @@
 ---
 name: Aspire Dashboard (experimental)
-version: 0.1.0
+version: 0.1.2
 stage: experimental
 slug: aspire
 description: >-
@@ -30,11 +30,11 @@ ports:
 options:
   log_level: info
   application_name: home-assistant
-  persistence_mode: Resume
+  persistence_mode: Temporary
   browser_token: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   application_name: str?
-  persistence_mode: list(None|Run|Resume)?
+  persistence_mode: list(Temporary|Persistent)?
   browser_token: password
   otlp_api_key: "password?"

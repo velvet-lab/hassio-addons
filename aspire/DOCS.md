@@ -39,13 +39,17 @@ Logical application name used by Aspire Dashboard to partition persisted data an
 
 ### Option: `persistence_mode`
 
-Sets the dashboard persistence mode:
+Sets the add-on persistence behavior:
 
-*   `None`: no persistence, telemetry is removed after shutdown.
-*   `Run`: creates a new persistent run DB on each start.
-*   `Resume`: reuses a single persistent DB across restarts.
+*   `Temporary`: no persistence, telemetry is removed after shutdown.
+*   `Persistent`: reuses a single persistent DB across restarts.
 
-Default is `Resume`.
+Default is `Temporary`.
+
+Internal mapping to Aspire Dashboard:
+
+*   `Temporary` -> `None`
+*   `Persistent` -> `Resume`
 
 ### Option: `browser_token` (required)
 
