@@ -1,3 +1,20 @@
+## 0.1.1
+
+### Add-on
+
+- Update the bundled Valkey binary to 9.1.2 (was 9.1.1)
+
+### Valkey
+
+- Bundled Valkey version: **9.1.2**
+- Security release: fixes a use-after-free in RDMA connection handling (GHSA-jcj7-v34w-v9vv) and an unauthenticated use-after-free of the Lua interpreter state (GHSA-fq2f-crmw-q97r), plus numerous bug fixes (ACL bypasses, AOF truncation handling, crash fixes, and more).
+- For detailed release notes, see the [official Valkey changelog](https://github.com/valkey-io/valkey/releases).
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Valkey version.
+> This release bundles Valkey 9.1.2.
+
 ## 0.1.0
 
 ### Add-on
