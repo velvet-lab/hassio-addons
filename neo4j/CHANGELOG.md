@@ -1,3 +1,19 @@
+## 0.2.3
+
+### Add-on
+
+- Fix startup with Neo4j 2026.x: remove the invalid memory settings `server.memory.off_heap.max_size` and `server.memory.transaction.total.max_size` from the default `neo4j.conf`. Strict configuration validation rejected them. The transaction memory limit is now set via the documented `dbms.memory.transaction.total.max` setting.
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+- See the [Neo4j changelog](https://neo4j.com/release-notes/) for details.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
 ## 0.2.2
 
 ### Add-on
