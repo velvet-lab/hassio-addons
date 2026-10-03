@@ -1,7 +1,7 @@
 ---
-name: Neo4j (experimental)
+name: Neo4j
 version: 0.4.0
-stage: experimental
+stage: stable
 slug: neo4j
 description: >-
   Neo4j is a graph database. This add-on runs a self-hosted Neo4j instance.
