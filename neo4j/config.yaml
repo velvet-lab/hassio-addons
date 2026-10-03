@@ -1,0 +1,34 @@
+---
+name: Neo4j
+version: 0.1.0
+stage: experimental
+slug: neo4j
+description: >-
+  Neo4j is a graph database. This add-on runs a self-hosted Neo4j instance.
+url: https://github.com/velvet-lab/hassio-addons/tree/main/neo4j
+arch:
+  - amd64
+  - aarch64
+host_network: false
+startup: services
+hassio_role: default
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
+backup: hot
+backup_exclude:
+  - /data/app.err
+watchdog: tcp://[HOST]:[PORT:7474]
+ports:
+  7474/tcp: 7474
+  7473/tcp: 7473
+  7687/tcp: 7687
+options:
+  edition: community
+  initial_password: null
+schema:
+  edition: list(community|enterprise)?
+  initial_password: password

@@ -1,0 +1,11 @@
+# Minimal AppArmor profile for neo4j add-on (example)
+include <tunables/global>
+
+profile neo4j flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  /init ix,
+  /run/** ix,
+  /opt/neo4j/** rix,
+  /data/neo4j/** rwk,
+  network,
+}

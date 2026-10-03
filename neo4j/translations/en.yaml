@@ -1,0 +1,12 @@
+configuration:
+  edition:
+    name: Edition
+    description: Choose the Neo4j edition to run (community/enterprise)
+  initial_password:
+    name: Initial Password
+    description: Set the initial `neo4j` password (required)
+
+network:
+  7474/tcp: HTTP API port for Neo4j
+  7473/tcp: HTTPS port for Neo4j
+  7687/tcp: Bolt protocol port for Neo4j

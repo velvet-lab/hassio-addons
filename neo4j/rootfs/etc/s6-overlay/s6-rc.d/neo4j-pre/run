@@ -1,0 +1,66 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+root=/data
+app_name="neo4j"
+homeassistant_root="/homeassistant"
+config_source="$homeassistant_root/addons/${app_name}"
+config_dest="/etc/${app_name}"
+data_dir="$root/${app_name}/data"
+logs_dir="$root/${app_name}/logs"
+import_dir="$root/${app_name}/import"
+
+default_edition="community"
+
+edition=$(bashio::config 'edition' "$default_edition")
+bashio::log.level "$(bashio::config 'log_level' 'info' || echo info)"
+
+bashio::log.info "Prepare Neo4j configuration"
+
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+echo -n "${data_dir}" > /var/run/s6/container_environment/NEO4J_DATA_DIR
+echo -n "${logs_dir}" > /var/run/s6/container_environment/NEO4J_LOGS_DIR
+echo -n "${import_dir}" > /var/run/s6/container_environment/NEO4J_IMPORT_DIR
+
+bashio::log.debug "Create folders"
+for folder in "${config_source}" "${config_dest}" "${data_dir}" "${logs_dir}" "${import_dir}"; do
+    if ! bashio::fs.directory_exists "${folder}"; then
+        bashio::log.debug "Creating folder ${folder}"
+        mkdir -p "${folder}"
+        chmod 755 "${folder}"
+    fi
+done
+
+# On first start copy the default configuration to the user-accessible
+if ! bashio::fs.file_exists "${config_source}/neo4j.conf"; then
+    bashio::log.info "Creating default Neo4j configuration for the user"
+    cp /etc/default/neo4j.conf "${config_source}/neo4j.conf"
+    chmod 644 "${config_source}/neo4j.conf"
+fi
+
+# initial password is REQUIRED
+initial_password=$(bashio::config 'initial_password')
+if ! bashio::var.has_value "${initial_password}"; then
+    bashio::log.error "The 'initial_password' option is required but empty."
+    bashio::log.error "Set a strong initial password and restart the add-on."
+    exit 1
+fi
+
+# If the neo4j-admin tool exists, set the initial password on first start
+if [ -x /opt/neo4j/bin/neo4j-admin ]; then
+    if [ ! -f "${data_dir}/initial_password_set" ]; then
+        bashio::log.info "Set initial Neo4j password"
+        /opt/neo4j/bin/neo4j-admin set-initial-password "${initial_password}" || true
+        touch "${data_dir}/initial_password_set"
+    fi
+fi
+
+# Redirect log output
+rm -f "${root}/app.err"
+ln -s /proc/1/fd/1 "${root}/app.err" || true
+
+# oneshot must exit 0
+exit 0
