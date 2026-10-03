@@ -1,3 +1,20 @@
+## 0.4.0
+
+### Add-on
+
+- Remove `initial_password` from add-on options and stop running `neo4j-admin dbms set-initial-password` during startup.
+- Make Bolt (`7687/tcp`) a required exposed port and always enable the Bolt connector.
+- Document Neo4j Browser/Admin access with default credentials (`neo4j` / `neo4j`) and the required Bolt connection URL.
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
 ## 0.3.3
 
 ### Add-on

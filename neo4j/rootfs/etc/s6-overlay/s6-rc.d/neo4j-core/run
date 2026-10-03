@@ -23,7 +23,7 @@ done
 
 cd /opt/neo4j || exit 1
 
-bashio::log.debug "Neo4j build marker: neo4j-build-v2-init"
+bashio::log.debug "Neo4j build marker: neo4j-build-v3-bolt-required"
 
 # `neo4j console` has no --home/--config flags; it locates the configuration
 # via NEO4J_CONF (directory containing neo4j.conf) and NEO4J_HOME.

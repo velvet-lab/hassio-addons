@@ -2,9 +2,6 @@ configuration:
   log_level:
     name: Log level
     description: Controls the add-on log verbosity
-  initial_password:
-    name: Initial Password
-    description: Set the initial `neo4j` password (required)
   usage_report_enabled:
     name: Usage reporting
     description: Enable sending usage reports to Neo4j
@@ -18,4 +15,4 @@ configuration:
 network:
   7474/tcp: HTTP API port for Neo4j
   7473/tcp: Optional HTTPS port for Neo4j
-  7687/tcp: Optional Bolt protocol port for Neo4j
+  7687/tcp: Required Bolt protocol port for Neo4j Browser/Admin access

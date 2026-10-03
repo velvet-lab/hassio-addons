@@ -27,7 +27,7 @@ echo -n "${run_dir}" > /var/run/s6/container_environment/NEO4J_RUN_DIR
 usage_report_enabled="$(bashio::config.true 'usage_report_enabled' && echo true || echo false)"
 
 # Export additional Neo4j runtime options from add-on config into the s6
-# container environment (consumed by neo4j-init and neo4j-core).
+# container environment (consumed by neo4j-core).
 echo -n "${usage_report_enabled}" > /var/run/s6/container_environment/NEO4J_dbms_usage__report_enabled
 
 # Ports are managed by the Supervisor network mapping. Keep internal listen
@@ -46,11 +46,8 @@ else
 fi
 echo -n "${https_enabled}" > /var/run/s6/container_environment/NEO4J_server_https_enabled
 
-if bashio::var.has_value "$(bashio::addon.port '7687/tcp')"; then
-    bolt_enabled="true"
-else
-    bolt_enabled="false"
-fi
+# Bolt is required for Neo4j Browser/Admin access and Cypher connections.
+bolt_enabled="true"
 echo -n "${bolt_enabled}" > /var/run/s6/container_environment/NEO4J_server_bolt_enabled
 
 procedures_unrestricted="$(bashio::config 'dbms_security_procedures_unrestricted' 'apoc.*')"
