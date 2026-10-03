@@ -1,3 +1,20 @@
+## 0.2.2
+
+### Add-on
+
+- Fix startup with the Neo4j community edition: remove the Enterprise-only settings `server.directories.metrics` and `server.backup.enabled` from the default `neo4j.conf`. Strict configuration validation rejected them, which also broke the initial-password step.
+- Fix the start command: `neo4j console` does not support `--home`/`--config` flags. The configuration directory is now passed via the `NEO4J_CONF` environment variable (and `NEO4J_HOME` is exported), so Neo4j loads the rendered config from `/etc/neo4j/neo4j.conf`.
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+- See the [Neo4j changelog](https://neo4j.com/release-notes/) for details.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
 ## 0.2.1
 
 ### Add-on

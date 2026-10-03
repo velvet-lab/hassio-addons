@@ -11,7 +11,6 @@ data_dir="$root/${app_name}/data"
 logs_dir="$root/${app_name}/logs"
 import_dir="$root/${app_name}/import"
 run_dir="$root/${app_name}/run"
-metrics_dir="$root/${app_name}/metrics"
 
 bashio::log.level "$(bashio::config 'log_level' 'info' || echo info)"
 
@@ -24,10 +23,9 @@ echo -n "${data_dir}" > /var/run/s6/container_environment/NEO4J_DATA_DIR
 echo -n "${logs_dir}" > /var/run/s6/container_environment/NEO4J_LOGS_DIR
 echo -n "${import_dir}" > /var/run/s6/container_environment/NEO4J_IMPORT_DIR
 echo -n "${run_dir}" > /var/run/s6/container_environment/NEO4J_RUN_DIR
-echo -n "${metrics_dir}" > /var/run/s6/container_environment/NEO4J_METRICS_DIR
 
 bashio::log.debug "Create folders"
-for folder in "${config_source}" "${config_dest}" "${data_dir}" "${logs_dir}" "${import_dir}" "${run_dir}" "${metrics_dir}"; do
+for folder in "${config_source}" "${config_dest}" "${data_dir}" "${logs_dir}" "${import_dir}" "${run_dir}"; do
     if ! bashio::fs.directory_exists "${folder}"; then
         bashio::log.debug "Creating folder ${folder}"
         mkdir -p "${folder}"
