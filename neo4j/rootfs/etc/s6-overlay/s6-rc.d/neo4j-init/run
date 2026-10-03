@@ -1,0 +1,46 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Config and data locations come from the container environment (set by
+# neo4j-pre). They are REQUIRED.
+# shellcheck disable=SC2153  # APP_CONFIG_* and NEO4J_DATA_DIR are container-env vars
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (neo4j-pre did not run)}"
+config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (neo4j-pre did not run)}"
+data_dir="${NEO4J_DATA_DIR:?NEO4J_DATA_DIR is not set (neo4j-pre did not run)}"
+
+bashio::log.info "Initialize Neo4j startup state ..."
+
+# Render the configuration once in init because set-initial-password consumes
+# a config file before the main neo4j-core service starts.
+bashio::log.debug "Render Neo4j configuration for initialization"
+mkdir -p "${config_dest}"
+envsubst < "${config_source}/neo4j.conf" > "${config_dest}/neo4j.conf"
+chmod 644 "${config_dest}/neo4j.conf"
+
+# initial password is REQUIRED
+initial_password=$(bashio::config 'initial_password')
+if ! bashio::var.has_value "${initial_password}"; then
+    bashio::log.error "The 'initial_password' option is required but empty."
+    bashio::log.error "Set a strong initial password and restart the add-on."
+    exit 1
+fi
+
+# Set the initial password on first start only. The marker file lives in the
+# data directory, so it is removed together with the data when the user
+# resets the database. The command only works before the first startup, so a
+# failure (e.g. already-initialized database) is logged but not fatal.
+if [ -x /opt/neo4j/bin/neo4j-admin ] && [ ! -f "${data_dir}/initial_password_set" ]; then
+    bashio::log.info "Set initial Neo4j password"
+    if /opt/neo4j/bin/neo4j-admin dbms set-initial-password \
+        --additional-config="${config_dest}/neo4j.conf" \
+        "${initial_password}"; then
+        touch "${data_dir}/initial_password_set"
+    else
+        bashio::log.warning "Could not set the initial password."
+        bashio::log.warning "If the database was already initialized, change the password via the Neo4j UI or Cypher."
+    fi
+fi
+
+# oneshot must exit 0
+exit 0

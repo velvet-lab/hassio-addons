@@ -1,3 +1,36 @@
+## 0.3.2
+
+### Add-on
+
+- Refactor the s6 startup flow to use a dedicated `neo4j-init` oneshot service between `neo4j-pre` and `neo4j-core`.
+- Move pre-start config rendering and `neo4j-admin dbms set-initial-password` logic from `neo4j-pre/run` into `neo4j-init/run`.
+- Keep `neo4j-pre/run` focused on environment preparation and file/folder setup.
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
+## 0.3.1
+
+### Add-on
+
+- Fix configuration rendering: run `envsubst` in `neo4j-core/run` on every startup (same pattern as other add-ons like Qdrant), so placeholders from `/homeassistant/addons/neo4j/` are always expanded at runtime.
+- Fix pre-start rendering for initial password setup: export required `NEO4J_*` variables in `neo4j-pre/run` before calling `envsubst`.
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
 ## 0.3.0
 
 ### Add-on

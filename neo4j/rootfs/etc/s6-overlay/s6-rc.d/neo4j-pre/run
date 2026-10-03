@@ -24,31 +24,37 @@ echo -n "${logs_dir}" > /var/run/s6/container_environment/NEO4J_LOGS_DIR
 echo -n "${import_dir}" > /var/run/s6/container_environment/NEO4J_IMPORT_DIR
 echo -n "${run_dir}" > /var/run/s6/container_environment/NEO4J_RUN_DIR
 
-# Export additional Neo4j runtime options from add-on config so they are
-# available to envsubst and to the running Neo4j process.
-echo -n "$(bashio::config.true 'usage_report_enabled' && echo true || echo false)" > /var/run/s6/container_environment/NEO4J_dbms_usage__report_enabled
+usage_report_enabled="$(bashio::config.true 'usage_report_enabled' && echo true || echo false)"
+
+# Export additional Neo4j runtime options from add-on config into the s6
+# container environment (consumed by neo4j-init and neo4j-core).
+echo -n "${usage_report_enabled}" > /var/run/s6/container_environment/NEO4J_dbms_usage__report_enabled
 
 # Ports are managed by the Supervisor network mapping. Keep internal listen
 # ports fixed and derive connector enabled flags from exposed add-on ports.
 if bashio::var.has_value "$(bashio::addon.port '7474/tcp')"; then
-    echo -n "true" > /var/run/s6/container_environment/NEO4J_server_http_enabled
+    http_enabled="true"
 else
-    echo -n "false" > /var/run/s6/container_environment/NEO4J_server_http_enabled
+    http_enabled="false"
 fi
+echo -n "${http_enabled}" > /var/run/s6/container_environment/NEO4J_server_http_enabled
 
 if bashio::var.has_value "$(bashio::addon.port '7473/tcp')"; then
-    echo -n "true" > /var/run/s6/container_environment/NEO4J_server_https_enabled
+    https_enabled="true"
 else
-    echo -n "false" > /var/run/s6/container_environment/NEO4J_server_https_enabled
+    https_enabled="false"
 fi
+echo -n "${https_enabled}" > /var/run/s6/container_environment/NEO4J_server_https_enabled
 
 if bashio::var.has_value "$(bashio::addon.port '7687/tcp')"; then
-    echo -n "true" > /var/run/s6/container_environment/NEO4J_server_bolt_enabled
+    bolt_enabled="true"
 else
-    echo -n "false" > /var/run/s6/container_environment/NEO4J_server_bolt_enabled
+    bolt_enabled="false"
 fi
+echo -n "${bolt_enabled}" > /var/run/s6/container_environment/NEO4J_server_bolt_enabled
 
-echo -n "$(bashio::config 'dbms_security_procedures_unrestricted' 'apoc.*')" > /var/run/s6/container_environment/NEO4J_dbms_security_procedures_unrestricted
+procedures_unrestricted="$(bashio::config 'dbms_security_procedures_unrestricted' 'apoc.*')"
+echo -n "${procedures_unrestricted}" > /var/run/s6/container_environment/NEO4J_dbms_security_procedures_unrestricted
 
 # APOC plugin: download at runtime if requested
 if bashio::config.true 'apoc_enabled'; then
@@ -86,38 +92,6 @@ if ! bashio::fs.file_exists "${config_source}/neo4j.conf"; then
     bashio::log.info "Creating default Neo4j configuration for the user"
     cp /etc/default/neo4j.conf "${config_source}/neo4j.conf"
     chmod 644 "${config_source}/neo4j.conf"
-fi
-
-# Render the final configuration by substituting any remaining placeholders
-# from the user-edited file into the volatile APP_CONFIG_DEST (/etc/neo4j).
-# This happens in pre (not core) because the initial-password step below reads
-# the rendered configuration (documented exception).
-bashio::log.debug "Render Neo4j configuration"
-envsubst < "${config_source}/neo4j.conf" > "${config_dest}/neo4j.conf"
-chmod 644 "${config_dest}/neo4j.conf"
-
-# initial password is REQUIRED
-initial_password=$(bashio::config 'initial_password')
-if ! bashio::var.has_value "${initial_password}"; then
-    bashio::log.error "The 'initial_password' option is required but empty."
-    bashio::log.error "Set a strong initial password and restart the add-on."
-    exit 1
-fi
-
-# Set the initial password on first start only. The marker file lives in the
-# data directory, so it is removed together with the data when the user
-# resets the database. The command only works before the first startup, so a
-# failure (e.g. already-initialized database) is logged but not fatal.
-if [ -x /opt/neo4j/bin/neo4j-admin ] && [ ! -f "${data_dir}/initial_password_set" ]; then
-    bashio::log.info "Set initial Neo4j password"
-    if /opt/neo4j/bin/neo4j-admin dbms set-initial-password \
-        --additional-config="${config_dest}/neo4j.conf" \
-        "${initial_password}"; then
-        touch "${data_dir}/initial_password_set"
-    else
-        bashio::log.warning "Could not set the initial password."
-        bashio::log.warning "If the database was already initialized, change the password via the Neo4j UI or Cypher."
-    fi
 fi
 
 # Redirect log output
