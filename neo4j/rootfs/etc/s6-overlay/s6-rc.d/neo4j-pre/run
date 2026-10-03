@@ -24,6 +24,33 @@ echo -n "${logs_dir}" > /var/run/s6/container_environment/NEO4J_LOGS_DIR
 echo -n "${import_dir}" > /var/run/s6/container_environment/NEO4J_IMPORT_DIR
 echo -n "${run_dir}" > /var/run/s6/container_environment/NEO4J_RUN_DIR
 
+# Export additional Neo4j runtime options from add-on config so they are
+# available to envsubst and to the running Neo4j process.
+echo -n "${NEO4J_DB_TIMEZONE:-$(bashio::config 'db_timezone' 'SYSTEM')}" > /var/run/s6/container_environment/NEO4J_dbms_db_timezone
+echo -n "$(bashio::config.true 'usage_report_enabled' && echo true || echo false)" > /var/run/s6/container_environment/NEO4J_dbms_usage__report_enabled
+
+# Ports are managed by the Supervisor network mapping. Use fixed internal
+# listen ports and expose 'enabled' flags that the config template reads.
+echo -n "true" > /var/run/s6/container_environment/NEO4J_server_http_enabled
+echo -n "false" > /var/run/s6/container_environment/NEO4J_server_https_enabled
+echo -n "false" > /var/run/s6/container_environment/NEO4J_server_bolt_enabled
+
+echo -n "$(bashio::config 'dbms_security_procedures_unrestricted' 'apoc.*')" > /var/run/s6/container_environment/NEO4J_dbms_security_procedures_unrestricted
+
+# APOC plugin: download at runtime if requested
+if bashio::config.true 'apoc_enabled'; then
+    bashio::log.info "APOC enabled — attempting to download matching APOC release (${NEO4J_VERSION})"
+    apoc_file="apoc-${NEO4J_VERSION}-core.jar"
+    apoc_url="https://github.com/neo4j/apoc/releases/download/${NEO4J_VERSION}/${apoc_file}"
+    mkdir -p /opt/neo4j/plugins
+    if curl -fSL "${apoc_url}" -o "/opt/neo4j/plugins/${apoc_file}"; then
+        chmod 644 "/opt/neo4j/plugins/${apoc_file}"
+        bashio::log.info "APOC downloaded: ${apoc_file}"
+    else
+        bashio::log.warning "APOC download failed: ${apoc_url}"
+    fi
+fi
+
 bashio::log.debug "Create folders"
 for folder in "${config_source}" "${config_dest}" "${data_dir}" "${logs_dir}" "${import_dir}" "${run_dir}"; do
     if ! bashio::fs.directory_exists "${folder}"; then

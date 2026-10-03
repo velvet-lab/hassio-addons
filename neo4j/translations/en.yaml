@@ -5,6 +5,18 @@ configuration:
   initial_password:
     name: Initial Password
     description: Set the initial `neo4j` password (required)
+  db_timezone:
+    name: DB Timezone
+    description: Timezone for the Neo4j server (default: SYSTEM)
+  usage_report_enabled:
+    name: Usage reporting
+    description: Enable sending usage reports to Neo4j (default: false)
+  apoc_enabled:
+    name: APOC plugin
+    description: Download and enable APOC plugin at startup when true
+  dbms_security_procedures_unrestricted:
+    name: Procedures unrestricted
+    description: Comma-separated list of procedures to allow unrestricted (default: apoc.*)
 
 network:
   7474/tcp: HTTP API port for Neo4j

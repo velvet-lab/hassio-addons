@@ -4,6 +4,8 @@ FROM ${BUILD_FROM:-ghcr.io/home-assistant/amd64-base-debian:trixie}
 ARG NEO4J_VERSION=2026.09.0
 ARG BUILD_ARCH
 
+ENV NEO4J_VERSION=${NEO4J_VERSION}
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Copy root filesystem (s6 scripts + default config)

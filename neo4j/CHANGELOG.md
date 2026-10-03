@@ -14,6 +14,23 @@
 > The add-on uses semantic versioning and is independent of the bundled Neo4j version.
 > This release bundles Neo4j 2026.09.0.
 
+## 0.2.4
+
+### Add-on
+
+- Add optional port-based configuration: `http_port` (default `7474`), `https_port` (optional), and `bolt_port` (optional). The add-on now derives `server.*.enabled` automatically from whether a port is configured — only `http_port` is exposed by default.
+- Remove the `fleet_manager_enabled` option (not needed for community edition).
+- Add `apoc_enabled` option to optionally download and install the matching APOC plugin for the bundled Neo4j version into `/opt/neo4j/plugins/` at startup. Download failures are logged but do not fail the add-on start.
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
 ## 0.2.2
 
 ### Add-on
