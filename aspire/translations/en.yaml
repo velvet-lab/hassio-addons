@@ -1,0 +1,22 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: Choose the Log Level
+  application_name:
+    name: Application Name
+    description: Logical app name used for cookie and data partitioning
+  persistence_mode:
+    name: Persistence Mode
+    description: Choose Temporary or Persistent telemetry storage behavior
+  browser_token:
+    name: Browser Token
+    description: Token used for dashboard frontend login authentication
+  otlp_api_key:
+    name: OTLP API Key
+    description: Optional API key used to secure OTLP telemetry ingestion
+
+network:
+  18888/tcp: Frontend UI port for Aspire Dashboard
+  18889/tcp: OTLP gRPC ingestion port
+  18890/tcp: OTLP HTTP ingestion port
+  18891/tcp: MCP endpoint port

@@ -1,0 +1,27 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Config locations come from the container environment (set by aspire-pre).
+# They are REQUIRED: abort if they are missing instead of falling back.
+# shellcheck disable=SC2153  # APP_CONFIG_* are container-env vars set by with-contenv
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (aspire-pre did not run)}"
+config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (aspire-pre did not run)}"
+
+# Set Log Level
+bashio::log.level "$(bashio::config 'log_level' 'info')"
+
+bashio::log.info "Start Aspire Dashboard ..."
+
+# Render every file from the user-editable source folder into /etc/aspire.
+# This always runs so user-provided ${VAR} placeholders are expanded.
+bashio::log.debug "Render configuration files"
+mkdir -p "${config_dest}"
+for file in "${config_source}"/*; do
+    name=$(basename "${file}")
+    envsubst < "${file}" > "${config_dest}/${name}"
+    chmod 644 "${config_dest}/${name}"
+done
+
+bashio::log.debug "Aspire Dashboard build marker: aspire-build-v2-icu"
+exec /app/Aspire.Dashboard
