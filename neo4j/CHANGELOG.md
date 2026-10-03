@@ -1,3 +1,20 @@
+## 0.2.1
+
+### Add-on
+
+- Fix container startup: remove the redundant `CMD ["/init"]` from the Dockerfile. The base image already sets `ENTRYPOINT ["/init"]`, so the extra `CMD` made the container run `/init /init`, which failed with `/bin/sh: 0: cannot open /init: Permission denied`.
+- Fail the build when the Neo4j tarball download fails instead of silently continuing with an empty `/opt/neo4j`.
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+- See the [Neo4j changelog](https://neo4j.com/release-notes/) for details.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
 ## 0.2.0
 
 ### Add-on
