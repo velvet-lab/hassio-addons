@@ -1,5 +1,7 @@
 # Home Assistant Community Add-on: MongoDB
 
+Bundled MongoDB series: **7.0.x**
+
 ## Installation
 
 The installation of this add-on is pretty straightforward and not different in comparison to installing any other Home Assistant add-on.
@@ -10,22 +12,23 @@ The installation of this add-on is pretty straightforward and not different in c
 
 **Note**: The add-on is **pre-configured** out of the box! There is no need to add/change/update the server connection settings!
 
-After starting the addon the connectionstring will be `mongodb://admin:<password>@<your-homeassistant-ip>:27017`. Default user is `admin`.
+After starting the addon the connection string will be `mongodb://admin:<password>@<your-homeassistant-ip>:27017`. Default user is `admin`.
 
 ## Configuration
 
-On first start, the add-on will copy its default configuration file to the `/homeassistant/addons/mongodb` folder. You can then modify the configuration by adding options to the configuration, for example with Visual Studio Code or any text editor.
+On first start, the add-on copies its default configuration file to `/homeassistant/addons/mongodb/mongod.conf`. You can edit that file with Visual Studio Code or any text editor. On startup, the add-on renders the runtime config to `/etc/mongodb/mongod.conf`.
 
-**Note**: _Remember to restart the add-on when the configuration is changed._
+The admin password is not stored in that file. It is read from the add-on UI options and applied by a dedicated s6 initialization service before the main MongoDB service starts.
+
+**Note**: _Restart the add-on after changing `/homeassistant/addons/mongodb/mongod.conf`._
 
 Example add-on configuration:
 
 ``` yaml
-server_name: homeassistant.local
 log_level: warning
 ```
 
-**Note**: _This is just an example, don't copy and paste it! Create your own!_
+**Note**: _This is just an example for the add-on options, not for `mongod.conf`._
 
 ### Option: `log_level`
 
@@ -42,13 +45,12 @@ dealing with an unknown issue. Possible values are:
 
 Please note that each level automatically includes log messages from a
 more severe level, e.g., `debug` also shows `info` messages. By default,
-the `log_level` is set to `info`, which is the recommended setting unless
-you are troubleshooting.
+the `log_level` is set to `warning`.
 
 ### Option: `admin_password`
 
-The `admin_password` option sets the password for the default `admin` user to access the MongoDB server. Make sure to choose a strong password to secure your database.
+The `admin_password` option sets the password for the default `admin` user to access the MongoDB server. This option is required. Choose a strong unique password to secure your database.
 
 ## Data folder
 
-The addon will store most of its configuration in the `/data/mongodb` folder. Please ensure this is included in your backup.
+MongoDB stores its database files in `/data/mongodb`. The editable server configuration lives in `/homeassistant/addons/mongodb/mongod.conf` and is rendered into `/etc/mongodb/mongod.conf` on every start.

@@ -1,0 +1,52 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+bashio::log.level "$(bashio::config 'log_level' 'warning')"
+
+# shellcheck disable=SC2153
+config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (mongodb-pre did not run)}"
+# shellcheck disable=SC2153
+admin_user="${MONGODB_ADMIN_USER:?MONGODB_ADMIN_USER is not set (mongodb-pre did not run)}"
+# shellcheck disable=SC2153
+admin_password="${MONGODB_ADMIN_PASSWORD:?MONGODB_ADMIN_PASSWORD is not set (mongodb-pre did not run)}"
+
+pre_config="${config_dest}/mongod.pre.conf"
+
+cleanup() {
+    if pgrep -x mongod >/dev/null; then
+        bashio::log.info "Stop temporary MongoDB instance"
+        mongosh --quiet --eval "db.adminCommand({ shutdown: 1, force: true })" >/dev/null 2>&1 || true
+        if pgrep -x mongod >/dev/null; then
+            pkill -x mongod || true
+        fi
+    fi
+}
+
+trap cleanup EXIT
+
+bashio::log.info "Initialize MongoDB admin user"
+envsubst < /etc/default/mongod.pre.conf > "${pre_config}"
+chmod 644 "${pre_config}"
+
+mongod --fork --quiet --config "${pre_config}" --logpath /var/log/mongodb/init.log
+
+ready=0
+for _ in $(seq 1 30); do
+    if mongosh --quiet --eval "db.adminCommand({ ping: 1 }).ok" >/dev/null 2>&1; then
+        ready=1
+        break
+    fi
+    sleep 1
+done
+
+if [ "${ready}" -ne 1 ]; then
+    bashio::log.error "Temporary MongoDB instance did not become ready in time."
+    exit 1
+fi
+
+export MONGODB_ADMIN_USER="${admin_user}"
+export MONGODB_ADMIN_PASSWORD="${admin_password}"
+mongosh --quiet /etc/mongod.d/modify-user.js
+
+exit 0

@@ -1,6 +1,6 @@
 ---
 name: MongoDB (deprecated)
-version: 7.0.0
+version: 0.1.1
 stage: deprecated
 slug: mongodb
 description: >-

@@ -1,7 +1,9 @@
-eval(process.argv.slice(3)[0]);
+const user = process.env.MONGODB_ADMIN_USER?.trim();
+const pwd = process.env.MONGODB_ADMIN_PASSWORD?.trim();
 
-const user = args[0].trim();
-const pwd = args[1].trim();
+if (!user || !pwd) {
+  throw new Error("Missing MONGODB_ADMIN_USER or MONGODB_ADMIN_PASSWORD environment variable.");
+}
 
 print("Modifying MongoDB admin user...");
 const adminDb = db.getSiblingDB("admin");

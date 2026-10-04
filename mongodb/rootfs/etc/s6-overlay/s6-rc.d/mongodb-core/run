@@ -2,9 +2,23 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
-# Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'warning')"
 
-bashio::log.info "Start MongoDB ..."
-bashio::log.debug "Execute mongod with configuration file"
-exec mongod --config "$MONGODB_CONFIG"
+# shellcheck disable=SC2153
+config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (mongodb-pre did not run)}"
+# shellcheck disable=SC2153
+config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (mongodb-pre did not run)}"
+# shellcheck disable=SC2153
+mongodb_config="${MONGODB_CONFIG:?MONGODB_CONFIG is not set (mongodb-pre did not run)}"
+
+bashio::log.info "Render MongoDB configuration"
+mkdir -p "${config_dest}"
+for file in "${config_source}"/*; do
+	[ -f "${file}" ] || continue
+	name=$(basename "${file}")
+	envsubst < "${file}" > "${config_dest}/${name}"
+	chmod 644 "${config_dest}/${name}"
+done
+
+bashio::log.info "Start MongoDB"
+exec mongod --config "${mongodb_config}"

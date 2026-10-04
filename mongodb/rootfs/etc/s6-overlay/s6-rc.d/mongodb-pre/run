@@ -1,89 +1,58 @@
 #!/command/with-contenv bashio
 # vim: ft=bash
 # shellcheck shell=bash
-root=/data
-data_root="$root/mongodb"
+
+app_name="mongodb"
+root="/data"
 homeassistant_root="/homeassistant"
-config_root="$homeassistant_root/addons/mongodb"
-mongodb_config="$config_root/config.conf"
+run_root="/run/${app_name}"
+data_root="${root}/${app_name}"
+config_source="${homeassistant_root}/addons/${app_name}"
+config_dest="/etc/${app_name}"
+mongodb_config="${config_dest}/mongod.conf"
+default_config="/etc/default/mongod.conf"
+key_file="${root}/keyfile"
+build_marker="mongodb-build-v2-s6-config"
 
-run_root="/run/mongodb"
-
-default_log_level="warning"
-
-log_level=$(bashio::config 'log_level' "$default_log_level")
+log_level=$(bashio::config 'log_level' 'warning')
 bashio::log.level "${log_level}"
 
 bashio::log.info "Prepare MongoDB configuration"
+bashio::log.info "Build marker: ${build_marker}"
+
+if ! bashio::var.has_value "$(bashio::config 'admin_password')"; then
+    bashio::log.error "The 'admin_password' option is required but empty."
+    bashio::log.error "Set a strong value and restart the add-on."
+    exit 1
+fi
 
 bashio::log.debug "Create folders"
-if ! bashio::fs.directory_exists "${run_root}"; then
-    bashio::log.debug "Creating run root directory at ${run_root}"
-    mkdir -p "${run_root}"
-    chmod 755 "${run_root}"
-fi
+mkdir -p "${run_root}" "${data_root}" "${config_source}" "${config_dest}"
+chmod 755 "${run_root}" "${data_root}" "${config_source}" "${config_dest}"
 
-if ! bashio::fs.directory_exists "${data_root}"; then
-    bashio::log.debug "Creating data root directory at ${data_root}"
-    mkdir -p "${data_root}"
-    chmod 755 "${data_root}"
-fi
-
-if ! bashio::fs.directory_exists "${config_root}"; then
-    bashio::log.debug "Creating config root directory at ${config_root}"
-    mkdir -p "${config_root}"
-    chmod 755 "${config_root}"
-fi
-
-if ! bashio::fs.file_exists /data/keyfile ]; then
+if ! bashio::fs.file_exists "${key_file}"; then
     bashio::log.info "Create keyfile for security"
-    content=$(openssl rand -base64 756 | tr -d '\n' | tr -d '\r')
-    echo -n "${content}" > /data/keyfile
-    chmod 400 /data/keyfile
+    openssl rand -base64 756 | tr -d '\n\r' > "${key_file}"
+    chmod 400 "${key_file}"
 fi
 
-bashio::log.debug "Read configuration options"
-admin_user="admin"
-admin_password=$(bashio::config 'admin_password')
-
-bashio::log.debug "Validate variables"
-bashio::config.require.password 'admin_password'
-
-bashio::log.debug "Export environment variables"
-export DATA_ROOT="${data_root}"
-
-bashio::log.debug "Prestart MongoDB and execute initial scripts"
-envsubst < /etc/default/mongod.pre.conf > /tmp/config.conf
-chmod 644 /tmp/config.conf
-
-mongod --fork --quiet --config "/tmp/config.conf" --logpath /var/log/mongodb/init.log
-sleep 5
-
-if bashio::var.has_value "$admin_password"; then
-    bashio::log.info "Create admin user"
-    mongosh --eval "const args = ['${admin_user}', '${admin_password}'];" /etc/mongod.d/modify-user.js || true
+if ! bashio::fs.file_exists "${config_source}/mongod.conf"; then
+    bashio::log.info "No existing configuration found, creating default configuration"
+    cp "${default_config}" "${config_source}/mongod.conf"
+    chmod 644 "${config_source}/mongod.conf"
 fi
 
-bashio::log.info "Ensure MongoDB is stopped"
-pid=$(pgrep mongod)
-if [ ! -z "${pid}" ]; then
-    bashio::log.debug "Found running MongoDB process with PID ${pid}, attempting to stop it gracefully."
-    mongosh --eval "printjson(db.shutdownServer())" || true
-    sleep 5
-    if pgrep -x "mongod" > /dev/null; then
-        bashio::log.debug "MongoDb did not stop gracefully, attempting to kill it."
-        kill "$pid" || true
-    fi
-fi
-
-if ! bashio::fs.file_exists "$mongodb_config"; then
-    bashio::log.info "No existing configuration found, creating default configuration..."
-    envsubst < /etc/default/mongod.conf > "$mongodb_config"
-fi
-
-bashio::log.debug Redirect log output
+bashio::log.debug "Redirect log output"
 rm -f "${root}/app.err"
 ln -s /proc/1/fd/1 "${root}/app.err"
 
-bashio::log.debug "Export final environment variables for MongoDB core"
+bashio::log.debug "Export environment variables"
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+echo -n "${data_root}" > /var/run/s6/container_environment/DATA_ROOT
 echo -n "${mongodb_config}" > /var/run/s6/container_environment/MONGODB_CONFIG
+echo -n "admin" > /var/run/s6/container_environment/MONGODB_ADMIN_USER
+printf '%s' "$(bashio::config 'admin_password')" > /var/run/s6/container_environment/MONGODB_ADMIN_PASSWORD
+
+exit 0
