@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="ERROR" monitorInterval="30" packages="org.neo4j.logging.log4j">
+    <Appenders>
+        <RollingRandomAccessFile name="Neo4jLog"
+                                 fileName="${config:server.directories.logs}/neo4j.log"
+                                 filePattern="$${config:server.directories.logs}/neo4j.log.%02i">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSSZ}{GMT+0} %-5p %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="min" max="7"/>
+        </RollingRandomAccessFile>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSSZ}{GMT+0} %-5p %m%n"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="${NEO4J_LOG_LEVEL}">
+            <AppenderRef ref="Neo4jLog"/>
+            <AppenderRef ref="ConsoleAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>
