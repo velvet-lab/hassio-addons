@@ -14,8 +14,15 @@ default_config="/etc/default/mongod.conf"
 key_file="${root}/keyfile"
 build_marker="mongodb-build-v2-s6-config"
 
-log_level=$(bashio::config 'log_level' 'warning')
+log_level=$(bashio::config 'log_level' 'info')
 bashio::log.level "${log_level}"
+
+case "${log_level}" in
+    trace) mongodb_log_verbosity="5" ;;
+    debug) mongodb_log_verbosity="1" ;;
+    info|notice|warning|error|fatal) mongodb_log_verbosity="0" ;;
+    *) mongodb_log_verbosity="0" ;;
+esac
 
 bashio::log.info "Prepare MongoDB configuration"
 bashio::log.info "Build marker: ${build_marker}"
@@ -53,6 +60,7 @@ echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
 echo -n "${data_root}" > /var/run/s6/container_environment/DATA_ROOT
 echo -n "${mongodb_config}" > /var/run/s6/container_environment/MONGODB_CONFIG
 echo -n "admin" > /var/run/s6/container_environment/MONGODB_ADMIN_USER
+echo -n "${mongodb_log_verbosity}" > /var/run/s6/container_environment/MONGODB_LOG_VERBOSITY
 printf '%s' "$(bashio::config 'admin_password')" > /var/run/s6/container_environment/MONGODB_ADMIN_PASSWORD
 
 exit 0

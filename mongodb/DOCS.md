@@ -32,9 +32,8 @@ log_level: warning
 
 ### Option: `log_level`
 
-The `log_level` option controls the level of log output by the addon and can
-be changed to be more or less verbose, which might be useful when you are
-dealing with an unknown issue. Possible values are:
+The `log_level` option controls the level of log output by the addon and also
+drives MongoDB's own `systemLog.verbosity` setting. Possible values are:
 
 *   `trace`: Show every detail, like all called internal functions.
 *   `debug`: Shows detailed debug information.
@@ -45,7 +44,7 @@ dealing with an unknown issue. Possible values are:
 
 Please note that each level automatically includes log messages from a
 more severe level, e.g., `debug` also shows `info` messages. By default,
-the `log_level` is set to `warning`.
+the `log_level` is set to `info`.
 
 ### Option: `admin_password`
 

@@ -2,7 +2,7 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
-bashio::log.level "$(bashio::config 'log_level' 'warning')"
+bashio::log.level "$(bashio::config 'log_level' 'info')"
 
 # shellcheck disable=SC2153
 config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (mongodb-pre did not run)}"

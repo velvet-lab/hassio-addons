@@ -1,4 +1,36 @@
 
+## 0.1.3
+
+### Add-on
+
+- Propagate `log_level` into MongoDB's own `systemLog.verbosity` setting
+
+### MongoDB
+
+- Bundled MongoDB version remains in the 7.0 series
+
+---
+
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled MongoDB version.
+> This release keeps bundling MongoDB 7.0.x.
+
+## 0.1.2
+
+### Add-on
+
+- Make `log_level` optional and default it to `info` across the add-on services
+
+### MongoDB
+
+- Bundled MongoDB version remains in the 7.0 series
+
+---
+
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled MongoDB version.
+> This release keeps bundling MongoDB 7.0.x.
+
 ## 0.1.1
 
 ### Add-on
