@@ -1,3 +1,19 @@
+## 0.1.1
+
+### Add-on
+
+- Make `log_level` optional and default it to `info`
+
+### OpenBao
+
+- Bundled OpenBao version: **2.6.2**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled OpenBao version.
+> This release bundles OpenBao 2.6.2.
+
 ## 0.1.0
 
 ### Add-on
