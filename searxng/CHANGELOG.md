@@ -1,3 +1,19 @@
+## 0.1.4
+
+### Add-on
+
+- Copy only the bundled SearXNG config files into `/homeassistant/addons/searxng/` and stop leaking unrelated `/etc/default/*` files from the base image
+
+### SearXNG
+
+- Bundled SearXNG version: **2026.8.21**
+- No bundled SearXNG version change in this add-on release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled SearXNG version.
+> This release bundles SearXNG 2026.8.21.
+
 ## 0.1.3
 
 ### Add-on
