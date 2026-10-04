@@ -45,8 +45,7 @@ if [ "${ready}" -ne 1 ]; then
     exit 1
 fi
 
-export MONGODB_ADMIN_USER="${admin_user}"
-export MONGODB_ADMIN_PASSWORD="${admin_password}"
-mongosh --quiet /etc/mongod.d/modify-user.js
+credentials_json=$(jq -cn --arg user "${admin_user}" --arg pwd "${admin_password}" '{user: $user, pwd: $pwd}')
+mongosh --quiet --eval "globalThis.mongoAdminCredentials = ${credentials_json}" /etc/mongod.d/modify-user.js
 
 exit 0

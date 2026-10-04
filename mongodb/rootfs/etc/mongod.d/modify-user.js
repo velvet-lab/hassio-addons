@@ -1,8 +1,8 @@
-const user = process.env.MONGODB_ADMIN_USER?.trim();
-const pwd = process.env.MONGODB_ADMIN_PASSWORD?.trim();
+const user = globalThis.mongoAdminCredentials?.user?.trim();
+const pwd = globalThis.mongoAdminCredentials?.pwd?.trim();
 
 if (!user || !pwd) {
-  throw new Error("Missing MONGODB_ADMIN_USER or MONGODB_ADMIN_PASSWORD environment variable.");
+  throw new Error("Missing MongoDB admin credentials.");
 }
 
 print("Modifying MongoDB admin user...");
