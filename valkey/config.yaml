@@ -1,6 +1,6 @@
 ---
 name: Valkey
-version: 0.1.1
+version: 0.1.3
 stage: experimental
 slug: valkey
 description: >-
@@ -27,7 +27,6 @@ watchdog: tcp://[HOST]:[PORT:6379]
 ports:
   6379/tcp: 6379
 options:
-  log_level: info
   password: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
