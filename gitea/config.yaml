@@ -1,6 +1,6 @@
 ---
 name: Gitea (experimental)
-version: 0.1.2
+version: 0.1.3
 stage: experimental
 slug: gitea
 description: >-
@@ -28,7 +28,6 @@ ports:
   3000/tcp: 3000
   22/tcp: 22
 options:
-  log_level: info
   instance_name: "Gitea"
   secret_key: null
   internal_token: null
