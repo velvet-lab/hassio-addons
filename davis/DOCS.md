@@ -29,17 +29,19 @@ log_level: warning
 
 ## Configuration file
 
-The most important settings (admin credentials, protocol toggles, mail, database) are configured in the add-on options below. For fine-tuning there is an editable environment file, `davis.env`, created on first start at:
+The most important settings (admin credentials, protocol toggles, mail, database) are configured in the add-on options below. For fine-tuning there are editable configuration files created on first start at:
 
 `/homeassistant/addons/davis/davis.env`
 
+`/homeassistant/addons/davis/monolog.yaml`
+
 **Note**: _Remember to restart the add-on when the configuration is changed._
 
-This file is a copy of the bundled template. If you delete it, a fresh copy is re-created on the next start. The add-on renders it on every start, so your edits take effect on restart.
+These files are copies of the bundled templates. If you delete them, fresh copies are re-created on the next start. The add-on renders them on every start, so your edits take effect on restart.
 
 ### Option: `log_level`
 
-The `log_level` option controls the level of log output by the add-on and can be changed to be more or less verbose, which might be useful when you are troubleshooting. Possible values are:
+The `log_level` option controls the level of log output by the add-on and is also mapped into Davis' own Monolog production logging configuration. Possible values are:
 
 *   `trace`: Show every detail, like all called internal functions.
 *   `debug`: Shows detailed debug information.
@@ -48,7 +50,7 @@ The `log_level` option controls the level of log output by the add-on and can be
 *   `error`: Runtime errors that do not require immediate action.
 *   `fatal`: Something went terribly wrong. Add-on becomes unusable.
 
-Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting.
+Please note that each level automatically includes log messages from a more severe level, e.g., `debug` also shows `info` messages. By default, the `log_level` is set to `info`, which is the recommended setting unless you are troubleshooting. In production, this changes Davis' Monolog threshold and the `fingers_crossed` trigger level.
 
 ### Advanced settings (not exposed in the UI)
 

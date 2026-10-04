@@ -5,7 +5,7 @@
 # Static, unique build marker. Bump this value on every code change so we can
 # verify from the log whether the container image was actually rebuilt and is
 # not a stale cache. If the marker is NOT visible in the log, the image is old.
-readonly build_marker="davis-build-v9-config"
+readonly build_marker="davis-build-v10-log-config"
 
 root=/data
 app_name="davis"
@@ -26,6 +26,30 @@ default_log_level="info"
 # Set Log Level
 log_level=$(bashio::config 'log_level' "$default_log_level")
 bashio::log.level "$log_level"
+
+case "${log_level}" in
+    trace|debug)
+        davis_monolog_level="debug"
+        ;;
+    info)
+        davis_monolog_level="info"
+        ;;
+    notice)
+        davis_monolog_level="notice"
+        ;;
+    warning)
+        davis_monolog_level="warning"
+        ;;
+    error)
+        davis_monolog_level="error"
+        ;;
+    fatal)
+        davis_monolog_level="critical"
+        ;;
+    *)
+        davis_monolog_level="info"
+        ;;
+esac
 
 bashio::log.info "Davis build marker: ${build_marker}"
 bashio::log.info "Starting davis pre-initialization script..."
@@ -64,6 +88,12 @@ if ! bashio::fs.file_exists "$user_config"; then
     bashio::log.info "Creating default Davis configuration for the user"
     cp /etc/default/davis.env "$user_config"
     chmod 644 "$user_config"
+fi
+
+if ! bashio::fs.file_exists "$config_source/monolog.yaml"; then
+    bashio::log.info "Creating default Davis Monolog configuration for the user"
+    cp /etc/default/monolog.yaml "$config_source/monolog.yaml"
+    chmod 644 "$config_source/monolog.yaml"
 fi
 
 bashio::log.debug "Reading configuration options (UI options only)..."
@@ -157,6 +187,7 @@ echo -n "$trusted_proxies" > /var/run/s6/container_environment/TRUSTED_PROXIES
 echo -n "$data_root" > /var/run/s6/container_environment/DAVIS_DATA_DIR
 echo -n "$log_root/app.log" > /var/run/s6/container_environment/DAVIS_LOG_FILE_PATH
 echo -n "$public_root" > /var/run/s6/container_environment/DAVIS_PUBLIC_DIR
+echo -n "$davis_monolog_level" > /var/run/s6/container_environment/DAVIS_MONOLOG_LEVEL
 
 bashio::log.debug "Setting permissions on data directory..."
 chmod -R 755 "$data_root"

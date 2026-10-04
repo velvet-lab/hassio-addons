@@ -13,6 +13,7 @@
 config_source="${APP_CONFIG_SOURCE:?APP_CONFIG_SOURCE is not set (davis-pre did not run)}"
 config_dest="${APP_CONFIG_DEST:?APP_CONFIG_DEST is not set (davis-pre did not run)}"
 app_root="/opt/davis"
+prod_config_dir="${app_root}/config/packages/prod"
 
 # Set Log Level
 bashio::log.level "$(bashio::config 'log_level' 'info')"
@@ -24,9 +25,16 @@ bashio::log.info "Start Davis migration ..."
 # bundled Davis PHP app read it from its expected location.
 bashio::log.debug "Render Davis configuration"
 mkdir -p "${config_dest}"
-envsubst < "${config_source}/davis.env" > "${config_dest}/.env.local"
-chmod 644 "${config_dest}/.env.local"
-ln -sf "${config_dest}/.env.local" "${app_root}/.env.local"
+for file in "${config_source}"/*; do
+	[ -f "${file}" ] || continue
+	name=$(basename "${file}")
+	envsubst < "${file}" > "${config_dest}/${name}"
+	chmod 644 "${config_dest}/${name}"
+done
+
+mkdir -p "${prod_config_dir}"
+ln -sf "${config_dest}/davis.env" "${app_root}/.env.local"
+ln -sf "${config_dest}/monolog.yaml" "${prod_config_dir}/monolog.yaml"
 
 # Run the database migrations against the rendered configuration.
 cd "${app_root}" || exit 1
