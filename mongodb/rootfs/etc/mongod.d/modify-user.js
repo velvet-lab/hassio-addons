@@ -1,5 +1,6 @@
-const user = globalThis.mongoAdminCredentials?.user?.trim();
-const pwd = globalThis.mongoAdminCredentials?.pwd?.trim();
+const credentials = globalThis.mongoAdminCredentials;
+const user = typeof credentials?.user === "string" ? credentials.user.trim() : "";
+const pwd = typeof credentials?.pwd === "string" ? credentials.pwd.trim() : "";
 
 if (!user || !pwd) {
   throw new Error("Missing MongoDB admin credentials.");
