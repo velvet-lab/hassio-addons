@@ -1,6 +1,6 @@
 ---
 name: Aspire Dashboard (experimental)
-version: 0.1.2
+version: 0.1.4
 stage: experimental
 slug: aspire
 description: >-
@@ -28,7 +28,6 @@ ports:
   18890/tcp: 18890
   18891/tcp: 18891
 options:
-  log_level: info
   application_name: home-assistant
   persistence_mode: Temporary
   browser_token: null
