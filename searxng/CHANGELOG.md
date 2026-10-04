@@ -1,3 +1,35 @@
+## 0.1.3
+
+### Add-on
+
+- Propagate `log_level` into SearXNG's own debug setting
+
+### SearXNG
+
+- Bundled SearXNG version: **2026.8.21**
+- No bundled SearXNG version change in this add-on release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled SearXNG version.
+> This release bundles SearXNG 2026.8.21.
+
+## 0.1.2
+
+### Add-on
+
+- Make `log_level` optional and default it to `info`
+
+### SearXNG
+
+- Bundled SearXNG version: **2026.8.21**
+- No bundled SearXNG version change in this add-on release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled SearXNG version.
+> This release bundles SearXNG 2026.8.21.
+
 ## 0.1.1
 
 ### Add-on

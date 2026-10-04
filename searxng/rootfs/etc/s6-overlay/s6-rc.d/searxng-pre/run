@@ -20,6 +20,15 @@ default_log_level="info"
 log_level=$(bashio::config 'log_level' "$default_log_level")
 bashio::log.level "${log_level}"
 
+case "${log_level}" in
+    trace|debug)
+        searxng_debug="true"
+        ;;
+    *)
+        searxng_debug="false"
+        ;;
+esac
+
 bashio::log.info "SearXNG build marker: ${build_marker}"
 bashio::log.info "Prepare SearXNG configuration"
 
@@ -154,6 +163,7 @@ bashio::log.debug "Writing container environment variables"
 echo -n "${settings_file}" > /var/run/s6/container_environment/SEARXNG_SETTINGS_PATH
 echo -n "${secret_key}" > /var/run/s6/container_environment/SEARXNG_CUSTOM_SECRET
 echo -n "${instance_name}" > /var/run/s6/container_environment/SEARXNG_INSTANCE_NAME
+echo -n "${searxng_debug}" > /var/run/s6/container_environment/SEARXNG_DEBUG
 echo -n "${searxng_base_url}" > /var/run/s6/container_environment/SEARXNG_CUSTOM_BASE_URL
 echo -n "${redis_url}" > /var/run/s6/container_environment/SEARXNG_VALKEY_CUSTOM_URL
 
