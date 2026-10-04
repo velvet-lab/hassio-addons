@@ -1,3 +1,19 @@
+## 0.2.1
+
+### Add-on
+
+- Make `log_level` optional and default it to `info`
+
+### RustFS
+
+- Bundled RustFS version: **1.0.1**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled RustFS version.
+> This release bundles RustFS 1.0.1.
+
 ## 0.2.0
 
 ### Add-on
