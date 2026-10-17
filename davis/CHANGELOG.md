@@ -1,3 +1,36 @@
+## 0.1.2
+
+### Add-on
+
+- Propagate `log_level` into Davis' own Monolog production logging configuration
+- Expose a user-editable `monolog.yaml` template alongside `davis.env`
+
+### Davis
+
+- Bundled Davis version: **5.4.3**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Davis version.
+> This release bundles Davis 5.4.3.
+
+## 0.1.1
+
+### Add-on
+
+- Make `log_level` optional and default it to `info` across the add-on services
+
+### Davis
+
+- Bundled Davis version: **5.4.3**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Davis version.
+> This release bundles Davis 5.4.3.
+
 ## 0.1.0
 
 ### Add-on

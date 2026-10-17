@@ -15,7 +15,7 @@
 use_default_settings: true
 
 general:
-  debug: false
+  debug: ${SEARXNG_DEBUG}
   instance_name: "${SEARXNG_INSTANCE_NAME}"
   donation_url: false
   contact_url: false

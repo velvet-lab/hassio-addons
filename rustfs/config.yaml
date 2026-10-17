@@ -1,7 +1,7 @@
 ---
-name: RustFS
-version: 0.2.0
-stage: stable
+name: RustFS (experimental)
+version: 0.2.1
+stage: experimental
 slug: rustfs
 description: >-
   High-performance enterprise-grade distributed file system and S3 compatible object storage solution written in Rust.
@@ -25,7 +25,6 @@ ports:
   9000/tcp: 9000
   9001/tcp: 9001
 options:
-  log_level: info
   access_key: admin
   secret_key: null
   console_enable: true

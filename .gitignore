@@ -19,3 +19,5 @@
 **/.devcontainer/mounts/data/productivity/
 **/.devcontainer/mounts/data/portainer/
 **/.devcontainer/mounts/data/openbao/
+searxng/engines/engines.yaml
+searxng/engines/engines.extension.yaml

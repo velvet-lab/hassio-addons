@@ -1,14 +1,14 @@
 # Neo4j Add-on
 
-This add-on packages Neo4j into a Home Assistant add-on. It provides a
-default `neo4j.conf` template (copied to `/homeassistant/addons/neo4j/neo4j.conf`)
-and starts the server from `/opt/neo4j`.
+This add-on packages Neo4j into a Home Assistant add-on. It provides default
+`neo4j.conf`, `user-logs.xml`, and `server-logs.xml` templates (copied to
+`/homeassistant/addons/neo4j/`) and starts the server from `/opt/neo4j`.
 
 Bundled Neo4j version: **2026.09.0** (community edition).
 
 ## Configuration
 
-- `log_level`: controls the add-on log verbosity.
+- `log_level`: controls the add-on log verbosity and Neo4j's own Log4j logging level.
 
 ## Network ports
 

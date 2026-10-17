@@ -1,3 +1,35 @@
+## 0.1.3
+
+### Add-on
+
+- Propagate `log_level` into Valkey's own `loglevel` setting
+
+### Valkey
+
+- Bundled Valkey version: **9.1.2**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Valkey version.
+> This release bundles Valkey 9.1.2.
+
+## 0.1.2
+
+### Add-on
+
+- Make `log_level` optional and default it to `info`
+
+### Valkey
+
+- Bundled Valkey version: **9.1.2**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Valkey version.
+> This release bundles Valkey 9.1.2.
+
 ## 0.1.1
 
 ### Add-on

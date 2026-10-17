@@ -1,3 +1,36 @@
+## 0.4.2
+
+### Add-on
+
+- Propagate `log_level` into Neo4j's own `user-logs.xml` and `server-logs.xml` logging configuration
+- Expose editable Neo4j logging templates alongside `neo4j.conf`
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
+## 0.4.1
+
+### Add-on
+
+- Make `log_level` optional and default it to `info`
+
+### Neo4j
+
+- Bundled Neo4j version: **2026.09.0**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Neo4j version.
+> This release bundles Neo4j 2026.09.0.
+
 ## 0.4.0
 
 ### Add-on

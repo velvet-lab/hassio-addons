@@ -13,5 +13,5 @@
     "mail_port":"",
     "mail_username": "",
     "mail_password": "",
-    "log_level": "debug"
+    "log_level": "info"
 }

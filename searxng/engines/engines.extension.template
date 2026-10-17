@@ -1,0 +1,95 @@
+engines:
+- name: braveapi
+  engine: braveapi
+  api_key: ""
+- name: freesound
+  engine: freesound
+  shortcut: fnd
+  timeout: 15.0
+  api_key: ""
+- name: springer nature
+  engine: springer
+  shortcut: springer
+  timeout: 5
+  api_key: ""
+- name: piped
+  engine: piped
+  shortcut: ppd
+  categories: videos
+  piped_filter: videos
+  timeout: 3.0
+  frontend_url: https://srv.piped.video
+  backend_url:
+    - https://pipedapi.ducks.party
+    - https://api.piped.private.coffee
+- name: piped.music
+  engine: piped
+  network: piped
+  shortcut: ppdm
+  categories: music
+  piped_filter: music_songs
+  timeout: 3.0
+  frontend_url: https://srv.piped.video
+  backend_url:
+    - https://pipedapi.ducks.party
+    - https://api.piped.private.coffee
+- name: astrophysics data system
+  engine: astrophysics_data_system
+  shortcut: ads
+  api_key: ""
+- name: wikidata
+  engine: wikidata
+  shortcut: wd
+  timeout: 10.0
+  weight: 2
+  # add "list" to the array to get results in the results list
+  display_type: ["infobox", "list"]
+  categories: [general]
+- name: openairedatasets
+  engine: json_engine
+  paging: true
+  search_url: https://api.openaire.eu/graph/v3/research-products?type=dataset&page={pageno}&pageSize=10&search={query}
+  results_query: results
+  url_query: id
+  title_query: mainTitle
+  content_query: description
+  content_html_to_text: true
+  categories: "science"
+  shortcut: oad
+  timeout: 8.0
+  about:
+    website: https://www.openaire.eu/
+    wikidata_id: Q25106053
+    official_api_documentation: https://graph.openaire.eu/
+    use_official_api: true
+    require_api_key: false
+    results: JSON
+- name: openairepublications
+  engine: json_engine
+  paging: true
+  search_url: https://api.openaire.eu/graph/v3/research-products?type=publication&page={pageno}&pageSize=10&search={query}
+  results_query: results
+  url_query: id
+  title_query: mainTitle
+  content_query: description
+  content_html_to_text: true
+  categories: science
+  shortcut: oap
+  timeout: 8.0
+  about:
+    website: https://www.openaire.eu/
+    wikidata_id: Q25106053
+    official_api_documentation: https://graph.openaire.eu/
+    use_official_api: true
+    require_api_key: false
+    results: JSON
+- name: github code
+  engine: github_code
+  shortcut: ghc
+  ghc_auth:
+    type: personal_access_token
+    token: ""
+  ghc_highlight_matching_lines: true
+  ghc_strip_new_lines: true
+  ghc_strip_whitespace: false
+  timeout: 10.0

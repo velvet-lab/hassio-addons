@@ -18,6 +18,16 @@ default_log_level="info"
 log_level=$(bashio::config 'log_level' "$default_log_level")
 bashio::log.level "${log_level}"
 
+case "${log_level}" in
+    trace) aspire_log_level="Trace" ;;
+    debug) aspire_log_level="Debug" ;;
+    info|notice) aspire_log_level="Information" ;;
+    warning) aspire_log_level="Warning" ;;
+    error) aspire_log_level="Error" ;;
+    fatal) aspire_log_level="Critical" ;;
+    *) aspire_log_level="Information" ;;
+esac
+
 bashio::log.info "Aspire Dashboard build marker: ${build_marker}"
 bashio::log.info "Prepare Aspire Dashboard configuration"
 
@@ -39,6 +49,7 @@ echo -n "${config_dest}/appsettings.json" > /var/run/s6/container_environment/AS
 application_name=$(bashio::config 'application_name' 'home-assistant')
 echo -n "${application_name}" > /var/run/s6/container_environment/ASPIRE_APPLICATION_NAME
 echo -n "${application_name}" > /var/run/s6/container_environment/ASPIRE_DASHBOARD_APPLICATION_NAME
+echo -n "${aspire_log_level}" > /var/run/s6/container_environment/ASPIRE_LOG_LEVEL
 
 persistence_mode=$(bashio::config 'persistence_mode' 'Temporary')
 case "${persistence_mode}" in

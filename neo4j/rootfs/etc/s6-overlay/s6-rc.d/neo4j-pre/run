@@ -12,7 +12,16 @@ logs_dir="$root/${app_name}/logs"
 import_dir="$root/${app_name}/import"
 run_dir="$root/${app_name}/run"
 
-bashio::log.level "$(bashio::config 'log_level' 'info' || echo info)"
+log_level=$(bashio::config 'log_level' 'info')
+bashio::log.level "${log_level}"
+
+case "${log_level}" in
+    trace|debug) neo4j_log_level="DEBUG" ;;
+    info|notice) neo4j_log_level="INFO" ;;
+    warning) neo4j_log_level="WARN" ;;
+    error|fatal) neo4j_log_level="ERROR" ;;
+    *) neo4j_log_level="INFO" ;;
+esac
 
 bashio::log.info "Prepare Neo4j configuration"
 
@@ -23,6 +32,7 @@ echo -n "${data_dir}" > /var/run/s6/container_environment/NEO4J_DATA_DIR
 echo -n "${logs_dir}" > /var/run/s6/container_environment/NEO4J_LOGS_DIR
 echo -n "${import_dir}" > /var/run/s6/container_environment/NEO4J_IMPORT_DIR
 echo -n "${run_dir}" > /var/run/s6/container_environment/NEO4J_RUN_DIR
+echo -n "${neo4j_log_level}" > /var/run/s6/container_environment/NEO4J_LOG_LEVEL
 
 usage_report_enabled="$(bashio::config.true 'usage_report_enabled' && echo true || echo false)"
 
@@ -90,6 +100,14 @@ if ! bashio::fs.file_exists "${config_source}/neo4j.conf"; then
     cp /etc/default/neo4j.conf "${config_source}/neo4j.conf"
     chmod 644 "${config_source}/neo4j.conf"
 fi
+
+for logging_template in user-logs.xml server-logs.xml; do
+    if ! bashio::fs.file_exists "${config_source}/${logging_template}"; then
+        bashio::log.info "Creating default Neo4j logging configuration for the user: ${logging_template}"
+        cp "/etc/default/${logging_template}" "${config_source}/${logging_template}"
+        chmod 644 "${config_source}/${logging_template}"
+    fi
+done
 
 # Redirect log output
 rm -f "${root}/app.err"

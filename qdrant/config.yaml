@@ -1,7 +1,7 @@
 ---
-name: Qdrant
-version: 0.1.0
-stage: stable
+name: Qdrant (experimental)
+version: 0.1.1
+stage: experimental
 slug: qdrant
 description: >-
   Qdrant is a high-performance, open source vector search engine and database
@@ -26,7 +26,6 @@ ports:
   6333/tcp: 6333
   6334/tcp: 6334
 options:
-  log_level: info
   api_key: null
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?

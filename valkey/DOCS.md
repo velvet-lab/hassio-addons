@@ -35,7 +35,7 @@ valkey-cli -a <password> ping
 
 ### Option: `log_level`
 
-The `log_level` option controls the level of log output by the add-on and can be changed to be more or less verbose, which might be useful when you are dealing with an unknown issue. Possible values are:
+The `log_level` option controls the level of log output by the add-on and also drives Valkey's own `loglevel` setting. Possible values are:
 
 *   `trace`: Show every detail, like all called internal functions.
 *   `debug`: Shows detailed debug information.

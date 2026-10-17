@@ -1,7 +1,7 @@
 ---
-name: OpenBao
-version: 0.1.0
-stage: stable
+name: OpenBao (experimental)
+version: 0.1.1
+stage: experimental
 slug: openbao
 description: >-
   OpenBao is an open source secret management tool for storing and distributing secrets, certificates and keys
@@ -25,7 +25,6 @@ watchdog: tcp://[HOST]:[PORT:8200]
 ports:
   8200/tcp: 8200
 options:
-  log_level: info
   ui_enable: true
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?

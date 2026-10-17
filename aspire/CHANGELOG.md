@@ -1,3 +1,35 @@
+## 0.1.4
+
+### Add-on
+
+- Propagate `log_level` into Aspire Dashboard's own application logging configuration
+
+### Aspire Dashboard
+
+- Bundled Aspire Dashboard version: **13.6.0**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Aspire Dashboard version.
+> This release bundles Aspire Dashboard 13.6.0.
+
+## 0.1.3
+
+### Add-on
+
+- Make `log_level` optional and default it to `info`
+
+### Aspire Dashboard
+
+- Bundled Aspire Dashboard version: **13.6.0**
+- No product change in this release.
+
+---
+> [!NOTE]
+> The add-on uses semantic versioning and is independent of the bundled Aspire Dashboard version.
+> This release bundles Aspire Dashboard 13.6.0.
+
 ## 0.1.2
 
 ### Add-on

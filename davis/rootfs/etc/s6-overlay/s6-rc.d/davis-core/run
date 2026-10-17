@@ -3,7 +3,7 @@
 # shellcheck shell=bash
 
 # Set Log Level
-bashio::log.level "$(bashio::config 'log_level' 'warning')"
+bashio::log.level "$(bashio::config 'log_level' 'info')"
 
 bashio::log.info "Starting davis server..."
 exec nginx -g 'daemon off;'
