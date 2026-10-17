@@ -1,7 +1,7 @@
 ---
-name: Qdrant (experimental)
+name: Qdrant
 version: 0.1.1
-stage: experimental
+stage: stable
 slug: qdrant
 description: >-
   Qdrant is a high-performance, open source vector search engine and database
