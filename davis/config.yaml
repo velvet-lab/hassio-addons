@@ -1,7 +1,7 @@
 ---
-name: Davis (experimental)
+name: Davis
 version: 0.1.2
-stage: experimental
+stage: stable
 slug: davis
 description: >-
   A modern, simple, feature-packed, fully translatable CalDAV, CardDav and WebDav server
