@@ -36,7 +36,7 @@
 "bitbucket";"xpath";"USA";;;;;;;;;;;"true";;"true";;"Git-Repository-Hosting-Dienst (Atlassian)";
 "bitchute";"bitchute";"UK";"false";;;;;;"true";;;;;;;;"Alternative Video-Hosting-Platform";
 "boardreader";"boardreader";"USA";;;;"true";;;;;;;;;;;"Suchmaschine für Internet-Foren";
-"bpb";"bpb";"Deutschland";"true";;;"true";;;;;;;;;;;"Bundeszentrale für politische Bildung";
+"bpb";"bpb";"Deutschland";"false";;;"true";;;;;;;;;;;"Bundeszentrale für politische Bildung";"Suchmaschine ist zu langsam"
 "brave";"brave";"USA";"false";;;"true";;;;;;;;;;"true";"Unabhängige Websuche über Brave Search";"Ausgesetzt: zu viele Anfragen "
 "brave.images";"brave";"USA";"false";;"true";;"true";;;;;;;;;;"Brave Bildersuche";"Ausgesetzt: zu viele Anfragen "
 "brave.news";"brave";"USA";"false";;;;;;;"true";;;;;;"true";"Brave Nachrichtensuche";"Ausgesetzt: zu viele Anfragen "
@@ -80,7 +80,7 @@
 "ebay";"ebay";"USA";"true";;;"true";;;;;;;;;;"true";"E-Commerce-Marktplatz";
 "elasticsearch";"elasticsearch";"International";;;;;;;;;;;"true";;;;"Suche in lokalen Elasticsearch-Indizes";
 "emojipedia";"emojipedia";"International";"true";;;"true";;;;;;;;;;;"Nachschlagewerk für Emojis";
-"encyclosearch";"json_engine";"International";"true";;;"true";;;;;;;;;;;"Enzyklopädisches Suchnetzwerk (Encyclosphere)";
+"encyclosearch";"json_engine";"International";"false";;;"true";;;;;;;;;;;"Enzyklopädisches Suchnetzwerk (Encyclosphere)";"Suchmaschine ist zu langsam"
 "erowid";"xpath";"USA";"true";;;"true";;;;;;;;;;;"Enzyklopädie über psychoaktive Substanzen";
 "etymonline";"xpath";"USA";;;;"true";;;;;;;;;;;"Etymologisches Wörterbuch der englischen Sprache";
 "europepmc";"europepmc";"International";"true";;;;;;;;;;;"true";;;"Biomedizinische und lebenswissenschaftliche Literatur";
@@ -92,15 +92,15 @@
 "findborg images";"findborg";"International";;;;;"true";;;;;;;;;;"Unabhängige Bildersuche";
 "findborg news";"findborg";"International";;;;;;;;"true";;;;;;;"Unabhängige Nachrichtensuche";
 "findborg videos";"findborg";"International";;;;;;;"true";;;;;;;;"Unabhängige Videosuche";
-"findfiles";"findfiles";"International";"true";;"true";;;;;;;;;;"true";;"Allgemeine Dateisuche";
-"findfiles images";"findfiles";"International";"true";;"true";;"true";;;;;;;;;;"Dateisuche für Bilder";
-"findfiles music";"findfiles";"International";"true";;"true";;;;;;;;"true";;;;"Dateisuche für Audio/Musik";
-"findfiles videos";"findfiles";"International";"true";;"true";;;;"true";;;;;;;;"Dateisuche für Videos";
+"findfiles";"findfiles";"International";"false";;"true";;;;;;;;;;"true";;"Allgemeine Dateisuche";"Produziert zu häufig einen 403"
+"findfiles images";"findfiles";"International";"false";;"true";;"true";;;;;;;;;;"Dateisuche für Bilder";"Produziert zu häufig einen 403"
+"findfiles music";"findfiles";"International";"false";;"true";;;;;;;;"true";;;;"Dateisuche für Audio/Musik";"Produziert zu häufig einen 403"
+"findfiles videos";"findfiles";"International";"false";;"true";;;;"true";;;;;;;;"Dateisuche für Videos";"Produziert zu häufig einen 403"
 "findthatmeme";"findthatmeme";"International";"true";;;;"true";;;;;;;;;;"Meme-Suchmaschine";
 "fireball";"fireball";"Deutschland";;;;"true";;;;;;;;;;;"Deutscher Web-Suchdienst";
 "fireball news";"fireball";"Deutschland";;;;;;;;"true";;;;;;;"Deutscher News-Suchdienst";
 "fireball videos";"fireball";"Deutschland";;;;;;;"true";;;;;;;;"Deutscher Video-Suchdienst";
-"flaticon";"flaticon";"Spanien";"true";;;;"true";;;;;;;;;;"Datenbank für Vektorgrafiken und Icons";"Zuviele Anfragen, whs. Captcha"
+"flaticon";"flaticon";"Spanien";"false";;"true";;"true";;;;;;;;;;"Datenbank für Vektorgrafiken und Icons";"Produziert zu häufig einen 403"
 "flickr";"flickr_noapi";"USA";"true";;"true";;"true";;;;;;;;;;"Flickr Fotoplatform (ohne API-Key)";
 "flickr_api";"flickr";"USA";"false";"true";;;"true";;;;;;;;;;"Flickr Fotoplatform (mit API-Key)";
 "free software directory";"mediawiki";"USA";"false";;;;;;;;;;"true";;;;"Verzeichnis freier Software der FSF";"Engine Timeout"
@@ -321,7 +321,7 @@
 "wikicommons.files";"wikicommons";"International";"true";;;;;;;;;;;;"true";;"Dateisuche von Wikimedia Commons";
 "wikicommons.images";"wikicommons";"International";"true";;;;"true";;;;;;;;;;"Bildersuche von Wikimedia Commons";
 "wikicommons.videos";"wikicommons";"International";"true";;;;;;"true";;;;;;;;"Videosuche von Wikimedia Commons";
-"wikidata";"wikidata";"International";"true";;;"true";;;;;;;;;;;"Strukturierte Wissensdatenbank der Wikimedia Foundation";
+"wikidata";"wikidata";"International";"false";;;"true";;;;;;;;;;;"Strukturierte Wissensdatenbank der Wikimedia Foundation";"Suchmaschine ist zu langsam"
 "wikimini";"xpath";"Frankreich";;;;"true";;;;;;;;;;;"Online-Enzyklopädie für Kinder (französisch)";
 "wikinews";"mediawiki";"International";"true";;;;;;;"true";;;;;;;"Freie Nachrichtenplattform (Wikimedia)";
 "wikipedia";"wikipedia";"International";"true";;;"true";;;;;;;;;;;"Die freie Online-Enzyklopädie";
