@@ -1,0 +1,79 @@
+#!/command/with-contenv bashio
+# vim: ft=bash
+# shellcheck shell=bash
+
+# Static, unique build marker. Bump this value on every code change so we can
+# verify from the log whether the container image was actually rebuilt and is
+# not a stale cache. If the marker is NOT visible in the log, the image is old.
+readonly build_marker="obot-tunnel-build-v1-config"
+
+app_name="obot-tunnel"
+homeassistant_root="/homeassistant"
+config_source="$homeassistant_root/addons/${app_name}"
+config_dest="/etc/${app_name}"
+
+default_log_level="info"
+
+log_level=$(bashio::config 'log_level' "$default_log_level")
+bashio::log.level "${log_level}"
+
+bashio::log.info "Obot Tunnel build marker: ${build_marker}"
+bashio::log.info "Prepare Obot Tunnel configuration"
+
+# Expose the app identity and config locations via the s6 container
+# environment (one file per variable). The core service reads them via
+# with-contenv to render and load the configuration.
+echo -n "${app_name}" > /var/run/s6/container_environment/APP_NAME
+echo -n "${config_source}" > /var/run/s6/container_environment/APP_CONFIG_SOURCE
+echo -n "${config_dest}" > /var/run/s6/container_environment/APP_CONFIG_DEST
+
+bashio::log.debug "Create folders"
+for folder in "${config_source}" "${config_dest}"; do
+    if ! bashio::fs.directory_exists "${folder}"; then
+        bashio::log.debug "Creating folder ${folder}"
+        mkdir -p "${folder}"
+        chmod 755 "${folder}"
+    fi
+done
+
+# The 'obot_base_url' option is a REQUIRED add-on option (Home Assistant
+# stores it encrypted). It identifies the Obot gateway this tunnel client
+# connects to. Abort startup when it is empty instead of guessing a default.
+if ! bashio::var.has_value "$(bashio::config 'obot_base_url')"; then
+    bashio::log.error "The 'obot_base_url' option is required but empty."
+    bashio::log.error "Set the base URL of your Obot server, e.g."
+    bashio::log.error "    https://obot.example.com/api"
+    bashio::log.error "and restart the add-on."
+    exit 1
+fi
+
+# The 'token' option is a REQUIRED add-on option (Home Assistant stores it
+# encrypted). It is the tunnel secret created (or rotated) in the Obot UI
+# (MCP Servers > Tunnels); the complete secret is shown only once and cannot
+# be retrieved later. Abort startup when it is empty - never generate one.
+if ! bashio::var.has_value "$(bashio::config 'token')"; then
+    bashio::log.error "The 'token' option is required but empty."
+    bashio::log.error "Create an MCP tunnel in the Obot UI (MCP Servers > Tunnels)"
+    bashio::log.error "and copy the complete tunnel secret here, then restart the add-on."
+    bashio::log.error "A rotated secret immediately invalidates the old one."
+    exit 1
+fi
+
+# Write the runtime values into the s6 container environment (one file per
+# variable) so the longrun service picks them up via with-contenv.
+echo -n "$(bashio::config 'obot_base_url')" > /var/run/s6/container_environment/OBOT_BASE_URL
+echo -n "$(bashio::config 'token')" > /var/run/s6/container_environment/OBOT_TUNNEL_TOKEN
+
+# On first start copy the default configuration to the user-accessible folder
+# under /homeassistant, where the user can edit it (e.g. with VS Code). If the
+# user deletes the file it is recreated from the bundled template.
+if ! bashio::fs.file_exists "${config_source}/obot-tunnel.env"; then
+    bashio::log.info "Creating default Obot Tunnel configuration for the user"
+    cp /etc/default/obot-tunnel.env "${config_source}/obot-tunnel.env"
+    chmod 644 "${config_source}/obot-tunnel.env"
+fi
+
+# s6 oneshot services MUST end with exit 0, otherwise s6 treats them as
+# "unable to start service ... command exited N" and aborts the whole container
+# bring-up (rc.init: fatal: stopping the container).
+exit 0
