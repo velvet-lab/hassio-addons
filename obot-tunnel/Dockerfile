@@ -51,7 +51,7 @@ RUN set -x \
     && cp /tmp/obot /usr/local/bin/obot \
     && chmod 755 /usr/local/bin/obot \
     && /usr/local/bin/obot --version \
-    && rm -rf /tmp/obot.tar.gz /tmp/obot
+    && rm -rf /tmp/obot.tar.gz /tmp/obot \
     && apt-get clean \
     && rm -rf \
         /var/lib/apt/lists/* \
