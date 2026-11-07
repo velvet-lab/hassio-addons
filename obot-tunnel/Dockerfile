@@ -45,7 +45,7 @@ RUN set -x \
         *) OBOT_ARCH="amd64" ;; \
     esac \
     && curl --proto "=https" --tlsv1.2 -sSfL \
-        "https://github.com/obot-platform/obot/releases/download/${OBOT_VERSION}/obot_${OBOT_VERSION#v}_linux_${OBOT_ARCH}.tar.gz" \
+        "https://github.com/obot-platform/obot/releases/download/${OBOT_VERSION}/obot_${OBOT_VERSION}_linux_${OBOT_ARCH}.tar.gz" \
         -o /tmp/obot.tar.gz \
     && tar -zxf /tmp/obot.tar.gz -C /tmp \
     && cp /tmp/obot /usr/local/bin/obot \
