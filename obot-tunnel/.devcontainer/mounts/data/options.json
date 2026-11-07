@@ -1,0 +1,5 @@
+{
+    "log_level": "info",
+    "obot_base_url": "http://obot.example.com/api",
+    "token": "dev-tunnel-token-change-me"
+}

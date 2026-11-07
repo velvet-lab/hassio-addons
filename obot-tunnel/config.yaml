@@ -1,0 +1,30 @@
+---
+name: Obot Tunnel (experimental)
+version: 0.1.0
+stage: experimental
+slug: obot-tunnel
+description: >-
+  Obot MCP tunnel client. Connects private-network MCP servers to an Obot
+  gateway via an authenticated outbound WebSocket connection.
+url: https://github.com/velvet-lab/hassio-addons/tree/main/obot-tunnel
+arch:
+  - amd64
+  - aarch64
+host_network: false
+
+startup: services
+hassio_role: default
+homeassistant: 2026.1.0
+init: false
+apparmor: true
+map:
+  - type: homeassistant_config
+    read_only: false
+backup: hot
+options:
+  obot_base_url: null
+  token: null
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  obot_base_url: url
+  token: password

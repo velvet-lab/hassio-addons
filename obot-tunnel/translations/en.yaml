@@ -1,0 +1,16 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: >-
+      The level of log output by the add-on. Choose between
+      trace, debug, info, notice, warning, error and fatal.
+  obot_base_url:
+    name: Obot Base URL
+    description: >-
+      The base URL of the Obot gateway the tunnel client connects to,
+      for example https://obot.example.com/api
+  token:
+    name: Tunnel Token
+    description: >-
+      The complete tunnel secret of the MCP tunnel, created or rotated in the
+      Obot UI (MCP Servers > Tunnels).
