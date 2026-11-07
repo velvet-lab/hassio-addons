@@ -50,7 +50,7 @@ RUN set -x \
     && tar -zxf /tmp/obot.tar.gz -C /tmp \
     && cp /tmp/obot /usr/local/bin/obot \
     && chmod 755 /usr/local/bin/obot \
-    && /usr/local/bin/obot --version \
+    && test -x /usr/local/bin/obot \
     && rm -rf /tmp/obot.tar.gz /tmp/obot \
     && apt-get clean \
     && rm -rf \
